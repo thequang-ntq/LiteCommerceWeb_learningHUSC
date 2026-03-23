@@ -1,0 +1,103 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36908.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SV22T1020362.Admin", "SV22T1020362.Admin\SV22T1020362.Admin.csproj", "{62711728-A603-4ADB-B30C-441AEE9CFCD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SV22T1020362.Shop", "SV22T1020362.Shop\SV22T1020362.Shop.csproj", "{80D93626-B01D-4A4E-9070-3B7918387E96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SV22T1020362.Models", "SV22T1020362.Models\SV22T1020362.Models.csproj", "{15855911-8648-45C6-B2F8-D353BC07728A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SV22T1020362.DataLayers", "SV22T1020362.DataLayers\SV22T1020362.DataLayers.csproj", "{E2024838-0A78-4D84-9073-DEA2FF61D393}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SV22T1020362.BusinessLayers", "SV22T1020362.BusinessLayers\SV22T1020362.BusinessLayers.csproj", "{CAF342B8-166A-4AE2-A56A-C5691EA059ED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{297D9BCF-6FF5-4EB2-B999-CCF15E2860AA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{3A0A9FEC-1DAC-4D06-8767-688EB4560BE7}"
+	ProjectSection(SolutionItems) = preProject
+		Notes\ChangeLog.md = Notes\ChangeLog.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Prompts", "Prompts", "{F8B7F8A2-9FDC-4EF0-A43D-D083777D6167}"
+	ProjectSection(SolutionItems) = preProject
+		Prompts\origin.txt = Prompts\origin.txt
+		Prompts\origin_2.txt = Prompts\origin_2.txt
+		Prompts\origin_3.txt = Prompts\origin_3.txt
+		Prompts\prompt-2026_01_29.txt = Prompts\prompt-2026_01_29.txt
+		Prompts\prompt-2026_01_30.txt = Prompts\prompt-2026_01_30.txt
+		Prompts\prompt-2026_01_31.txt = Prompts\prompt-2026_01_31.txt
+		Prompts\prompt-2026_02_01.txt = Prompts\prompt-2026_02_01.txt
+		Prompts\prompt-2026_02_02.txt = Prompts\prompt-2026_02_02.txt
+		Prompts\prompt-2026_02_23.txt = Prompts\prompt-2026_02_23.txt
+		Prompts\prompt-2026_03_01.txt = Prompts\prompt-2026_03_01.txt
+		Prompts\prompt-2026_03_05.txt = Prompts\prompt-2026_03_05.txt
+		Prompts\prompt-2026_03_09.txt = Prompts\prompt-2026_03_09.txt
+		Prompts\prompt-2026_03_22.txt = Prompts\prompt-2026_03_22.txt
+		Prompts\prompt_2026_03_12-Admin.txt = Prompts\prompt_2026_03_12-Admin.txt
+		Prompts\prompt_2026_03_12-BusinessLayers.txt = Prompts\prompt_2026_03_12-BusinessLayers.txt
+		Prompts\prompt_2026_03_16.txt = Prompts\prompt_2026_03_16.txt
+		Prompts\prompt_2026_03_19.txt = Prompts\prompt_2026_03_19.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Class", "Class", "{0FD48BEB-2872-4C2F-B0D3-A4E0EF388C7E}"
+	ProjectSection(SolutionItems) = preProject
+		Notes\Class\2026-02-05.docx = Notes\Class\2026-02-05.docx
+		Notes\Class\PhacThaoOrder.bmpr = Notes\Class\PhacThaoOrder.bmpr
+		Notes\Class\UML_2026-02-05.mdj = Notes\Class\UML_2026-02-05.mdj
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Home", "Home", "{C06FD5CE-C1E2-4C67-BDB8-6FD58C55A1D7}"
+	ProjectSection(SolutionItems) = preProject
+		Notes\Home\Readme_Session-2026_01_30.md = Notes\Home\Readme_Session-2026_01_30.md
+		Notes\Home\Readme_Views_01-2026_01_31.md = Notes\Home\Readme_Views_01-2026_01_31.md
+		Notes\Home\RENAME_GUIDE-2026_02_01.txt = Notes\Home\RENAME_GUIDE-2026_02_01.txt
+		Notes\Home\VIEWS_SUMMARY-2026_02_01.md = Notes\Home\VIEWS_SUMMARY-2026_02_01.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62711728-A603-4ADB-B30C-441AEE9CFCD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62711728-A603-4ADB-B30C-441AEE9CFCD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62711728-A603-4ADB-B30C-441AEE9CFCD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62711728-A603-4ADB-B30C-441AEE9CFCD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80D93626-B01D-4A4E-9070-3B7918387E96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80D93626-B01D-4A4E-9070-3B7918387E96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80D93626-B01D-4A4E-9070-3B7918387E96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80D93626-B01D-4A4E-9070-3B7918387E96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15855911-8648-45C6-B2F8-D353BC07728A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15855911-8648-45C6-B2F8-D353BC07728A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15855911-8648-45C6-B2F8-D353BC07728A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15855911-8648-45C6-B2F8-D353BC07728A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2024838-0A78-4D84-9073-DEA2FF61D393}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2024838-0A78-4D84-9073-DEA2FF61D393}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2024838-0A78-4D84-9073-DEA2FF61D393}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2024838-0A78-4D84-9073-DEA2FF61D393}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAF342B8-166A-4AE2-A56A-C5691EA059ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAF342B8-166A-4AE2-A56A-C5691EA059ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAF342B8-166A-4AE2-A56A-C5691EA059ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAF342B8-166A-4AE2-A56A-C5691EA059ED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{62711728-A603-4ADB-B30C-441AEE9CFCD1} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{80D93626-B01D-4A4E-9070-3B7918387E96} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{15855911-8648-45C6-B2F8-D353BC07728A} = {297D9BCF-6FF5-4EB2-B999-CCF15E2860AA}
+		{E2024838-0A78-4D84-9073-DEA2FF61D393} = {297D9BCF-6FF5-4EB2-B999-CCF15E2860AA}
+		{CAF342B8-166A-4AE2-A56A-C5691EA059ED} = {297D9BCF-6FF5-4EB2-B999-CCF15E2860AA}
+		{0FD48BEB-2872-4C2F-B0D3-A4E0EF388C7E} = {3A0A9FEC-1DAC-4D06-8767-688EB4560BE7}
+		{C06FD5CE-C1E2-4C67-BDB8-6FD58C55A1D7} = {3A0A9FEC-1DAC-4D06-8767-688EB4560BE7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5383103D-1AC9-48CA-8060-650FE1AD5F63}
+	EndGlobalSection
+EndGlobal

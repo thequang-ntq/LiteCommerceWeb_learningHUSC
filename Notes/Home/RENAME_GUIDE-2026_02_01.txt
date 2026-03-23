@@ -1,0 +1,215 @@
+# HƯỚNG DẪN ĐỔI TÊN VÀ SẮP XẾP FILES
+
+## CÁC FILE CẦN ĐỔI TÊN (từ output sang tên đúng)
+
+### Account/
+Login.cshtml → Login.cshtml (OK)
+ChangePassword.cshtml → ChangePassword.cshtml (OK)
+
+### Home/
+HomeIndex.cshtml → Index.cshtml
+
+### Category/
+CategoryIndex.cshtml → Index.cshtml
+CategoryCreate.cshtml → Create.cshtml
+CategoryEdit.cshtml → Edit.cshtml
+
+### Shipper/
+ShipperIndex.cshtml → Index.cshtml
+ShipperCreate.cshtml → Create.cshtml
+ShipperEdit.cshtml → Edit.cshtml
+
+### Supplier/
+SupplierIndex.cshtml → Index.cshtml
+SupplierCreate.cshtml → Create.cshtml
+SupplierEdit.cshtml → Edit.cshtml
+
+### Customer/
+CustomerIndex.cshtml → Index.cshtml
+CustomerCreate.cshtml → Create.cshtml
+CustomerEdit.cshtml → Edit.cshtml
+CustomerChangePassword.cshtml → ChangePassword.cshtml
+
+### Employee/
+EmployeeIndex.cshtml → Index.cshtml
+EmployeeCreate.cshtml → Create.cshtml
+EmployeeEdit.cshtml → Edit.cshtml
+EmployeeChangePassword.cshtml → ChangePassword.cshtml
+EmployeeChangeRoles.cshtml → ChangeRoles.cshtml
+
+### Product/
+ProductIndex.cshtml → Index.cshtml
+ProductDetail.cshtml → Detail.cshtml
+ProductCreate.cshtml → Create.cshtml
+ProductEdit.cshtml → Edit.cshtml
+ProductListAttributes.cshtml → ListAttributes.cshtml
+ProductAddAttribute.cshtml → AddAttribute.cshtml
+ProductEditAttribute.cshtml → EditAttribute.cshtml
+ProductListPhotos.cshtml → ListPhotos.cshtml
+ProductAddPhoto.cshtml → AddPhoto.cshtml
+ProductEditPhoto.cshtml → EditPhoto.cshtml
+
+### Order/
+OrderIndex.cshtml → Index.cshtml
+OrderDetail.cshtml → Detail.cshtml
+OrderCreate.cshtml → Create.cshtml
+
+### Root Views/
+_ViewImports.cshtml → _ViewImports.cshtml (OK)
+
+---
+
+## POWERSHELL SCRIPT ĐỂ ĐỔI TÊN TỰ ĐỘNG
+
+```powershell
+# Di chuyển đến thư mục chứa các file Views
+cd "path\to\SV22T1020362.Admin\Views"
+
+# Account - OK, không cần đổi tên
+
+# Home
+Rename-Item "HomeIndex.cshtml" "Index.cshtml"
+
+# Category
+Rename-Item "CategoryIndex.cshtml" "Index.cshtml"
+Rename-Item "CategoryCreate.cshtml" "Create.cshtml"
+Rename-Item "CategoryEdit.cshtml" "Edit.cshtml"
+
+# Shipper
+Rename-Item "ShipperIndex.cshtml" "Index.cshtml"
+Rename-Item "ShipperCreate.cshtml" "Create.cshtml"
+Rename-Item "ShipperEdit.cshtml" "Edit.cshtml"
+
+# Supplier
+Rename-Item "SupplierIndex.cshtml" "Index.cshtml"
+Rename-Item "SupplierCreate.cshtml" "Create.cshtml"
+Rename-Item "SupplierEdit.cshtml" "Edit.cshtml"
+
+# Customer
+Rename-Item "CustomerIndex.cshtml" "Index.cshtml"
+Rename-Item "CustomerCreate.cshtml" "Create.cshtml"
+Rename-Item "CustomerEdit.cshtml" "Edit.cshtml"
+Rename-Item "CustomerChangePassword.cshtml" "ChangePassword.cshtml"
+
+# Employee
+Rename-Item "EmployeeIndex.cshtml" "Index.cshtml"
+Rename-Item "EmployeeCreate.cshtml" "Create.cshtml"
+Rename-Item "EmployeeEdit.cshtml" "Edit.cshtml"
+Rename-Item "EmployeeChangePassword.cshtml" "ChangePassword.cshtml"
+Rename-Item "EmployeeChangeRoles.cshtml" "ChangeRoles.cshtml"
+
+# Product
+Rename-Item "ProductIndex.cshtml" "Index.cshtml"
+Rename-Item "ProductDetail.cshtml" "Detail.cshtml"
+Rename-Item "ProductCreate.cshtml" "Create.cshtml"
+Rename-Item "ProductEdit.cshtml" "Edit.cshtml"
+Rename-Item "ProductListAttributes.cshtml" "ListAttributes.cshtml"
+Rename-Item "ProductAddAttribute.cshtml" "AddAttribute.cshtml"
+Rename-Item "ProductEditAttribute.cshtml" "EditAttribute.cshtml"
+Rename-Item "ProductListPhotos.cshtml" "ListPhotos.cshtml"
+Rename-Item "ProductAddPhoto.cshtml" "AddPhoto.cshtml"
+Rename-Item "ProductEditPhoto.cshtml" "EditPhoto.cshtml"
+
+# Order
+Rename-Item "OrderIndex.cshtml" "Index.cshtml"
+Rename-Item "OrderDetail.cshtml" "Detail.cshtml"
+Rename-Item "OrderCreate.cshtml" "Create.cshtml"
+```
+
+---
+
+## BASH SCRIPT ĐỂ ĐỔI TÊN (Linux/Mac)
+
+```bash
+#!/bin/bash
+cd path/to/SV22T1020362.Admin/Views
+
+# Home
+mv HomeIndex.cshtml Index.cshtml
+
+# Category
+mv CategoryIndex.cshtml Index.cshtml
+mv CategoryCreate.cshtml Create.cshtml
+mv CategoryEdit.cshtml Edit.cshtml
+
+# Shipper
+mv ShipperIndex.cshtml Index.cshtml
+mv ShipperCreate.cshtml Create.cshtml
+mv ShipperEdit.cshtml Edit.cshtml
+
+# Supplier
+mv SupplierIndex.cshtml Index.cshtml
+mv SupplierCreate.cshtml Create.cshtml
+mv SupplierEdit.cshtml Edit.cshtml
+
+# Customer
+mv CustomerIndex.cshtml Index.cshtml
+mv CustomerCreate.cshtml Create.cshtml
+mv CustomerEdit.cshtml Edit.cshtml
+mv CustomerChangePassword.cshtml ChangePassword.cshtml
+
+# Employee
+mv EmployeeIndex.cshtml Index.cshtml
+mv EmployeeCreate.cshtml Create.cshtml
+mv EmployeeEdit.cshtml Edit.cshtml
+mv EmployeeChangePassword.cshtml ChangePassword.cshtml
+mv EmployeeChangeRoles.cshtml ChangeRoles.cshtml
+
+# Product
+mv ProductIndex.cshtml Index.cshtml
+mv ProductDetail.cshtml Detail.cshtml
+mv ProductCreate.cshtml Create.cshtml
+mv ProductEdit.cshtml Edit.cshtml
+mv ProductListAttributes.cshtml ListAttributes.cshtml
+mv ProductAddAttribute.cshtml AddAttribute.cshtml
+mv ProductEditAttribute.cshtml EditAttribute.cshtml
+mv ProductListPhotos.cshtml ListPhotos.cshtml
+mv ProductAddPhoto.cshtml AddPhoto.cshtml
+mv ProductEditPhoto.cshtml EditPhoto.cshtml
+
+# Order
+mv OrderIndex.cshtml Index.cshtml
+mv OrderDetail.cshtml Detail.cshtml
+mv OrderCreate.cshtml Create.cshtml
+```
+
+---
+
+## MANUAL STEPS (Đổi tên thủ công)
+
+1. Copy tất cả 35 files từ outputs vào thư mục tạm
+2. Tạo cấu trúc thư mục:
+   ```
+   Views/
+   ├── _ViewImports.cshtml
+   ├── Account/
+   ├── Home/
+   ├── Category/
+   ├── Shipper/
+   ├── Supplier/
+   ├── Customer/
+   ├── Employee/
+   ├── Product/
+   └── Order/
+   ```
+3. Di chuyển và đổi tên theo bảng trên
+4. Verify: mỗi thư mục có đúng số file như trong VIEWS_SUMMARY.md
+
+---
+
+## VERIFICATION CHECKLIST
+
+Sau khi đổi tên, kiểm tra:
+
+- [ ] Account/ có 2 files
+- [ ] Home/ có 1 file (Index.cshtml)
+- [ ] Category/ có 3 files
+- [ ] Shipper/ có 3 files
+- [ ] Supplier/ có 3 files
+- [ ] Customer/ có 4 files
+- [ ] Employee/ có 5 files
+- [ ] Product/ có 10 files
+- [ ] Order/ có 3 files
+- [ ] Views/ root có _ViewImports.cshtml
+
+TỔNG: 35 files

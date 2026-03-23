@@ -1,0 +1,693 @@
+@{
+    ViewBag.Title = "Lập Đơn hàng";
+}
+
+<!-- Step indicator -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card card-outline card-primary">
+            <div class="card-body py-2">
+                <div class="d-flex justify-content-center align-items-center gap-2">
+                    <div class="d-flex flex-column align-items-center" id="si1">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                             style="width:36px;height:36px;background:#007bff;color:#fff;">
+                            1
+                        </div>
+                        <small class="text-primary fw-bold mt-1">Chọn hàng</small>
+                    </div>
+                    <div class="flex-grow-1 border-top border-2 mx-2" style="max-width:80px;"></div>
+                    <div class="d-flex flex-column align-items-center" id="si2">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                             style="width:36px;height:36px;background:#ccc;color:#666;">
+                            2
+                        </div>
+                        <small class="text-muted mt-1">Khách hàng</small>
+                    </div>
+                    <div class="flex-grow-1 border-top border-2 mx-2" style="max-width:80px;"></div>
+                    <div class="d-flex flex-column align-items-center" id="si3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                             style="width:36px;height:36px;background:#ccc;color:#666;">
+                            3
+                        </div>
+                        <small class="text-muted mt-1">Xác nhận</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== PHASE 1 ===================== -->
+<div id="phase1">
+    <div class="row">
+        <!-- Tìm kiếm & chọn hàng -->
+        <div class="col-12">
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-search me-1"></i>
+                        Tìm và chọn mặt hàng
+                    </h3>
+                </div>
+                <div class="card-header">
+                    <div class="input-group">
+                        <input type="text" id="searchProduct" class="form-control"
+                               placeholder="Nhập tên mặt hàng cần tìm..."
+                               oninput="filterProducts(this.value)">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-2">
+                    <div class="row g-2" id="productGrid">
+                        <!-- Sản phẩm mẫu 1 -->
+                        <div class="col-lg-2 col-md-3 col-sm-4 col-6 product-card" data-name="Trà sữa Trân châu">
+                            <div class="card h-100 border-2">
+                                <div class="card-header text-center p-1 bg-light">
+                                    <small class="fw-bold text-truncate d-block">Trà sữa Trân châu</small>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="row g-0">
+                                        <div class="col-5">
+                                            <img src="~/lib/adminlte/assets/img/default-150x150.png"
+                                                 class="img-fluid rounded" style="object-fit:cover;height:60px;width:100%;" />
+                                        </div>
+                                        <div class="col-7 ps-2">
+                                            <div class="text-success fw-bold small">15,000 đ</div>
+                                            <div class="text-muted small">Đơn vị: Hộp</div>
+                                            <div class="mt-1">
+                                                <label class="form-label small mb-0">Số lượng:</label>
+                                                <input type="number" class="form-control form-control-sm qty-input"
+                                                       value="1" min="1" style="width:60px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer p-1">
+                                    <button type="button" class="btn btn-success btn-sm w-100"
+                                            onclick="addToCart(1, 'Trà sữa Trân châu', 'Hộp', 15000, this)">
+                                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sản phẩm mẫu 2 -->
+                        <div class="col-lg-2 col-md-3 col-sm-4 col-6 product-card" data-name="Cà phê sữa đá">
+                            <div class="card h-100 border-2">
+                                <div class="card-header text-center p-1 bg-light">
+                                    <small class="fw-bold text-truncate d-block">Cà phê sữa đá</small>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="row g-0">
+                                        <div class="col-5">
+                                            <img src="~/lib/adminlte/assets/img/default-150x150.png"
+                                                 class="img-fluid rounded" style="object-fit:cover;height:60px;width:100%;" />
+                                        </div>
+                                        <div class="col-7 ps-2">
+                                            <div class="text-success fw-bold small">25,000 đ</div>
+                                            <div class="text-muted small">Đơn vị: Ly</div>
+                                            <div class="mt-1">
+                                                <label class="form-label small mb-0">Số lượng:</label>
+                                                <input type="number" class="form-control form-control-sm qty-input"
+                                                       value="1" min="1" style="width:60px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer p-1">
+                                    <button type="button" class="btn btn-success btn-sm w-100"
+                                            onclick="addToCart(2, 'Cà phê sữa đá', 'Ly', 25000, this)">
+                                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sản phẩm mẫu 3 -->
+                        <div class="col-lg-2 col-md-3 col-sm-4 col-6 product-card" data-name="Nước cam tươi">
+                            <div class="card h-100 border-2">
+                                <div class="card-header text-center p-1 bg-light">
+                                    <small class="fw-bold text-truncate d-block">Nước cam tươi</small>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="row g-0">
+                                        <div class="col-5">
+                                            <img src="~/lib/adminlte/assets/img/default-150x150.png"
+                                                 class="img-fluid rounded" style="object-fit:cover;height:60px;width:100%;" />
+                                        </div>
+                                        <div class="col-7 ps-2">
+                                            <div class="text-success fw-bold small">20,000 đ</div>
+                                            <div class="text-muted small">Đơn vị: Ly</div>
+                                            <div class="mt-1">
+                                                <label class="form-label small mb-0">Số lượng:</label>
+                                                <input type="number" class="form-control form-control-sm qty-input"
+                                                       value="1" min="1" style="width:60px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer p-1">
+                                    <button type="button" class="btn btn-success btn-sm w-100"
+                                            onclick="addToCart(3, 'Nước cam tươi', 'Ly', 20000, this)">
+                                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sản phẩm mẫu 4 -->
+                        <div class="col-lg-2 col-md-3 col-sm-4 col-6 product-card" data-name="Bánh mì thịt">
+                            <div class="card h-100 border-2">
+                                <div class="card-header text-center p-1 bg-light">
+                                    <small class="fw-bold text-truncate d-block">Bánh mì thịt</small>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="row g-0">
+                                        <div class="col-5">
+                                            <img src="~/lib/adminlte/assets/img/default-150x150.png"
+                                                 class="img-fluid rounded" style="object-fit:cover;height:60px;width:100%;" />
+                                        </div>
+                                        <div class="col-7 ps-2">
+                                            <div class="text-success fw-bold small">12,000 đ</div>
+                                            <div class="text-muted small">Đơn vị: Cái</div>
+                                            <div class="mt-1">
+                                                <label class="form-label small mb-0">Số lượng:</label>
+                                                <input type="number" class="form-control form-control-sm qty-input"
+                                                       value="1" min="1" style="width:60px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer p-1">
+                                    <button type="button" class="btn btn-success btn-sm w-100"
+                                            onclick="addToCart(4, 'Bánh mì thịt', 'Cái', 12000, this)">
+                                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Giỏ hàng -->
+        <div class="col-12">
+            <div class="card card-success card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-cart3 me-1"></i>
+                        Giỏ hàng (<span id="cartCount">0</span> mặt hàng)
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered table-hover align-middle mb-0" id="cartTable">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th style="width:40px">
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                                </th>
+                                <th style="width:40px">#</th>
+                                <th style="width:70px">Ảnh</th>
+                                <th>Tên hàng</th>
+                                <th style="width:90px">ĐVT</th>
+                                <th style="width:100px">Số lượng</th>
+                                <th style="width:110px">Giá</th>
+                                <th style="width:120px">Thành tiền</th>
+                                <th style="width:80px" class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartBody">
+                            <tr id="emptyCartRow">
+                                <td colspan="9" class="text-center text-muted py-4">
+                                    <i class="bi bi-cart-x fs-3 d-block mb-2"></i>
+                                    Giỏ hàng trống. Hãy thêm mặt hàng từ danh sách trên.
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-secondary">
+                            <tr>
+                                <td colspan="7" class="text-end fw-bold">Tổng cộng:</td>
+                                <td class="text-end fw-bold text-danger fs-5" id="cartTotal">0 đ</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-warning btn-sm" onclick="deleteSelected()">
+                            <i class="bi bi-trash"></i> Xóa hàng đã chọn
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="clearCart()">
+                            <i class="bi bi-x-circle"></i> Xóa giỏ hàng
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="goPhase(2)" id="btnNext1">
+                        Tiếp theo <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== PHASE 2 ===================== -->
+<div id="phase2" style="display:none;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-person-lines-fill me-2"></i>
+                        Bước 2: Thông tin khách hàng & giao hàng
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Khách hàng -->
+                    <div class="mb-3 position-relative">
+                        <label class="form-label fw-bold">Tên khách hàng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="customerSearch"
+                               placeholder="Nhập tên khách hàng..."
+                               oninput="searchCustomers(this.value)"
+                               onfocus="showCustomerSuggestions()"
+                               autocomplete="off">
+                        <!-- Dropdown gợi ý -->
+                        <div id="customerSuggestions"
+                             class="list-group shadow"
+                             style="display:none; position:absolute; z-index:1000; width:100%; max-height:250px; overflow-y:auto;">
+                            <a href="#" class="list-group-item list-group-item-action"
+                               onclick="selectCustomer(1, 'Công ty ABC', 'Huế', '123 Lê Lợi'); return false;">
+                                <div class="fw-bold">Công ty ABC</div>
+                                <small class="text-muted">Huế - 123 Lê Lợi</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action"
+                               onclick="selectCustomer(2, 'Nguyễn Văn B', 'Đà Nẵng', '456 Trần Phú'); return false;">
+                                <div class="fw-bold">Nguyễn Văn B</div>
+                                <small class="text-muted">Đà Nẵng - 456 Trần Phú</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action"
+                               onclick="selectCustomer(3, 'Công ty XYZ', '', ''); return false;">
+                                <div class="fw-bold">Công ty XYZ</div>
+                                <small class="text-warning"><i class="bi bi-exclamation-circle me-1"></i>Chưa có địa chỉ</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action"
+                               onclick="selectCustomer(4, 'Lê Thị C', 'Hà Nội', '101 Hùng Vương'); return false;">
+                                <div class="fw-bold">Lê Thị C</div>
+                                <small class="text-muted">Hà Nội - 101 Hùng Vương</small>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="customerInfoAlert" class="alert alert-info" style="display:none;">
+                        <i class="bi bi-person-check me-1"></i>
+                        Đã chọn khách hàng: <strong id="selectedCustomerName"></strong>
+                        <button type="button" class="btn-close float-end" onclick="clearCustomer()"></button>
+                    </div>
+
+                    <div id="newCustomerAlert" class="alert alert-warning" style="display:none;">
+                        <i class="bi bi-person-plus me-1"></i>
+                        Khách hàng mới - Sẽ được thêm vào hệ thống khi lập đơn.
+                    </div>
+
+                    <!-- Tỉnh/Thành -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tỉnh / Thành giao hàng <span class="text-danger">*</span></label>
+                        <select class="form-select" id="deliveryProvince">
+                            <option value="">-- Chọn tỉnh / thành --</option>
+                            <option>Hà Nội</option>
+                            <option>TP. Hồ Chí Minh</option>
+                            <option>Đà Nẵng</option>
+                            <option>Huế</option>
+                            <option>Cần Thơ</option>
+                            <option>Hải Phòng</option>
+                        </select>
+                    </div>
+
+                    <!-- Địa chỉ giao hàng -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="deliveryAddress" rows="2"
+                                  placeholder="Nhập địa chỉ giao hàng cụ thể..."></textarea>
+                    </div>
+
+                    <!-- Tóm tắt giỏ hàng -->
+                    <div class="card bg-light mb-0">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Số mặt hàng:</span>
+                                <span class="fw-bold" id="p2CartCount">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Tổng tiền:</span>
+                                <span class="fw-bold text-danger" id="p2CartTotal">0 đ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" onclick="goPhase(1)">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="goPhase(3)">
+                        Tiếp theo <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== PHASE 3 (Confirm Modal) ===================== -->
+<div id="phase3" style="display:none;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Bước 3: Xác nhận tạo đơn hàng
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Vui lòng kiểm tra lại thông tin đơn hàng trước khi xác nhận.
+                    </div>
+
+                    <!-- Tóm tắt thông tin -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold border-bottom pb-2 mb-3">
+                                <i class="bi bi-person me-1"></i> Khách hàng
+                            </h6>
+                            <dl class="row small">
+                                <dt class="col-sm-5">Tên KH</dt>
+                                <dd class="col-sm-7" id="confirm-customer">—</dd>
+                                <dt class="col-sm-5">Tỉnh/Thành</dt>
+                                <dd class="col-sm-7" id="confirm-province">—</dd>
+                                <dt class="col-sm-5">Địa chỉ</dt>
+                                <dd class="col-sm-7" id="confirm-address">—</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold border-bottom pb-2 mb-3">
+                                <i class="bi bi-cart3 me-1"></i> Đơn hàng
+                            </h6>
+                            <dl class="row small">
+                                <dt class="col-sm-6">Số mặt hàng</dt>
+                                <dd class="col-sm-6" id="confirm-items">0</dd>
+                                <dt class="col-sm-6">Tổng tiền</dt>
+                                <dd class="col-sm-6 text-danger fw-bold" id="confirm-total">0 đ</dd>
+                                <dt class="col-sm-6">Nhân viên lập</dt>
+                                <dd class="col-sm-6">Nguyễn Thế Quang</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Chi tiết hàng hóa tóm tắt -->
+                    <h6 class="fw-bold border-bottom pb-2 mb-3">
+                        <i class="bi bi-list-ul me-1"></i> Chi tiết hàng hóa
+                    </h6>
+                    <table class="table table-sm table-bordered mb-0" id="confirmTable">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Tên hàng</th>
+                                <th style="width:70px">ĐVT</th>
+                                <th style="width:70px">SL</th>
+                                <th style="width:100px">Đơn giá</th>
+                                <th style="width:110px">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="confirmTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" onclick="goPhase(2)">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="submitOrder()">
+                        <i class="bi bi-check-circle"></i> Xác nhận tạo đơn hàng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle me-1"></i> Xác nhận tạo đơn hàng
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn tạo đơn hàng này không?</p>
+                <p class="text-muted small">Sau khi tạo, đơn hàng sẽ được lưu vào hệ thống với trạng thái <strong>Đơn hàng mới</strong>.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Không
+                </button>
+                <button type="button" class="btn btn-success" onclick="confirmOrder()">
+                    <i class="bi bi-check-circle me-1"></i> Có, tạo đơn
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---- Cart state ----
+    let cart = {}; // { productId: { name, unit, price, qty } }
+
+    function goPhase(n) {
+        document.getElementById('phase1').style.display = 'none';
+        document.getElementById('phase2').style.display = 'none';
+        document.getElementById('phase3').style.display = 'none';
+        document.getElementById('phase' + n).style.display = 'block';
+
+        for (let i = 1; i <= 3; i++) {
+            const ind = document.getElementById('si' + i);
+            const circle = ind.querySelector('div');
+            const label = ind.querySelector('small');
+            if (i < n) { // xanh lá
+                circle.style.background = '#28a745'; circle.style.color = '#fff';
+                label.className = 'text-success mt-1';
+            } else if (i === n) { // xanh biển
+                circle.style.background = '#007bff'; circle.style.color = '#fff';
+                label.className = 'text- primary fw-bold mt-1';
+            } else { // xám
+                circle.style.background = '#ccc'; circle.style.color = '#666';
+                label.className = 'text-muted mt-1';
+            }
+        }
+
+        if (n === 2) updatePhase2Summary();
+        if (n === 3) updatePhase3Summary();
+    }
+
+    function filterProducts(q) {
+        document.querySelectorAll('.product-card').forEach(card => {
+            const name = card.getAttribute('data-name').toLowerCase();
+            card.style.display = name.includes(q.toLowerCase()) ? '' : 'none';
+        });
+    }
+
+    function addToCart(id, name, unit, price, btn) {
+        const qtyInput = btn.closest('.card').querySelector('.qty-input');
+        const qty = parseInt(qtyInput.value) || 1;
+
+        if (cart[id]) {
+            cart[id].qty += qty;
+        } else {
+            cart[id] = { name, unit, price, qty };
+        }
+        qtyInput.value = 1;
+        renderCart();
+
+        // Visual feedback
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-warning');
+        btn.innerHTML = '<i class="bi bi-check"></i> Đã thêm';
+        setTimeout(() => {
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-success');
+            btn.innerHTML = '<i class="bi bi-cart-plus"></i> Thêm vào giỏ';
+        }, 1000);
+    }
+
+    // Cập nhật thông tin giỏ hàng
+    function renderCart() {
+        const tbody = document.getElementById('cartBody');
+        const ids = Object.keys(cart);
+        document.getElementById('cartCount').textContent = ids.length;
+
+        if (ids.length === 0) {
+            tbody.innerHTML = `<tr id="emptyCartRow"><td colspan="9" class="text-center text-muted py-4">
+                <i class="bi bi-cart-x fs-3 d-block mb-2"></i>Giỏ hàng trống.</td></tr>`;
+            document.getElementById('cartTotal').textContent = '0 đ';
+            return;
+        }
+
+        let total = 0;
+        let rows = '';
+        ids.forEach((id, idx) => {
+            const item = cart[id];
+            const sub = item.qty * item.price;
+            total += sub;
+            rows += `<tr data-id="${id}">
+                <td class="text-center"><input type="checkbox" class="row-select"></td>
+                <td>${idx + 1}</td>
+                <td><img src="/lib/adminlte/assets/img/default-150x150.png" class="rounded" style="width:45px;height:45px;object-fit:cover;"/></td>
+                <td>${item.name}</td>
+                <td>${item.unit}</td>
+                <td>
+                    <input type="number" class="form-control form-control-sm" value="${item.qty}" min="1" style="width:65px;"
+                           onchange="updateQty(${id}, this.value)">
+                </td>
+                <td class="text-end">${item.price.toLocaleString('vi-VN')} đ</td>
+                <td class="text-end fw-bold">${sub.toLocaleString('vi-VN')} đ</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeFromCart(${id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+        });
+        tbody.innerHTML = rows;
+        document.getElementById('cartTotal').textContent = total.toLocaleString('vi-VN') + ' đ';
+    }
+
+    // Cập nhật số lượng hàng trong giỏ
+    function updateQty(id, val) {
+        cart[id].qty = Math.max(1, parseInt(val) || 1);
+        renderCart();
+    }
+
+    function removeFromCart(id) {
+        delete cart[id];
+        renderCart();
+    }
+
+    function toggleSelectAll(cb) {
+        document.querySelectorAll('.row-select').forEach(c => c.checked = cb.checked);
+    }
+
+    function deleteSelected() {
+        document.querySelectorAll('#cartBody tr[data-id]').forEach(tr => {
+            if (tr.querySelector('.row-select')?.checked) {
+                delete cart[tr.getAttribute('data-id')];
+            }
+        });
+        renderCart();
+    }
+
+    function clearCart() {
+        if (confirm('Xóa toàn bộ giỏ hàng?')) {
+            cart = {};
+            renderCart();
+        }
+    }
+
+    // ---- Customer search ----
+    let selectedCustomerId = null;
+
+    function showCustomerSuggestions() {
+        document.getElementById('customerSuggestions').style.display = 'block';
+    }
+
+    function searchCustomers(q) {
+        // TODO: AJAX tìm kiếm thực tế
+        document.getElementById('customerSuggestions').style.display = q.length > 0 || document.getElementById('customerSearch') === document.activeElement ? 'block' : 'none';
+    }
+
+    function selectCustomer(id, name, province, address) {
+        selectedCustomerId = id;
+        document.getElementById('customerSearch').value = name;
+        document.getElementById('customerSuggestions').style.display = 'none';
+        document.getElementById('customerInfoAlert').style.display = 'block';
+        document.getElementById('selectedCustomerName').textContent = name;
+        document.getElementById('newCustomerAlert').style.display = 'none';
+
+        if (province) document.getElementById('deliveryProvince').value = province;
+        if (address) document.getElementById('deliveryAddress').value = address;
+
+        if (!province || !address) {
+            document.getElementById('customerInfoAlert').className = 'alert alert-warning';
+            document.getElementById('customerInfoAlert').innerHTML =
+                `<i class="bi bi-exclamation-circle me-1"></i> Khách hàng <strong>${name}</strong> chưa có đầy đủ địa chỉ. Vui lòng bổ sung.
+                 <button type="button" class="btn-close float-end" onclick="clearCustomer()"></button>`;
+        }
+    }
+
+    function clearCustomer() {
+        selectedCustomerId = null;
+        document.getElementById('customerSearch').value = '';
+        document.getElementById('customerInfoAlert').style.display = 'none';
+        document.getElementById('deliveryProvince').value = '';
+        document.getElementById('deliveryAddress').value = '';
+    }
+
+    // Thông tin số hàng và tiền từ phase 1
+    function updatePhase2Summary() {
+        const ids = Object.keys(cart);
+        let total = 0;
+        ids.forEach(id => total += cart[id].qty * cart[id].price);
+        document.getElementById('p2CartCount').textContent = ids.length;
+        document.getElementById('p2CartTotal').textContent = total.toLocaleString('vi-VN') + ' đ';
+    }
+
+    // thông tin từ 2 phase trước
+    function updatePhase3Summary() {
+        const ids = Object.keys(cart);
+        let total = 0;
+        let rows = '';
+        ids.forEach(id => {
+            const item = cart[id];
+            const sub = item.qty * item.price;
+            total += sub;
+            rows += `<tr>
+                <td>${item.name}</td>
+                <td>${item.unit}</td>
+                <td class="text-center">${item.qty}</td>
+                <td class="text-end">${item.price.toLocaleString('vi-VN')} đ</td>
+                <td class="text-end fw-bold">${sub.toLocaleString('vi-VN')} đ</td>
+            </tr>`;
+        });
+        document.getElementById('confirmTableBody').innerHTML = rows || '<tr><td colspan="5" class="text-center text-muted">Giỏ hàng trống</td></tr>';
+        document.getElementById('confirm-customer').textContent = document.getElementById('customerSearch').value || '—';
+        document.getElementById('confirm-province').textContent = document.getElementById('deliveryProvince').value || '—';
+        document.getElementById('confirm-address').textContent = document.getElementById('deliveryAddress').value || '—';
+        document.getElementById('confirm-items').textContent = ids.length;
+        document.getElementById('confirm-total').textContent = total.toLocaleString('vi-VN') + ' đ';
+    }
+
+    function submitOrder() {
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+    }
+
+    function confirmOrder() {
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+        // TODO: POST to server
+        alert('Đơn hàng đã được tạo thành công!');
+        window.location.href = '/Order';
+    }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('#customerSearch') && !e.target.closest('#customerSuggestions')) {
+            const sug = document.getElementById('customerSuggestions');
+            if (sug) sug.style.display = 'none';
+        }
+    });
+</script>
+Đây là code OrderCreate. Sửa ở phase 2: Nếu Dropdown có nhiều hơn 50 tên (Dữ liệu) thì chỉ hiển thị 50 tên khách hàng lập đơn hàng gần nhất, với ý tưởng: Nối bảng Customers với bảng Orders, lọc ra Order gần nhất của Customer, null nếu không có - theo OrderTime; hiện chưa kết nối CSDL nên chưa cần, nhưng phải có giao diện thỏa ý tưởng đã. Khi nhập tên khách hàng để tìm kiếm (Thanh khác rỗng) thì sẽ Dropdown sẽ thay đổi theo tên được nhập thỏa điều kiện tên khách hàng chứa tên được nhập và Dropdown sẽ rỗng nếu không có tên khách thỏa. Nếu nhập tên khách hàng mới trong thanh (Không có trong Dropdown) sẽ được coi là tên mới và bắt nhập tỉnh / thành và địa chỉ (Đã có). Nếu chọn trong Dropdown thì sẽ buộc nhập nếu chưa có tỉnh thành và địa chỉ (Đã có). Chỉ gửi code.
+Từ file mới nhất trên, chỉ gửi chỗ cần sửa và chỉ rõ chỗ sửa. Tìm kiếm chỉ hiển thị top 30 tên khách hàng thỏa điều kiện.

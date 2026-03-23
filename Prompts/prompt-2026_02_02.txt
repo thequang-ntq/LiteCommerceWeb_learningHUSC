@@ -1,0 +1,1267 @@
+* Các file code:
+- SV22T1020362.Admin/Views/Shared/_Layout.cshtml:
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiteCommerce</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <link rel="stylesheet" href="~/lib/overlay-scrollbars/overlayscrollbars.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/adminlte/css/adminlte.css" />
+    <link rel="stylesheet" href ="~/css/site.css" />
+</head>
+
+<body class="layout-fixed fixed-header fixed-footer sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+
+        <!--Cắt nội dung Header và SideBar bỏ vào file _Header.cshtml và _SideBar.cshtml, rồi gọi lại-->
+        @{ 
+            await Html.RenderPartialAsync("_Header");
+            await Html.RenderPartialAsync("_SideBar");
+        }
+        
+        <!--begin::App Main-->
+        <main class="app-main">
+            <!--begin::App Content Header: giữ lại-->
+            <div class="app-content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h3 class="mb-0">@ViewBag.Title</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end::App Content Header-->
+            <!--begin::App Content-->
+            <div class="app-content">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+            <!--end::App Content-->
+
+        </main>
+        <!--end::App Main-->
+
+        <!--Cắt nội dung SideBar bỏ vào file _SideBar.cshtml, rồi gọi lại-->
+        @{ await Html.RenderPartialAsync("_Footer"); }
+    </div>
+
+    <script src="~/lib/overlay-scrollbars/overlayscrollbars.browser.es6.min.js"></script>
+    <script src="~/lib/popperjs/popper.min.js"></script>
+    <script src="~/lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="~/lib/adminlte/js/adminlte.js"></script>
+
+</body>
+
+</html>
+- SV22T1020362.Admin/Views/Shared/_Footer.cshtml:
+<!--begin::Footer-->
+<footer class="app-footer bg-body-secondary">
+    <div class="float-end d-none d-sm-inline">Developed by Nguyễn Thế Quang</div>
+    <strong>
+        Copyright &copy; 2014-2025&nbsp;
+        <a href="https://adminlte.io" class="text-decoration-none">NTQ Shop</a>.
+    </strong>
+    All rights reserved.
+</footer>
+<!--end::Footer-->
+- SV22T1020362.Admin/Views/Shared/_Header.cshtml:
+<!--begin::Header-->
+<nav class="app-header navbar navbar-expand bg-body-secondary">
+    <div class="container-fluid">
+        <!--begin::Start Navbar Links-->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                    <i class="bi bi-list"></i>
+                </a>
+            </li>
+            <li class="nav-item d-none d-md-block"><a href="~/Home" class="nav-link">Trang chủ</a></li>
+        </ul>
+        <!--end::Start Navbar Links-->
+        <!--begin::End Navbar Links-->
+        <ul class="navbar-nav ms-auto">
+            <!--begin::User Menu Dropdown-->
+            <li class="nav-item dropdown user-menu">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <img src="~/lib/adminlte/assets/img/user2-160x160.jpg" class="user-image rounded-circle shadow" alt="User Image" />
+                </a>
+                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                    <!--begin::User Image-->
+                    <li class="user-header text-bg-primary">
+                        <img src="~/lib/adminlte/assets/img/user2-160x160.jpg" class="rounded-circle shadow" alt="User Image" />
+                        <p>
+                            @{
+                                var currentUser = "Nguyễn Thế Quang";
+                            }
+                            @currentUser
+                        </p>
+                    </li>
+                    <!--end::User Image-->
+                    <!--begin::Menu Footer-->
+                    <li class="user-footer">
+                        <a href="~/Account/ChangePassword" class="btn btn-default btn-flat">Đổi mật khẩu</a>
+                        <a href="~/Account/Logout" class="btn btn-default btn-flat float-end">Thoát</a>
+                    </li>
+                    <!--end::Menu Footer-->
+                </ul>
+            </li>
+            <!--end::User Menu Dropdown-->
+        </ul>
+        <!--end::End Navbar Links-->
+    </div>
+</nav>
+<!--end::Header-->
+- SV22T1020362.Admin/Views/Shared/_SideBar.cshtml:
+<!--begin::Sidebar-->
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <!--begin::Sidebar Brand-->
+    <div class="sidebar-brand">
+        <a href="~/Home" class="brand-link">
+            <img src="~/lib/adminlte/assets/img/AdminLTELogo.png" alt="Logo" class="brand-image opacity-75 shadow" />
+            <span class="brand-text fw-light">LiteShop</span>
+        </a>
+    </div>
+    <!--end::Sidebar Brand-->
+    <!--begin::Sidebar Wrapper-->
+    <div class="sidebar-wrapper">
+        <nav class="mt-2">
+            <!--begin::Sidebar Menu-->
+            <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation"
+                aria-label="Main navigation" data-accordion="false" id="navigation">
+
+                <li class="nav-item">
+                    <a href="~/Home" class="nav-link">
+                        <i class="nav-icon bi bi-speedometer2"></i>
+                        <p>Trang chủ</p>
+                    </a>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-archive"></i>
+                        <p>
+                            Quản lý dữ liệu
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Supplier" class="nav-link">
+                                <i class="nav-icon bi bi-truck"></i>
+                                <p>Nhà cung cấp</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Customer" class="nav-link">
+                                <i class="nav-icon bi bi-people"></i>
+                                <p>Khách hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Shipper" class="nav-link">
+                                <i class="nav-icon bi bi-bicycle"></i>
+                                <p>Người giao hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Employee" class="nav-link">
+                                <i class="nav-icon bi bi-people-fill"></i>
+                                <p>Nhân viên</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-archive"></i>
+                        <p>
+                            Quản lý hàng hóa
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Category" class="nav-link">
+                                <i class="nav-icon bi bi-collection"></i>
+                                <p>Loại hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Product" class="nav-link">
+                                <i class="nav-icon bi bi-boxes"></i>
+                                <p>Mặt hàng</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-cash-stack"></i>
+                        <p>
+                            Quản lý bán hàng
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Order/Create" class="nav-link">
+                                <i class="nav-icon bi bi-cart-plus"></i>
+                                <p>Lập đơn hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Order" class="nav-link">
+                                <i class="nav-icon bi bi-receipt"></i>
+                                <p>Quản lý đơn hàng</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+            <!--end::Sidebar Menu-->
+        </nav>
+    </div>
+    <!--end::Sidebar Wrapper-->
+</aside>
+<!--end::Sidebar-->
+- SV22T1020362.Admin/Views/Supplier/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Nhà cung cấp";
+}
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <form>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Nhập tên nhà cung cấp cần tìm">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="~/Supplier/Create" class="btn btn-success" style="margin-left:2px">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body table-responsive p-1">
+        <span class="text-muted">Danh sách này có <b>25</b> nhà cung cấp</span>
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th style="width:200px">Tên nhà cung cấp</th>
+                    <th style="width:150px">Tên giao dịch</th>
+                    <th style="width:150px">Điện thoại</th>
+                    <th style="width:150px">Email</th>
+                    <th style="width:auto">Địa chỉ</th>
+                    <th style="width:180px">Tỉnh/Thành</th>
+                    <th class="text-center" style="width: 120px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Công ty ABC</td>
+                    <td>ABC Trading</td>
+                    <td>0901 234 567</td>
+                    <td>contact@abc.com</td>
+                    <td>123 Lê Lợi</td>
+                    <td>Huế</td>
+                    <td class="text-center">
+                        <a href="~/Supplier/Edit/123" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="~/Supplier/Delete/123" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer clearfix">
+        <ul class="pagination pagination-sm m-0 float-end">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Supplier/Edit.cshtml:
+@{
+}
+<form>
+    <div class="row justify-content-center">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-truck me-2"></i>
+                        Thông tin nhà cung cấp
+                    </h3>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+                        <!-- Tên nhà cung cấp -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên nhà cung cấp</label>
+                            <input type="text" class="form-control" placeholder="Nhập tên nhà cung cấp">
+                        </div>
+
+                        <!-- Tên giao dịch -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên giao dịch</label>
+                            <input type="text" class="form-control" placeholder="Nhập tên giao dịch">
+                        </div>
+
+                        <!-- Điện thoại -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Điện thoại</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-telephone-fill"></i>
+                                </span>
+                                <input type="text" class="form-control" placeholder="Nhập số điện thoại">
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope-fill"></i>
+                                </span>
+                                <input type="email" class="form-control" placeholder="Nhập email">
+                            </div>
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" rows="2" placeholder="Nhập địa chỉ"></textarea>
+                        </div>
+
+                        <!-- Tỉnh thành -->
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Tỉnh / Thành</label>
+                            <select class="form-select">
+                                <option value="">-- Chọn tỉnh / thành --</option>
+                                <option>Hà Nội</option>
+                                <option>TP. Hồ Chí Minh</option>
+                                <option>Đà Nẵng</option>
+                                <option>Huế</option>
+                                <option>Cần Thơ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card-footer text-end">
+                    <a href="~/Supplier" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu dữ liệu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+- SV22T1020362.Admin/Views/Supplier/Delete.cshtml:
+@{
+    ViewBag.Title = "Xóa Nhà cung cấp";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="card card-danger">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Xác nhận xóa nhà cung cấp
+                </h3>
+            </div>
+
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle-fill me-1"></i>
+                    Bạn đang chuẩn bị xóa nhà cung cấp sau.
+                    <strong>Thao tác này không thể hoàn tác.</strong>
+                </div>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Tên nhà cung cấp</dt>
+                    <dd class="col-sm-8">Công ty ABC</dd>
+
+                    <dt class="col-sm-4">Tên giao dịch</dt>
+                    <dd class="col-sm-8">ABC Trading</dd>
+
+                    <dt class="col-sm-4">Điện thoại</dt>
+                    <dd class="col-sm-8">0901 234 567</dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">contact@abc.com</dd>
+
+                    <dt class="col-sm-4">Địa chỉ</dt>
+                    <dd class="col-sm-8">123 Lê Lợi, TP Huế</dd>
+
+                    <dt class="col-sm-4">Tỉnh / Thành</dt>
+                    <dd class="col-sm-8">Thừa Thiên Huế</dd>
+                </dl>
+            </div>
+
+            <div class="card-footer text-end">
+                <a href="~/Supplier" class="btn btn-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Shipper/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Người giao hàng";
+}
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <form>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Nhập tên người giao hàng cần tìm">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="~/Shipper/Create" class="btn btn-success" style="margin-left:2px">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body table-responsive p-1">
+        <span class="text-muted">Danh sách này có <b>25</b> người giao hàng</span>
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <!-- Phải có 1 cột để auto -->
+                    <th style="width:auto">Tên người giao hàng</th>
+                    <th style="width:150px">Điện thoại</th>
+                    <th class="text-center" style="width: 120px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Công ty ABC</td>
+                    <td>0901 234 567</td>
+                    <td class="text-center">
+                        <a href="~/Shipper/Edit/123" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="~/Shipper/Delete/123" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer clearfix">
+        <ul class="pagination pagination-sm m-0 float-end">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Customer/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Khách hàng";
+}
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <form>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Nhập tên khách hàng cần tìm">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="~/Customer/Create" class="btn btn-success" style="margin-left:2px">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body table-responsive p-1">
+        <span class="text-muted">Danh sách này có <b>25</b> khách hàng</span>
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th style="width:200px">Tên khách hàng</th>
+                    <th style="width:150px">Tên giao dịch</th>
+                    <th style="width:150px">Điện thoại</th>
+                    <th style="width:150px">Email</th>
+                    <th style="width:auto">Địa chỉ</th>
+                    <th style="width:180px">Tỉnh/Thành</th>
+                    <th style="width:80px">Bị khóa?</th>
+                    <th class="text-center" style="width: 130px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Công ty ABC</td>
+                    <td>ABC Trading</td>
+                    <td>0901 234 567</td>
+                    <td>contact@abc.com</td>
+                    <td>123 Lê Lợi</td>
+                    <td>Huế</td>
+                    <td class="text-center">&#10003;</td>
+                    <td class="text-center">
+                        <a href="~/Customer/Edit/123" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="~/Customer/Delete/123" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                        <a href="~/Customer/ChangePassword/123" class="btn btn-sm btn-warning">
+                            <i class="bi bi-key"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer clearfix">
+        <ul class="pagination pagination-sm m-0 float-end">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Employee/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Nhân viên";
+}
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <form>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Nhập tên nhân viên cần tìm">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="~/Employee/Create" class="btn btn-success" style="margin-left:2px">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body table-responsive p-1">
+        <span class="text-muted">Danh sách này có <b>25</b> nhân viên</span>
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <!-- Phải có 1 cột để auto -->
+                    <th style="width:200px">Họ tên</th>
+                    <th style="width:100px">Ngày sinh</th>
+                    <th style="width:150px">Điện thoại</th>
+                    <th style="width:150px">Email</th>
+                    <th style="width:auto">Địa chỉ</th>
+                    <th style="width:180px">Đã nghỉ việc</th>
+                    <th class="text-center" style="width: 180px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Trần Nguyên Phong</td>
+                    <td>11/01/2001</td>
+                    <td>0901 234 567</td>
+                    <td>tnphong@abc.com</td>
+                    <td>123 Lê Lợi</td>
+                    <td class="text-center">&#10003;</td>
+                    <td class="text-center">
+                        <a href="~/Employee/Edit/123" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="~/Employee/Delete/123" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                        <a href="~/Employee/ChangePassword/123" class="btn btn-sm btn-warning">
+                            <i class="bi bi-lock"></i>
+                        </a>
+                        <a href="~/Employee/ChangeRole/123" class="btn btn-sm btn-info">
+                            <i class="bi bi-person-check"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer clearfix">
+        <ul class="pagination pagination-sm m-0 float-end">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Category/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Loại hàng";
+}
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <form>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Nhập tên loại hàng cần tìm">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="~/Category/Create" class="btn btn-success" style="margin-left:2px">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body table-responsive p-1">
+        <span class="text-muted">Danh sách này có <b>25</b> loại hàng</span>
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <!-- Phải có 1 cột để auto -->
+                    <th style="width:auto">Tên loại hàng</th>
+                    <th style="width:400px">Mô tả</th>
+                    <th class="text-center" style="width: 120px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Thực phẩm</td>
+                    <td>Đồ thực phẩm, ăn uống, ...</td>
+                    <td class="text-center">
+                        <a href="~/Category/Edit/123" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="~/Category/Delete/123" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer clearfix">
+        <ul class="pagination pagination-sm m-0 float-end">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Account/ChangePassword.cshtml:
+@{
+    ViewBag.Title = "Thay đổi mật khẩu";
+}
+<form>
+    <div class="row justify-content-center">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="card card-primary">
+                <div class="card-body">
+
+                    <!-- Mật khẩu cũ -->
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu cũ</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                            <input type="password" class="form-control" placeholder="Nhập mật khẩu cũ">
+                        </div>
+                    </div>
+
+                    <!-- Mật khẩu mới -->
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu mới</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                            <input type="password" class="form-control" placeholder="Nhập mật khẩu mới">
+                        </div>
+                    </div>
+
+                    <!-- Xác nhận mật khẩu mới -->
+                    <div class="mb-3">
+                        <label class="form-label">Xác nhận mật khẩu mới</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </span>
+                            <input type="password" class="form-control" placeholder="Nhập lại mật khẩu mới">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Đổi mật khẩu
+                    </button>
+                    <a href="~/" class="btn btn-secondary me-2">
+                        <i class="bi bi-back"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+- script CSDL SQL Server 2014:
+USE [master]
+GO
+/****** Object:  Database [LiteCommerceDB]    Script Date: 29/01/2026 2:32:40 CH ******/
+CREATE DATABASE [LiteCommerceDB]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'LiteCommerceDB', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\LiteCommerceDB.mdf' , SIZE = 5120KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+ LOG ON 
+( NAME = N'LiteCommerceDB_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\LiteCommerceDB_log.ldf' , SIZE = 2304KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
+GO
+ALTER DATABASE [LiteCommerceDB] SET COMPATIBILITY_LEVEL = 120
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [LiteCommerceDB].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_CLOSE OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [LiteCommerceDB] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET RECOVERY FULL 
+GO
+ALTER DATABASE [LiteCommerceDB] SET  MULTI_USER 
+GO
+ALTER DATABASE [LiteCommerceDB] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [LiteCommerceDB] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [LiteCommerceDB] SET TARGET_RECOVERY_TIME = 0 SECONDS 
+GO
+ALTER DATABASE [LiteCommerceDB] SET DELAYED_DURABILITY = DISABLED 
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'LiteCommerceDB', N'ON'
+GO
+USE [LiteCommerceDB]
+GO
+/****** Object:  Table [dbo].[Categories]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Categories](
+	[CategoryID] [int] IDENTITY(1,1) NOT NULL,
+	[CategoryName] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Categories] PRIMARY KEY CLUSTERED 
+(
+	[CategoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Customers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Customers](
+	[CustomerID] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerName] [nvarchar](255) NOT NULL,
+	[ContactName] [nvarchar](255) NOT NULL,
+	[Province] [nvarchar](255) NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](50) NULL,
+	[Password] [nvarchar](50) NULL,
+	[IsLocked] [bit] NULL,
+ CONSTRAINT [PK__Customers] PRIMARY KEY CLUSTERED 
+(
+	[CustomerID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UK_Customers_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Employees]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Employees](
+	[EmployeeID] [int] IDENTITY(1,1) NOT NULL,
+	[FullName] [nvarchar](255) NOT NULL,
+	[BirthDate] [date] NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](50) NULL,
+	[Password] [nvarchar](50) NULL,
+	[Photo] [nvarchar](255) NULL,
+	[IsWorking] [bit] NULL,
+	[RoleNames] [nvarchar](500) NULL,
+ CONSTRAINT [PK__Employees] PRIMARY KEY CLUSTERED 
+(
+	[EmployeeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UK_Employees_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[OrderDetails]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrderDetails](
+	[OrderID] [int] NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[Quantity] [int] NOT NULL,
+	[SalePrice] [money] NOT NULL,
+ CONSTRAINT [PK_OrderDetails] PRIMARY KEY CLUSTERED 
+(
+	[OrderID] ASC,
+	[ProductID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Orders]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Orders](
+	[OrderID] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerID] [int] NULL,
+	[OrderTime] [datetime] NOT NULL,
+	[DeliveryProvince] [nvarchar](255) NULL,
+	[DeliveryAddress] [nvarchar](255) NULL,
+	[EmployeeID] [int] NULL,
+	[AcceptTime] [datetime] NULL,
+	[ShipperID] [int] NULL,
+	[ShippedTime] [datetime] NULL,
+	[FinishedTime] [datetime] NULL,
+	[Status] [int] NOT NULL,
+ CONSTRAINT [PK__Orders] PRIMARY KEY CLUSTERED 
+(
+	[OrderID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[OrderStatus]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrderStatus](
+	[Status] [int] NOT NULL,
+	[Description] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_OrderStatus] PRIMARY KEY CLUSTERED 
+(
+	[Status] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[ProductAttributes]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductAttributes](
+	[AttributeID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[AttributeName] [nvarchar](255) NOT NULL,
+	[AttributeValue] [nvarchar](max) NOT NULL,
+	[DisplayOrder] [int] NOT NULL,
+ CONSTRAINT [PK_ProductAttributes] PRIMARY KEY CLUSTERED 
+(
+	[AttributeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[ProductPhotos]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductPhotos](
+	[PhotoID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[Photo] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NOT NULL,
+	[DisplayOrder] [int] NOT NULL,
+	[IsHidden] [bit] NOT NULL,
+ CONSTRAINT [PK_ProductPhotos] PRIMARY KEY CLUSTERED 
+(
+	[PhotoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Products]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Products](
+	[ProductID] [int] IDENTITY(1,1) NOT NULL,
+	[ProductName] [nvarchar](255) NOT NULL,
+	[ProductDescription] [nvarchar](2000) NULL,
+	[SupplierID] [int] NULL,
+	[CategoryID] [int] NULL,
+	[Unit] [nvarchar](255) NOT NULL,
+	[Price] [money] NOT NULL,
+	[Photo] [nvarchar](255) NULL,
+	[IsSelling] [bit] NULL,
+ CONSTRAINT [PK__Products] PRIMARY KEY CLUSTERED 
+(
+	[ProductID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Provinces]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Provinces](
+	[ProvinceName] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_Provinces] PRIMARY KEY CLUSTERED 
+(
+	[ProvinceName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Shippers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Shippers](
+	[ShipperID] [int] IDENTITY(1,1) NOT NULL,
+	[ShipperName] [nvarchar](255) NOT NULL,
+	[Phone] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Shippers] PRIMARY KEY CLUSTERED 
+(
+	[ShipperID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Suppliers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Suppliers](
+	[SupplierID] [int] IDENTITY(1,1) NOT NULL,
+	[SupplierName] [nvarchar](255) NOT NULL,
+	[ContactName] [nvarchar](255) NOT NULL,
+	[Province] [nvarchar](255) NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Suppliers] PRIMARY KEY CLUSTERED 
+(
+	[SupplierID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+ALTER TABLE [dbo].[Categories] ADD  CONSTRAINT [DF__Categorie__Categ__35BCFE0A]  DEFAULT (NULL) FOR [CategoryName]
+GO
+ALTER TABLE [dbo].[Categories] ADD  CONSTRAINT [DF__Categorie__Descr__36B12243]  DEFAULT (NULL) FOR [Description]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Custo__38996AB5]  DEFAULT (NULL) FOR [CustomerName]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Conta__398D8EEE]  DEFAULT (NULL) FOR [ContactName]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Addre__3A81B327]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__City__3B75D760]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__LastN__3F466844]  DEFAULT (NULL) FOR [FullName]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__Birth__412EB0B6]  DEFAULT (NULL) FOR [BirthDate]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__Photo__4222D4EF]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[OrderDetails] ADD  CONSTRAINT [DF__OrderDeta__Quant__48CFD27E]  DEFAULT (NULL) FOR [Quantity]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__Customer__440B1D61]  DEFAULT (NULL) FOR [CustomerID]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__OrderDat__45F365D3]  DEFAULT (NULL) FOR [OrderTime]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__Employee__44FF419A]  DEFAULT (NULL) FOR [EmployeeID]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__ShipperI__46E78A0C]  DEFAULT (NULL) FOR [ShipperID]
+GO
+ALTER TABLE [dbo].[ProductPhotos] ADD  CONSTRAINT [DF_ProductGallery_IsHidden]  DEFAULT ((0)) FOR [IsHidden]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Produc__4AB81AF0]  DEFAULT (NULL) FOR [ProductName]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Suppli__4BAC3F29]  DEFAULT (NULL) FOR [SupplierID]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Catego__4CA06362]  DEFAULT (NULL) FOR [CategoryID]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Unit__4D94879B]  DEFAULT (NULL) FOR [Unit]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Price__4E88ABD4]  DEFAULT (NULL) FOR [Price]
+GO
+ALTER TABLE [dbo].[Shippers] ADD  CONSTRAINT [DF__Shippers__Shippe__619B8048]  DEFAULT (NULL) FOR [ShipperName]
+GO
+ALTER TABLE [dbo].[Shippers] ADD  CONSTRAINT [DF__Shippers__Phone__628FA481]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Suppl__6477ECF3]  DEFAULT (NULL) FOR [SupplierName]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Conta__656C112C]  DEFAULT (NULL) FOR [ContactName]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Addre__66603565]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Phone__6A30C649]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Customers]  WITH CHECK ADD  CONSTRAINT [FK_Customers_Provinces] FOREIGN KEY([Province])
+REFERENCES [dbo].[Provinces] ([ProvinceName])
+ON UPDATE CASCADE
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[Customers] CHECK CONSTRAINT [FK_Customers_Provinces]
+GO
+ALTER TABLE [dbo].[OrderDetails]  WITH CHECK ADD  CONSTRAINT [FK_OrderDetails_Orders] FOREIGN KEY([OrderID])
+REFERENCES [dbo].[Orders] ([OrderID])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [FK_OrderDetails_Orders]
+GO
+ALTER TABLE [dbo].[OrderDetails]  WITH CHECK ADD  CONSTRAINT [FK_OrderDetails_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [FK_OrderDetails_Products]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Customers] FOREIGN KEY([CustomerID])
+REFERENCES [dbo].[Customers] ([CustomerID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Customers]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Employees] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employees] ([EmployeeID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Employees]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_OrderStatus] FOREIGN KEY([Status])
+REFERENCES [dbo].[OrderStatus] ([Status])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_OrderStatus]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Shippers] FOREIGN KEY([ShipperID])
+REFERENCES [dbo].[Shippers] ([ShipperID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Shippers]
+GO
+ALTER TABLE [dbo].[ProductAttributes]  WITH CHECK ADD  CONSTRAINT [FK_ProductAttributes_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[ProductAttributes] CHECK CONSTRAINT [FK_ProductAttributes_Products]
+GO
+ALTER TABLE [dbo].[ProductPhotos]  WITH CHECK ADD  CONSTRAINT [FK_ProductGallery_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[ProductPhotos] CHECK CONSTRAINT [FK_ProductGallery_Products]
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD  CONSTRAINT [FK_Products_Categories] FOREIGN KEY([CategoryID])
+REFERENCES [dbo].[Categories] ([CategoryID])
+GO
+ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [FK_Products_Categories]
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD  CONSTRAINT [FK_Products_Suppliers] FOREIGN KEY([SupplierID])
+REFERENCES [dbo].[Suppliers] ([SupplierID])
+GO
+ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [FK_Products_Suppliers]
+GO
+ALTER TABLE [dbo].[Suppliers]  WITH CHECK ADD  CONSTRAINT [FK_Suppliers_Provinces] FOREIGN KEY([Province])
+REFERENCES [dbo].[Provinces] ([ProvinceName])
+ON UPDATE CASCADE
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[Suppliers] CHECK CONSTRAINT [FK_Suppliers_Provinces]
+GO
+USE [master]
+GO
+ALTER DATABASE [LiteCommerceDB] SET  READ_WRITE 
+GO
+
+* Ghi chú:
+- Tôi đang sử dụng Visual Studio 2022, SQL Server 2014 Developer Edition, trên Windows 11.
+- Có một Solution tên là SV22T1020362.
+- Có các projects nằm trong Solution ở trên:
++ 2 project ASP.NET Web Core MVC tên là: SV22T1020362.Admin và SV22T1020362.Shop. Thực hiện theo mô hình Model - View - Controllers. 2 project này, mỗi cái đều có 3 project references là: SV22T1020362.Models, SV22T1020362.DataLayers, SV22T1020362.BusinessLayers.
++ 3 project class library (Cho phần Model) với thứ tự: 1 cái là SV22T1020362.Models chỉ chứa file cs để khai báo lớp cho đối tượng bên CSDL; 1 cái là SV22T1020362.DataLayers có 1 project references là SV22T1020362.Models ở trên và 2 package là Dapper 2.1.66 và Microsoft.Data.SqlClient 6.1.4 để thực hiện kết nối cho DAL (hay còn gọi là DAO, kết nối trực tiếp tới CSDL, đóng vai trò là DAL (DAO); 1 cái là SV22T1020362.BusinessLayers có 2 project references là SV22T1020362.Models và SV22T1020362.DataLayers ở trên, đóng vai trò là Service, được sử dụng trong Controllers. 
++ Trong 2 project ASP.NET Web Core MVC, Sử dụng thư viện lib của AdminLTE-4 gồm 6: adminlte, bootstrap, font-awesome, overlay-scrollbars, popperjs, source-sans-3 trong wwwroot/lib. Trong wwwroot có favicon.ico và Layout.html. Layout.html có nội dung như trên.
+
+* Yêu cầu (Làm theo thứ tự phù hợp): Làm trong project SV22T1020362.Admin, với mục đích là trang Web cho nhân viên Employee và Admin, để quản lý dữ liệu:
+1) Sửa lại giao diện file Index của Employee (Không đổi các cột dữ liệu) theo dạng: Thẻ Card của Bootstrap 5, góc trên bên trái là ảnh (Lấy url ảnh mẫu này theo link trên mạng), góc trên bên phải là các thao tác Edit, Delete, ChangePassword, ChangeRole, ở dưới ảnh là các thông tin: Họ tên, ngày sinh, Điện thoại, Email, Địa chỉ, Đã nghỉ việc. Các thẻ cần thiết kế đẹp áp dụng Bootstrap 5, có xuống hàng phù hợp tránh bị tràn màn hình. Phần phân trang để dưới phần hiển thị thẻ, ở vị trí giống như giao diện bảng ở code cũ.
+2) Dựa vào script CSDL SQL Server 2014, mẫu các file Index, Edit, Delete của Supplier và mẫu file Index của Category, Customer, Employee (Được sửa ở yêu cầu 1), Shipper để thiết kế các file Edit, Delete cho Category, Customer, Employee, Shipper dựa theo Index của chúng và các mẫu bên Supplier (Đang chỉ ở phần giao diện, chưa xử lý nghiệp vụ, vẫn đang làm dữ liệu giả).
+3) Dựa vào mẫu file ChangePassword của Account để đề xuất ý tưởng như sau: Nếu tôi là Admin và đăng nhập vào trang Web của project SV22T1020362.Admin và có quyền đổi mật khẩu của khách hàng và các nhân viên dưới quyền, thì tôi sẽ thiết kế giao diện ChangePassword của Customer (Khách hàng) và giao diện ChangePassword và ChangeRole của Employee (Nhân viên) như thế nào cho phù hợp (Đang chỉ ở phần giao diện, chưa xử lý nghiệp vụ, dữ liệu giả). 
+
+* Hãy giúp tôi làm phần yêu cầu, theo các file code và ghi chú ở trên.

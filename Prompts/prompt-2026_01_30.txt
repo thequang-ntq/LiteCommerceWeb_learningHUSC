@@ -1,0 +1,213 @@
+﻿Prompt này dựa vào cùng 1 đoạn chat (Đã có ghi nhớ) của đoạn chat ngày 29/01/2026, khi AI đã code các file Models, DAL, Service.
+Dựa vào các file Service, DAL, Models đã viết ở trên, cùng với các file giao diện như _Layout.cshtml, _Footer.cshtml, _Header.cshtml, _SideBar.cshtml trong project SV22T1020362.Admin, thư mục Views/Shared/, cùng với danh sách chức năng đã gửi ở trên, hãy viết các file Controller trong project SV22T1020362.Admin, thư mục Controllers/. Viết theo thứ tự từ đơn giản đến phức tạp. Các file tôi bổ sung thêm:
+
+appsettings.json: 
+
+{
+
+  "Logging": {
+
+    "LogLevel": {
+
+      "Default": "Information",
+
+      "Microsoft.AspNetCore": "Warning"
+
+    }
+
+  },
+
+  "AllowedHosts": "*",
+
+  "ConnectionStrings": {
+
+    "LiteCommerce": "Server=.;Database=LiteCommerceDB;User Id=sa;Password=sa;TrustServerCertificate=True;"
+
+  }
+
+}
+
+Program.cs:
+
+using SV22T1020362.BusinessLayers;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+
+if (!app.Environment.IsDevelopment())
+
+{
+
+    app.UseExceptionHandler("/Home/Error");
+
+}
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+
+    name: "default",
+
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Khởi tạo chuỗi kết nối
+
+var connectionString = builder.Configuration.GetConnectionString("LiteCommerce") ?? "";
+
+CategoryService.Initialize(connectionString!);
+
+CommonDataService.Initialize(connectionString!);
+
+CustomerService.Initialize(connectionString!);
+
+EmployeeService.Initialize(connectionString!);
+
+OrderService.Initialize(connectionString!);
+
+ProductService.Initialize(connectionString!);
+
+ShipperService.Initialize(connectionString!);
+
+SupplierService.Initialize(connectionString!);
+
+app.Run();
+
+
+
+Các file trên đều trong project SV22T102362.Admin. Tham khảo mẫu (cú pháp) của file Controller sau ở project khác:
+
+using Microsoft.AspNetCore.Mvc;
+
+using MySolution.BusinessLayers;
+
+using MySolution.DomainModels;
+
+using System.Threading.Tasks;
+
+namespace MySolution.HRM.Controllers
+
+{
+
+    public class EmployeeController : Controller
+
+    {
+
+        // Hiển thị danh sách
+
+        // Trỏ về /Employee hoặc /Employee/Index
+
+        public async Task<IActionResult> Index()
+
+        {
+
+            var model = await HRMService.ListEmployeesAsync();
+
+            return View(model);
+
+        }
+
+        // Hiển thị chi tiết
+
+        // Trả /Employee/Details/id
+
+        public async Task<IActionResult> Details(string id)
+
+        {
+
+            var model = await HRMService.GetEmployeeAsync(id);
+
+            return View(model);
+
+        }
+
+        // Hiển thị view thêm Employee
+
+        [HttpGet]
+
+        public IActionResult Create()
+
+        {
+
+            var model = new Employee();
+
+            return View(model);
+
+        }
+
+        // Logic thêm
+
+        [HttpPost]
+
+        public async Task<IActionResult> Create(Employee model)
+
+        {
+
+            await HRMService.AddEmployeeAsync(model);
+
+            // Về trang Index
+
+            return RedirectToAction("Index");
+
+        }
+
+        // Hiển thị view sửa Employee
+
+        [HttpGet]
+
+        public async Task<IActionResult> Update(string id)
+
+        {
+
+            var model = await HRMService.GetEmployeeAsync(id);
+
+            return View(model);
+
+        }
+
+        // Logic sửa
+
+        [HttpPost]
+
+        public async Task<IActionResult> Update(Employee model)
+
+        {
+
+            await HRMService.UpdateEmployeeAsync(model);
+
+            // Về trang Index
+
+            return RedirectToAction("Index");
+
+        }
+
+        // Xóa dựa vào EmployeeId, không thêm giao diện mới, bấm vào là xóa luôn
+
+        public async Task<IActionResult> Delete(string id)
+
+        {
+
+            await HRMService.DeleteEmployeeAsync(id);
+
+            // Về trang Index
+
+            return RedirectToAction("Index");
+
+        } 
+
+    }
+
+}
+
+
+

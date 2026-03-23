@@ -1,0 +1,1 @@
+Tạo code các file Views còn thiếu của các đối tượng Action trong các Controller cho tôi. Tạo đầy đủ code từng file, từ đối tượng đơn giản đến phức tạp.

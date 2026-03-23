@@ -1,0 +1,990 @@
+﻿* Các file code:
+- Layout.html (Trong project Admin, wwwroot):
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>LiteCommerce</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />  
+  <link rel="stylesheet" href="lib/overlay-scrollbars/overlayscrollbars.min.css">
+  <link rel="stylesheet" href="lib/bootstrap/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="lib/adminlte/css/adminlte.css" />
+</head>
+
+<body class="layout-fixed fixed-header fixed-footer sidebar-expand-lg sidebar-open bg-body-tertiary">
+  <div class="app-wrapper">
+
+    <!--begin::Header-->
+    <nav class="app-header navbar navbar-expand bg-body-secondary">
+      <div class="container-fluid">
+        <!--begin::Start Navbar Links-->
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+              <i class="bi bi-list"></i>
+            </a>
+          </li>
+          <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Home</a></li>
+          <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li>
+        </ul>
+        <!--end::Start Navbar Links-->
+        <!--begin::End Navbar Links-->
+        <ul class="navbar-nav ms-auto">
+          <!--begin::User Menu Dropdown-->
+          <li class="nav-item dropdown user-menu">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+              <img src="lib/adminlte/assets/img/user2-160x160.jpg" class="user-image rounded-circle shadow" alt="User Image" />
+              <span class="d-none d-md-inline">Trần Nguyên Phong</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+              <!--begin::User Image-->
+              <li class="user-header text-bg-primary">
+                <img src="lib/adminlte/assets/img/user2-160x160.jpg" class="rounded-circle shadow" alt="User Image" />
+                <p>
+                  Trần Nguyên Phong
+                </p>
+              </li>
+              <!--end::User Image-->
+              <!--begin::Menu Footer-->
+              <li class="user-footer">
+                <a href="#" class="btn btn-default btn-flat">Đổi mật khẩu</a>
+                <a href="#" class="btn btn-default btn-flat float-end">Thoát</a>
+              </li>
+              <!--end::Menu Footer-->
+            </ul>
+          </li>
+          <!--end::User Menu Dropdown-->
+        </ul>
+        <!--end::End Navbar Links-->
+      </div>
+    </nav>
+    <!--end::Header-->
+
+    <!--begin::Sidebar-->
+    <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+      <!--begin::Sidebar Brand-->
+      <div class="sidebar-brand">
+        <a href="#" class="brand-link">
+          <img src="lib/adminlte/assets/img/AdminLTELogo.png" alt="Logo" class="brand-image opacity-75 shadow" />
+          <span class="brand-text fw-light">LiteShop</span>
+        </a>
+      </div>
+      <!--end::Sidebar Brand-->
+      <!--begin::Sidebar Wrapper-->
+      <div class="sidebar-wrapper">
+        <nav class="mt-2">
+          <!--begin::Sidebar Menu-->
+          <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation"
+            aria-label="Main navigation" data-accordion="false" id="navigation">
+
+            <li class="nav-item">
+              <a href="#" class="nav-link">
+                <i class="nav-icon bi bi-speedometer2"></i>
+                <p>Trang chủ</p>
+              </a>
+            </li>
+
+            <li class="nav-item menu-open">
+              <a href="#" class="nav-link active">
+                <i class="nav-icon bi bi-archive"></i>
+                <p>
+                  Quản lý dữ liệu
+                  <i class="nav-arrow bi bi-chevron-right"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon bi bi-truck"></i>
+                    <p>Nhà cung cấp</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon bi bi-people"></i>
+                    <p>Khách hàng</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon bi bi-bicycle"></i>
+                    <p>Người giao hàng</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon bi bi-people-fill"></i>
+                    <p>Nhân viên</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item menu-open">
+              <a href="#" class="nav-link active">
+                <i class="nav-icon bi bi-archive"></i>
+                <p>
+                  Quản lý hàng hóa
+                  <i class="nav-arrow bi bi-chevron-right"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon bi bi-collection"></i>
+                    <p>Loại hàng</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon bi bi-boxes"></i>
+                    <p>Mặt hàng</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item menu-open">
+              <a href="#" class="nav-link active">
+                <i class="nav-icon bi bi-cash-stack"></i>
+                <p>
+                  Quản lý bán hàng
+                  <i class="nav-arrow bi bi-chevron-right"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon bi bi-cart-plus"></i>
+                    <p>Lập đơn hàng</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon bi bi-receipt"></i>
+                    <p>Quản lý đơn hàng</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+          </ul>
+          <!--end::Sidebar Menu-->
+        </nav>
+      </div>
+      <!--end::Sidebar Wrapper-->
+    </aside>
+    <!--end::Sidebar-->
+
+    <!--begin::App Main-->
+    <main class="app-main">
+      <!--begin::App Content Header-->
+      <div class="app-content-header">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-sm-12">
+              <h3 class="mb-0">Page Title</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--end::App Content Header-->
+
+      <!--begin::App Content-->
+      <div class="app-content">
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Title</h3>
+              <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse" title="Collapse">
+                  <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                  <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-lte-toggle="card-remove" title="Remove">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body" style="height: 100vh;">
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, sit illo aspernatur voluptatem iure
+                accusamus sint minima facilis, perferendis beatae quasi iusto tempore similique qui velit dolores quis
+                dolorum. Eveniet?
+              </p>
+
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Open Modal
+              </button>
+
+            </div>
+            <div class="card-footer">Footer</div>
+          </div>
+        </div>
+      </div>
+      <!--end::App Content-->
+
+    </main>
+    <!--end::App Main-->
+
+    <!--begin::Footer-->
+    <footer class="app-footer bg-body-secondary">
+      <div class="float-end d-none d-sm-inline">Anything you want</div>
+      <strong>
+        Copyright &copy; 2014-2025&nbsp;
+        <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
+      </strong>
+      All rights reserved.
+    </footer>
+    <!--end::Footer-->
+  </div>
+
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title">Tiêu đề Modal</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          Nội dung modal ở đây...
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Đóng
+          </button>
+          <button type="button" class="btn btn-primary">
+            Lưu
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="lib/overlay-scrollbars/overlayscrollbars.browser.es6.min.js"></script>
+  <script src="lib/popperjs/popper.min.js"></script>
+  <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+  <script type="module" src="lib/adminlte/js/adminlte.js"></script>
+  
+</body>
+
+</html>
+- favicon.ico (Trong project Admin, wwwroot) là cái ảnh.
+- _ViewStart.cshtml (Trong project Admin, Views/):
+@{
+    Layout = "_Layout";
+}
+- _Layout.cshtml (Trong project Admin, Views/Shared/):
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiteCommerce</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <link rel="stylesheet" href="~/lib/overlay-scrollbars/overlayscrollbars.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/adminlte/css/adminlte.css" />
+    <link rel="stylesheet" href ="~/css/site.css" />
+</head>
+
+<body class="layout-fixed fixed-header fixed-footer sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+
+        <!--Cắt nội dung Header bỏ vào file _Header.cshtml, rồi gọi lại-->
+        @{ await Html.RenderPartialAsync("_Header"); }
+
+        <!--Cắt nội dung SideBar bỏ vào file _SideBar.cshtml, rồi gọi lại-->
+        @{ await Html.RenderPartialAsync("_SideBar"); }
+        
+        <!--begin::App Main-->
+        <main class="app-main">
+            <!--begin::App Content Header: giữ lại-->
+            <div class="app-content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h3 class="mb-0">@ViewBag.Title</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end::App Content Header-->
+            <!--begin::App Content-->
+            <div class="app-content">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+            <!--end::App Content-->
+
+        </main>
+        <!--end::App Main-->
+
+        <!--Cắt nội dung SideBar bỏ vào file _SideBar.cshtml, rồi gọi lại-->
+        @{ await Html.RenderPartialAsync("_Footer"); }
+    </div>
+
+    <script src="~/lib/overlay-scrollbars/overlayscrollbars.browser.es6.min.js"></script>
+    <script src="~/lib/popperjs/popper.min.js"></script>
+    <script src="~/lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="~/lib/adminlte/js/adminlte.js"></script>
+
+</body>
+
+</html>
+- _Footer.cshtml (Trong project Admin, Views/Shared/):
+<!--begin::Footer-->
+<footer class="app-footer bg-body-secondary">
+    <div class="float-end d-none d-sm-inline">Anything you want</div>
+    <strong>
+        Copyright &copy; 2014-2025&nbsp;
+        <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
+    </strong>
+    All rights reserved.
+</footer>
+<!--end::Footer-->
+- _Header.cshtml (Trong project Admin, Views/Shared/):
+<!--begin::Header-->
+<nav class="app-header navbar navbar-expand bg-body-secondary">
+    <div class="container-fluid">
+        <!--begin::Start Navbar Links-->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                    <i class="bi bi-list"></i>
+                </a>
+            </li>
+            <li class="nav-item d-none d-md-block"><a href="~/Home" class="nav-link">Home</a></li>
+            <li class="nav-item d-none d-md-block"><a href="~/Contact" class="nav-link">Contact</a></li>
+        </ul>
+        <!--end::Start Navbar Links-->
+        <!--begin::End Navbar Links-->
+        <ul class="navbar-nav ms-auto">
+            <!--begin::User Menu Dropdown-->
+            <li class="nav-item dropdown user-menu">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <img src="~/lib/adminlte/assets/img/user2-160x160.jpg" class="user-image rounded-circle shadow" alt="User Image" />
+                    <span class="d-none d-md-inline">Trần Nguyên Phong</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                    <!--begin::User Image-->
+                    <li class="user-header text-bg-primary">
+                        <img src="~/lib/adminlte/assets/img/user2-160x160.jpg" class="rounded-circle shadow" alt="User Image" />
+                        <p>
+                            Trần Nguyên Phong
+                        </p>
+                    </li>
+                    <!--end::User Image-->
+                    <!--begin::Menu Footer-->
+                    <li class="user-footer">
+                        <a href="~/Account/ChangePassword" class="btn btn-default btn-flat">Đổi mật khẩu</a>
+                        <a href="~/Account/Logout" class="btn btn-default btn-flat float-end">Thoát</a>
+                    </li>
+                    <!--end::Menu Footer-->
+                </ul>
+            </li>
+            <!--end::User Menu Dropdown-->
+        </ul>
+        <!--end::End Navbar Links-->
+    </div>
+</nav>
+<!--end::Header-->
+- _Sidebar.cshtml (Trong project Admin, Views/Shared/):
+<!--begin::Sidebar-->
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <!--begin::Sidebar Brand-->
+    <div class="sidebar-brand">
+        <a href="~/Home" class="brand-link">
+            <img src="~/lib/adminlte/assets/img/AdminLTELogo.png" alt="Logo" class="brand-image opacity-75 shadow" />
+            <span class="brand-text fw-light">LiteShop</span>
+        </a>
+    </div>
+    <!--end::Sidebar Brand-->
+    <!--begin::Sidebar Wrapper-->
+    <div class="sidebar-wrapper">
+        <nav class="mt-2">
+            <!--begin::Sidebar Menu-->
+            <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation"
+                aria-label="Main navigation" data-accordion="false" id="navigation">
+
+                <li class="nav-item">
+                    <a href="~/Home" class="nav-link">
+                        <i class="nav-icon bi bi-speedometer2"></i>
+                        <p>Trang chủ</p>
+                    </a>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-archive"></i>
+                        <p>
+                            Quản lý dữ liệu
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Supplier" class="nav-link">
+                                <i class="nav-icon bi bi-truck"></i>
+                                <p>Nhà cung cấp</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Customer" class="nav-link">
+                                <i class="nav-icon bi bi-people"></i>
+                                <p>Khách hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Shipper" class="nav-link">
+                                <i class="nav-icon bi bi-bicycle"></i>
+                                <p>Người giao hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Employee" class="nav-link">
+                                <i class="nav-icon bi bi-people-fill"></i>
+                                <p>Nhân viên</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-archive"></i>
+                        <p>
+                            Quản lý hàng hóa
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Category" class="nav-link">
+                                <i class="nav-icon bi bi-collection"></i>
+                                <p>Loại hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Product" class="nav-link">
+                                <i class="nav-icon bi bi-boxes"></i>
+                                <p>Mặt hàng</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-cash-stack"></i>
+                        <p>
+                            Quản lý bán hàng
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Order/Create" class="nav-link">
+                                <i class="nav-icon bi bi-cart-plus"></i>
+                                <p>Lập đơn hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Order" class="nav-link">
+                                <i class="nav-icon bi bi-receipt"></i>
+                                <p>Quản lý đơn hàng</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+            <!--end::Sidebar Menu-->
+        </nav>
+    </div>
+    <!--end::Sidebar Wrapper-->
+</aside>
+<!--end::Sidebar-->
+- script CSDL SQL Server 2014:
+USE [master]
+GO
+/****** Object:  Database [LiteCommerceDB]    Script Date: 26/01/2026 7:49:27 SA ******/
+CREATE DATABASE [LiteCommerceDB]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'LiteCommerceDB', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\LiteCommerceDB.mdf' , SIZE = 4096KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+ LOG ON 
+( NAME = N'LiteCommerceDB_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\LiteCommerceDB_log.ldf' , SIZE = 2048KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
+GO
+ALTER DATABASE [LiteCommerceDB] SET COMPATIBILITY_LEVEL = 120
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [LiteCommerceDB].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_CLOSE OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [LiteCommerceDB] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET RECOVERY FULL 
+GO
+ALTER DATABASE [LiteCommerceDB] SET  MULTI_USER 
+GO
+ALTER DATABASE [LiteCommerceDB] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [LiteCommerceDB] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [LiteCommerceDB] SET TARGET_RECOVERY_TIME = 0 SECONDS 
+GO
+ALTER DATABASE [LiteCommerceDB] SET DELAYED_DURABILITY = DISABLED 
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'LiteCommerceDB', N'ON'
+GO
+USE [LiteCommerceDB]
+GO
+/****** Object:  Table [dbo].[Categories]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Categories](
+	[CategoryID] [int] IDENTITY(1,1) NOT NULL,
+	[CategoryName] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Categories] PRIMARY KEY CLUSTERED 
+(
+	[CategoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Customers]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Customers](
+	[CustomerID] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerName] [nvarchar](255) NOT NULL,
+	[ContactName] [nvarchar](255) NOT NULL,
+	[Province] [nvarchar](255) NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](50) NULL,
+	[Password] [nvarchar](50) NULL,
+	[IsLocked] [bit] NULL,
+ CONSTRAINT [PK__Customers] PRIMARY KEY CLUSTERED 
+(
+	[CustomerID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UK_Customers_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Employees]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Employees](
+	[EmployeeID] [int] IDENTITY(1,1) NOT NULL,
+	[FullName] [nvarchar](255) NOT NULL,
+	[BirthDate] [date] NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](50) NULL,
+	[Password] [nvarchar](50) NULL,
+	[Photo] [nvarchar](255) NULL,
+	[IsWorking] [bit] NULL,
+	[RoleNames] [nvarchar](500) NULL,
+ CONSTRAINT [PK__Employees] PRIMARY KEY CLUSTERED 
+(
+	[EmployeeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UK_Employees_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[OrderDetails]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrderDetails](
+	[OrderID] [int] NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[Quantity] [int] NOT NULL,
+	[SalePrice] [money] NULL,
+ CONSTRAINT [PK_OrderDetails] PRIMARY KEY CLUSTERED 
+(
+	[OrderID] ASC,
+	[ProductID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Orders]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Orders](
+	[OrderID] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerID] [int] NULL,
+	[OrderTime] [datetime] NOT NULL,
+	[DeliveryProvince] [nvarchar](255) NULL,
+	[DeliveryAddress] [nvarchar](255) NULL,
+	[EmployeeID] [int] NULL,
+	[AcceptTime] [datetime] NULL,
+	[ShipperID] [int] NULL,
+	[ShippedTime] [datetime] NULL,
+	[FinishedTime] [datetime] NULL,
+	[Status] [int] NOT NULL,
+ CONSTRAINT [PK__Orders] PRIMARY KEY CLUSTERED 
+(
+	[OrderID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[OrderStatus]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrderStatus](
+	[Status] [int] NOT NULL,
+	[Description] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_OrderStatus] PRIMARY KEY CLUSTERED 
+(
+	[Status] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[ProductAttributes]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductAttributes](
+	[AttributeID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[AttributeName] [nvarchar](255) NOT NULL,
+	[AttributeValue] [nvarchar](max) NOT NULL,
+	[DisplayOrder] [int] NOT NULL,
+ CONSTRAINT [PK_ProductAttributes] PRIMARY KEY CLUSTERED 
+(
+	[AttributeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[ProductPhotos]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductPhotos](
+	[PhotoID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[Photo] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NOT NULL,
+	[DisplayOrder] [int] NOT NULL,
+	[IsHidden] [bit] NOT NULL,
+ CONSTRAINT [PK_ProductPhotos] PRIMARY KEY CLUSTERED 
+(
+	[PhotoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Products]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Products](
+	[ProductID] [int] IDENTITY(1,1) NOT NULL,
+	[ProductName] [nvarchar](255) NOT NULL,
+	[ProductDescription] [nvarchar](2000) NULL,
+	[SupplierID] [int] NULL,
+	[CategoryID] [int] NULL,
+	[Unit] [nvarchar](255) NOT NULL,
+	[Price] [money] NOT NULL,
+	[Photo] [nvarchar](255) NULL,
+	[IsSelling] [bit] NULL,
+ CONSTRAINT [PK__Products] PRIMARY KEY CLUSTERED 
+(
+	[ProductID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Provinces]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Provinces](
+	[ProvinceName] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_Provinces] PRIMARY KEY CLUSTERED 
+(
+	[ProvinceName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Shippers]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Shippers](
+	[ShipperID] [int] IDENTITY(1,1) NOT NULL,
+	[ShipperName] [nvarchar](255) NOT NULL,
+	[Phone] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Shippers] PRIMARY KEY CLUSTERED 
+(
+	[ShipperID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Suppliers]    Script Date: 26/01/2026 7:49:27 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Suppliers](
+	[SupplierID] [int] IDENTITY(1,1) NOT NULL,
+	[SupplierName] [nvarchar](255) NOT NULL,
+	[ContactName] [nvarchar](255) NOT NULL,
+	[Province] [nvarchar](255) NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Suppliers] PRIMARY KEY CLUSTERED 
+(
+	[SupplierID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+ALTER TABLE [dbo].[Categories] ADD  CONSTRAINT [DF__Categorie__Categ__35BCFE0A]  DEFAULT (NULL) FOR [CategoryName]
+GO
+ALTER TABLE [dbo].[Categories] ADD  CONSTRAINT [DF__Categorie__Descr__36B12243]  DEFAULT (NULL) FOR [Description]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Custo__38996AB5]  DEFAULT (NULL) FOR [CustomerName]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Conta__398D8EEE]  DEFAULT (NULL) FOR [ContactName]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Addre__3A81B327]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__City__3B75D760]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__LastN__3F466844]  DEFAULT (NULL) FOR [FullName]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__Birth__412EB0B6]  DEFAULT (NULL) FOR [BirthDate]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__Photo__4222D4EF]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[OrderDetails] ADD  CONSTRAINT [DF__OrderDeta__Quant__48CFD27E]  DEFAULT (NULL) FOR [Quantity]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__Customer__440B1D61]  DEFAULT (NULL) FOR [CustomerID]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__OrderDat__45F365D3]  DEFAULT (NULL) FOR [OrderTime]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__Employee__44FF419A]  DEFAULT (NULL) FOR [EmployeeID]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__ShipperI__46E78A0C]  DEFAULT (NULL) FOR [ShipperID]
+GO
+ALTER TABLE [dbo].[ProductPhotos] ADD  CONSTRAINT [DF_ProductGallery_IsHidden]  DEFAULT ((0)) FOR [IsHidden]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Produc__4AB81AF0]  DEFAULT (NULL) FOR [ProductName]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Suppli__4BAC3F29]  DEFAULT (NULL) FOR [SupplierID]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Catego__4CA06362]  DEFAULT (NULL) FOR [CategoryID]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Unit__4D94879B]  DEFAULT (NULL) FOR [Unit]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Price__4E88ABD4]  DEFAULT (NULL) FOR [Price]
+GO
+ALTER TABLE [dbo].[Shippers] ADD  CONSTRAINT [DF__Shippers__Shippe__619B8048]  DEFAULT (NULL) FOR [ShipperName]
+GO
+ALTER TABLE [dbo].[Shippers] ADD  CONSTRAINT [DF__Shippers__Phone__628FA481]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Suppl__6477ECF3]  DEFAULT (NULL) FOR [SupplierName]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Conta__656C112C]  DEFAULT (NULL) FOR [ContactName]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Addre__66603565]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Phone__6A30C649]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Customers]  WITH CHECK ADD  CONSTRAINT [FK_Customers_Provinces] FOREIGN KEY([Province])
+REFERENCES [dbo].[Provinces] ([ProvinceName])
+ON UPDATE CASCADE
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[Customers] CHECK CONSTRAINT [FK_Customers_Provinces]
+GO
+ALTER TABLE [dbo].[OrderDetails]  WITH CHECK ADD  CONSTRAINT [FK_OrderDetails_Orders] FOREIGN KEY([OrderID])
+REFERENCES [dbo].[Orders] ([OrderID])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [FK_OrderDetails_Orders]
+GO
+ALTER TABLE [dbo].[OrderDetails]  WITH CHECK ADD  CONSTRAINT [FK_OrderDetails_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [FK_OrderDetails_Products]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Customers] FOREIGN KEY([CustomerID])
+REFERENCES [dbo].[Customers] ([CustomerID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Customers]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Employees] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employees] ([EmployeeID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Employees]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_OrderStatus] FOREIGN KEY([Status])
+REFERENCES [dbo].[OrderStatus] ([Status])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_OrderStatus]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Shippers] FOREIGN KEY([ShipperID])
+REFERENCES [dbo].[Shippers] ([ShipperID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Shippers]
+GO
+ALTER TABLE [dbo].[ProductAttributes]  WITH CHECK ADD  CONSTRAINT [FK_ProductAttributes_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[ProductAttributes] CHECK CONSTRAINT [FK_ProductAttributes_Products]
+GO
+ALTER TABLE [dbo].[ProductPhotos]  WITH CHECK ADD  CONSTRAINT [FK_ProductGallery_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[ProductPhotos] CHECK CONSTRAINT [FK_ProductGallery_Products]
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD  CONSTRAINT [FK_Products_Categories] FOREIGN KEY([CategoryID])
+REFERENCES [dbo].[Categories] ([CategoryID])
+GO
+ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [FK_Products_Categories]
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD  CONSTRAINT [FK_Products_Suppliers] FOREIGN KEY([SupplierID])
+REFERENCES [dbo].[Suppliers] ([SupplierID])
+GO
+ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [FK_Products_Suppliers]
+GO
+ALTER TABLE [dbo].[Suppliers]  WITH CHECK ADD  CONSTRAINT [FK_Suppliers_Provinces] FOREIGN KEY([Province])
+REFERENCES [dbo].[Provinces] ([ProvinceName])
+ON UPDATE CASCADE
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[Suppliers] CHECK CONSTRAINT [FK_Suppliers_Provinces]
+GO
+USE [master]
+GO
+ALTER DATABASE [LiteCommerceDB] SET  READ_WRITE 
+GO
+
+
+* Ghi chú:
+- Tôi đang sử dụng Visual Studio 2022, SQL Server 2014 Developer Edition, trên Windows 11.
+- Có một Solution tên là SV22T1020362.
+- Có các projects nằm trong Solution ở trên:
++ 2 project ASP.NET Web Core MVC tên là: SV22T1020362.Admin và SV22T1020362.Shop. Thực hiện theo mô hình Model - View - Controllers. 2 project này, mỗi cái đều có 3 project references là: SV22T1020362.Models, SV22T1020362.DataLayers, SV22T1020362.BusinessLayers.
++ 3 project class library (Cho phần Model) với thứ tự: 1 cái là SV22T1020362.Models chỉ chứa file cs để khai báo lớp cho đối tượng bên CSDL; 1 cái là SV22T1020362.DataLayers có 1 project references là SV22T1020362.Models ở trên và 2 package là Dapper 2.1.66 và Microsoft.Data.SqlClient 6.1.4 để thực hiện kết nối cho DAL (hay còn gọi là DAO, kết nối trực tiếp tới CSDL, đóng vai trò là DAL (DAO); 1 cái là SV22T1020362.BusinessLayers có 2 project references là SV22T1020362.Models và SV22T1020362.DataLayers ở trên, đóng vai trò là BO, được sử dụng trong Controllers. 
++ Trong 2 project ASP.NET Web Core MVC, Sử dụng thư viện lib của AdminLTE-4 gồm 6: adminlte, bootstrap, font-awesome, overlay-scrollbars, popperjs, source-sans-3 trong wwwroot/lib. Trong wwwroot có favicon.ico và Layout.html. Layout.html có nội dung như trên.
+
+* Yêu cầu: Viết file code tên là Product.cs và Order.cs là 2 model của 2 bảng dữ liệu tương ứng bên CSDL (Tương ứng với tầng Models - SV22T1020362.Models trong MVC). Biết rằng các chức năng của chúng:
+- Product:
+	- Product/Index (Hiển thị ds sản phẩm, lọc, tìm kiếm)
+		- Tìm kiếm, lọc mặt hàng theo nhà cung cấp, phân loại, khoảng giá, tên
+		- Hiển thị dưới dạng phân trang
+	- Product/Detail/{id}
+	- Product/Create
+	- Product/Edit/{id}
+	- Product/Delete/{id}
+	- Product/ListAttributes/{id}
+		- Hiển thị danh sách thuộc tính của mặt hàng
+	- Product/AddAttribute/{id}
+		- Bổ sung 1 thuộc tính cho mặt hàng. Thuộc tính có attributeId, mặt hàng có id.
+	- Product/EditAttribute/{id}?attributeId={attributeId}
+		- Edit 1 thuộc tính của mặt hàng
+	- Product/DeleteAttribute/{id}?attributeId={attributeId}
+		- Xóa 1 thuộc tính của mặt hàng
+	- Product/ListPhotos/{id}
+	- Product/AddPhoto/{id}
+	- Product/EditPhoto/{id}?photoId={photoId}
+	- Product/DeletePhoto/{id}?photoId={photoId}
+- Order
+	- Order/Index
+		- Hiển thị, tìm kiếm đơn hàng
+	- Order/Detail/{id}
+		- Xem chi tiết đơn hàng
+	- Order/Create
+		- Thêm 1 đơn hàng
+	- ... (Phức tạp, còn nhiều quy trình nghiệp vụ BusinessProcess, làm cuối cùng)
+	- 
+Product phức tạp vì liên quan đến 2 bảng dữ liệu con là ProductAttributes và ProductPhotos. Order phức tạp vì liên quan đến luồng nghiệp vụ.
+* Hãy giúp tôi làm phần yêu cầu, theo các file code và ghi chú ở trên.

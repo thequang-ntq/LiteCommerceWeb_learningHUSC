@@ -1,0 +1,2338 @@
+* Tôi đang sử dụng Visual Studio 2022, SQL Server 2014 Developer Edition, trên Windows 11.
+- Có một Solution tên là SV22T1020362.
+- Có các projects nằm trong Solution ở trên:
++ 2 project ASP.NET Web Core MVC tên là: SV22T1020362.Admin và SV22T1020362.Shop. Thực hiện theo mô hình Model - View - Controllers. 2 project này, mỗi cái đều có 3 project references là: SV22T1020362.Models, SV22T1020362.DataLayers, SV22T1020362.BusinessLayers.
++ 3 project class library (Cho phần Model) với thứ tự: 1 cái là SV22T1020362.Models chỉ chứa file cs để khai báo lớp cho đối tượng bên CSDL; 1 cái là SV22T1020362.DataLayers có 1 project references là SV22T1020362.Models ở trên và 2 package là Dapper 2.1.66 và Microsoft.Data.SqlClient 6.1.4 để thực hiện kết nối cho DAL (hay còn gọi là DAO, kết nối trực tiếp tới CSDL, đóng vai trò là DAL (DAO); 1 cái là SV22T1020362.BusinessLayers có 2 project references là SV22T1020362.Models và SV22T1020362.DataLayers ở trên, đóng vai trò là BO, được sử dụng trong Controllers. 
++ Trong 2 project ASP.NET Web Core MVC, Sử dụng thư viện lib của AdminLTE-4 gồm 6: adminlte, bootstrap, font-awesome, overlay-scrollbars, popperjs, source-sans-3 trong wwwroot/lib. Trong wwwroot có favicon.ico và Layout.html. Layout.html có nội dung như trên.
+* Để biểu diễn đầu vào, đầu ra tìm kiếm phân trang, tôi sử dụng các lớp:
+- SV22T1020362.Models/Common/PaginationSearhInput.cs:
+namespace SV22T1020362.Models.Common
+{
+    /// <summary>
+    /// Lớp dùng để biểu diễn thông tin đầu vào của một truy vấn/tìm kiếm dữ liệu đơn giản dưới dạng phân trang
+    /// </summary>
+    public class PaginationSearchInput
+    {
+        private const int MaxPageSize = 100; //Giới hạn tối đa 100 dòng mỗi trang
+        private int _page = 1;
+        private int _pageSize = 20;
+        private string _searchValue = "";
+        
+        /// <summary>
+        /// Trang cần được hiển thị (bắt đầu từ 1)
+        /// </summary>
+        public int Page 
+        { 
+            get => _page;
+            set => _page = value < 1 ? 1 : value;
+        }
+        /// <summary>
+        /// Số dòng được hiển thị trên mỗi trang (0 có nghĩa là hiển thị tất cả các dòng trên một trang, tức là không phân trang)
+        /// </summary>
+        public int PageSize 
+        { 
+            get => _pageSize; 
+            set
+            {
+                if (value < 0)
+                    _pageSize = 0;
+                else if (value > MaxPageSize)
+                    _pageSize = MaxPageSize;
+                else
+                    _pageSize = value;
+            }
+        }
+        /// <summary>
+        /// Giá trị tìm kiếm (nếu có) được sử dụng để lọc dữ liệu (Nếu không có giá trị tìm kiếm, thì để rỗng)
+        /// </summary>
+        public string SearchValue
+        { 
+            get => _searchValue; 
+            set => _searchValue = value?.Trim() ?? ""; 
+        }        
+        /// <summary>
+        /// Số dòng cần bỏ qua (tính từ dòng đầu tiên của tập dữ liệu) để lấy dữ liệu cho trang hiện tại
+        /// </summary>
+        public int Offset => PageSize > 0 ? (Page - 1) * PageSize : 0;
+    }
+}
+- SV22T1020362.Models/Common/PagedResult.cs:
+namespace SV22T1020362.Models.Common
+{
+    /// <summary>
+    /// Lớp dùng để biểu diễn kết quả truy vấn/tìm kiếm dữ liệu dưới dạng phân trang
+    /// </summary>
+    /// <typeparam name="T">Kiểu của dữ liệu truy vấn được</typeparam>
+    public class PagedResult<T> where T : class
+    {
+        /// <summary>
+        /// Trang đang được hiển thị
+        /// </summary>
+        public int Page { get; set; }
+        /// <summary>
+        /// Số dòng được hiển thị trên mỗi trang (0 có nghĩa là hiển thị tất cả các dòng trên một trang/không phân trang)
+        /// </summary>
+        public int PageSize { get; set; }        
+        /// <summary>
+        /// Tổng số dòng dữ liệu được tìm thấy
+        /// </summary>
+        public int RowCount { get; set; }
+        /// <summary>
+        /// Danh sách các dòng dữ liệu được hiển thị trên trang hiện tại
+        /// </summary>
+        public List<T> DataItems { get; set; } = new List<T>();
+
+        /// <summary>
+        /// Tổng số trang
+        /// </summary>
+        public int PageCount
+        {
+            get
+            {
+                if (PageSize == 0)
+                    return 1;
+                return (int)Math.Ceiling((decimal)RowCount / PageSize);
+            }
+        }
+        /// <summary>
+        /// Có trang trước không?
+        /// </summary>
+        public bool HasPreviousPage => Page > 1;
+        /// <summary>
+        /// Có trang sau không?
+        /// </summary>
+        public bool HasNextPage => Page < PageCount;             
+        /// <summary>
+        /// Lấy danh sách các trang được hiển thị trên thanh phân trang
+        /// </summary>
+        /// <param name="n">Số lượng trang lân cận trang hiện tại cần được hiển thị</param>
+        /// <returns></returns>
+        public List<PageItem> GetDisplayPages(int n = 5)
+        {
+            var result = new List<PageItem>();
+
+            if (PageCount == 0)
+                return result;
+
+            n = n > 0 ? n : 5; //Giá trị n không hợp lệ, đặt lại về mặc định            
+
+            int currentPage = Page;
+            if (currentPage < 1) 
+                currentPage = 1;
+            else if (currentPage > PageCount)
+                currentPage = PageCount;
+
+            int displayedPages = 2 * n + 1;     //Số lượng trang tối đa hiển thị trên thanh phân trang (bao gồm cả trang hiện tại)
+            int startPage = currentPage - n;    //Trang bắt đầu hiển thị
+            int endPage = currentPage + n;      //Trang kết thúc hiển thị
+
+            //Nếu thiếu bên trái
+            if (startPage < 1)
+            {
+                endPage += (1 - startPage);
+                startPage = 1;
+            }
+
+            //Nếu thiếu bên phải
+            if (endPage > PageCount)
+            {
+                startPage -= (endPage - PageCount);
+                endPage = PageCount;
+            }
+
+            //Gán lại bằng 1 nếu startPage bị âm sau khi trừ
+            if (startPage < 1)
+                startPage = 1;
+
+            //Đảm bảo không vượt quá displayedPages
+            if (endPage - startPage + 1 > displayedPages)
+                endPage = startPage + displayedPages - 1;
+
+            //Trang đầu
+            if (startPage > 1)
+            {
+                result.Add(new PageItem(1, currentPage == 1));
+                //Thêm dấu "..." để phân cách nếu có nhiều trang ở giữa
+                if (startPage > 2)
+                    result.Add(new PageItem(0));
+            }
+
+            //Trang hiện tại và các trang lân cận
+            for (int i = startPage; i <= endPage; i++)
+            {
+                result.Add(new PageItem(i, i == currentPage));
+            }
+
+            //Trang cuối
+            if (endPage < PageCount)
+            {
+                //Thêm dấu "..." để phân cách nếu có nhiều trang ở giữa
+                if (endPage < PageCount - 1)
+                    result.Add(new PageItem(0));
+                result.Add(new PageItem(PageCount, currentPage == PageCount));
+            }
+
+            return result;
+        }
+    }
+}
+- - SV22T1020362.Models/Common/PageItem.cs:
+namespace SV22T1020362.Models.Common
+{
+    /// <summary>
+    /// Phần tử trên thanh phân trang, có thể là một số trang hoặc dấu "..." để phân cách các nhóm trang
+    /// </summary>
+    public class PageItem
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="pageNumber">0 nếu là phần tử dùng để thể hiện dấu "..." phân cách</param>
+        /// <param name="isCurrent"></param>
+        public PageItem(int pageNumber, bool isCurrent = false)
+        {
+            Page = pageNumber;
+            IsCurrent = isCurrent;
+        }
+        /// <summary>
+        /// Số trang (có giá trị là 0 nếu là dấu "..." để phân cách các nhóm trang)
+        /// </summary>
+        public int Page { get; set; }
+        /// <summary>
+        /// Có phải là trang hiện tại hay không?
+        /// </summary>
+        public bool IsCurrent { get; set; }
+        /// <summary>
+        /// Có phải là vị trí hiển thị dấu "..." để phân cách các nhóm trang hay không?
+        /// </summary>
+        public bool IsEllipsis => Page == 0;
+    }
+}
+- Lớp biểu diễn dữ liệu Supplier:
+SV22T1020362.Models/Partner/Supplier.cs:
+namespace SV22T1020362.Models.Partner
+{
+    /// <summary>
+    /// Nhà cung cấp
+    /// </summary>
+    public class Supplier
+    {
+        /// <summary>
+        /// Mã nhà cung cấp
+        /// </summary>
+        public int SupplierID { get; set; }
+        /// <summary>
+        /// Tên nhà cung cấp
+        /// </summary>
+        public string SupplierName { get; set; } = string.Empty;
+        /// <summary>
+        /// Tên giao dịch
+        /// </summary>
+        public string ContactName { get; set; } = string.Empty;
+        /// <summary>
+        /// Tỉnh thành
+        /// </summary>
+        public string? Province { get; set; }
+        /// <summary>
+        /// Địa chỉ
+        /// </summary>
+        public string? Address { get; set; }
+        /// <summary>
+        /// Điện thoại
+        /// </summary>
+        public string? Phone { get; set; }
+        /// <summary>
+        /// Email
+        /// </summary>
+        public string? Email { get; set; }
+    }
+}
+
+- Interface định nghĩa các phép xử lý dữ liệu cho Supplier:
++ SV22T1020362.DataLayers/Interface/ISupplierRepository.cs:
+using SV22T1020362.Models.Common;
+using SV22T1020362.Models.Partner;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SV22T1020362.DataLayers.Interface
+{
+    /// <summary>
+    /// Định nghĩa các phép xử lý dữ liệu liên quan đến nhà cung cấp
+    /// </summary>
+    public interface ISupplierRepository
+    {
+        /// <summary>
+        /// Tìm kiếm và lấy danh sách nhà cung cấp dưới dạng phân trang
+        /// </summary>
+        /// <param name="input"> Lớp biểu diễn thông tin đầu vào của một truy vấn / tìm kiếm</param>
+        /// <returns></returns>
+        Task<PagedResult<Supplier>> ListAsync(PaginationSearchInput input);
+        /// <summary>
+        /// Lấy thông tin của một nhà cung cấp
+        /// </summary>
+        /// <param name="id">Mã nhà cung cấp</param>
+        /// <returns></returns>
+        Task<Supplier?> GetAsync(int id);
+        /// <summary>
+        /// Bổ sung một nhà cung cấp mới vào CSDL
+        /// </summary>
+        /// <param name="data">Dữ liệu nhà cung cấp</param>
+        /// <returns>Mã nhà cung cấp được bổ sung (lấy từ giá trị IDENTITY)</returns>
+        Task<int> AddAsync(Supplier data);
+        /// <summary>
+        /// Cập nhật thông tin nhà cung cấp
+        /// </summary>
+        /// <param name="data">Dữ liệu nhà cung cấp</param>
+        /// <returns>True nếu thành công, False nếu không thành công</returns>
+        Task<bool> UpdateAsync(Supplier data);
+        /// <summary>
+        /// Xóa thông tin nhà cung cấp
+        /// </summary>
+        /// <param name="id">ID nhà cung cấp</param>
+        /// <returns>True nếu thành công, False nếu không thành công</returns>
+        Task<bool> DeleteAsync(int id);
+        /// <summary>
+        /// Kiểm tra xem nhà cung cấp có dữ liệu liên quan hay không
+        /// </summary>
+        /// <param name="id">Mã nhà cung cấp</param>
+        /// <returns>True nếu đang sử dụng (Không được xóa), False nếu không</returns>
+        Task<bool> IsUsed(int id);
+
+    }
+}
+- Scripts CSDL SQLServer:
+USE [master]
+GO
+/****** Object:  Database [LiteCommerceDB]    Script Date: 29/01/2026 2:32:40 CH ******/
+CREATE DATABASE [LiteCommerceDB]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'LiteCommerceDB', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\LiteCommerceDB.mdf' , SIZE = 5120KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+ LOG ON 
+( NAME = N'LiteCommerceDB_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\LiteCommerceDB_log.ldf' , SIZE = 2304KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
+GO
+ALTER DATABASE [LiteCommerceDB] SET COMPATIBILITY_LEVEL = 120
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [LiteCommerceDB].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_CLOSE OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [LiteCommerceDB] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET RECOVERY FULL 
+GO
+ALTER DATABASE [LiteCommerceDB] SET  MULTI_USER 
+GO
+ALTER DATABASE [LiteCommerceDB] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [LiteCommerceDB] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [LiteCommerceDB] SET TARGET_RECOVERY_TIME = 0 SECONDS 
+GO
+ALTER DATABASE [LiteCommerceDB] SET DELAYED_DURABILITY = DISABLED 
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'LiteCommerceDB', N'ON'
+GO
+USE [LiteCommerceDB]
+GO
+/****** Object:  Table [dbo].[Categories]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Categories](
+	[CategoryID] [int] IDENTITY(1,1) NOT NULL,
+	[CategoryName] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Categories] PRIMARY KEY CLUSTERED 
+(
+	[CategoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Customers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Customers](
+	[CustomerID] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerName] [nvarchar](255) NOT NULL,
+	[ContactName] [nvarchar](255) NOT NULL,
+	[Province] [nvarchar](255) NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](50) NULL,
+	[Password] [nvarchar](50) NULL,
+	[IsLocked] [bit] NULL,
+ CONSTRAINT [PK__Customers] PRIMARY KEY CLUSTERED 
+(
+	[CustomerID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UK_Customers_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Employees]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Employees](
+	[EmployeeID] [int] IDENTITY(1,1) NOT NULL,
+	[FullName] [nvarchar](255) NOT NULL,
+	[BirthDate] [date] NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](50) NULL,
+	[Password] [nvarchar](50) NULL,
+	[Photo] [nvarchar](255) NULL,
+	[IsWorking] [bit] NULL,
+	[RoleNames] [nvarchar](500) NULL,
+ CONSTRAINT [PK__Employees] PRIMARY KEY CLUSTERED 
+(
+	[EmployeeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UK_Employees_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[OrderDetails]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrderDetails](
+	[OrderID] [int] NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[Quantity] [int] NOT NULL,
+	[SalePrice] [money] NOT NULL,
+ CONSTRAINT [PK_OrderDetails] PRIMARY KEY CLUSTERED 
+(
+	[OrderID] ASC,
+	[ProductID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Orders]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Orders](
+	[OrderID] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerID] [int] NULL,
+	[OrderTime] [datetime] NOT NULL,
+	[DeliveryProvince] [nvarchar](255) NULL,
+	[DeliveryAddress] [nvarchar](255) NULL,
+	[EmployeeID] [int] NULL,
+	[AcceptTime] [datetime] NULL,
+	[ShipperID] [int] NULL,
+	[ShippedTime] [datetime] NULL,
+	[FinishedTime] [datetime] NULL,
+	[Status] [int] NOT NULL,
+ CONSTRAINT [PK__Orders] PRIMARY KEY CLUSTERED 
+(
+	[OrderID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[OrderStatus]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrderStatus](
+	[Status] [int] NOT NULL,
+	[Description] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_OrderStatus] PRIMARY KEY CLUSTERED 
+(
+	[Status] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[ProductAttributes]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductAttributes](
+	[AttributeID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[AttributeName] [nvarchar](255) NOT NULL,
+	[AttributeValue] [nvarchar](max) NOT NULL,
+	[DisplayOrder] [int] NOT NULL,
+ CONSTRAINT [PK_ProductAttributes] PRIMARY KEY CLUSTERED 
+(
+	[AttributeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[ProductPhotos]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductPhotos](
+	[PhotoID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[Photo] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NOT NULL,
+	[DisplayOrder] [int] NOT NULL,
+	[IsHidden] [bit] NOT NULL,
+ CONSTRAINT [PK_ProductPhotos] PRIMARY KEY CLUSTERED 
+(
+	[PhotoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Products]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Products](
+	[ProductID] [int] IDENTITY(1,1) NOT NULL,
+	[ProductName] [nvarchar](255) NOT NULL,
+	[ProductDescription] [nvarchar](2000) NULL,
+	[SupplierID] [int] NULL,
+	[CategoryID] [int] NULL,
+	[Unit] [nvarchar](255) NOT NULL,
+	[Price] [money] NOT NULL,
+	[Photo] [nvarchar](255) NULL,
+	[IsSelling] [bit] NULL,
+ CONSTRAINT [PK__Products] PRIMARY KEY CLUSTERED 
+(
+	[ProductID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Provinces]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Provinces](
+	[ProvinceName] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_Provinces] PRIMARY KEY CLUSTERED 
+(
+	[ProvinceName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Shippers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Shippers](
+	[ShipperID] [int] IDENTITY(1,1) NOT NULL,
+	[ShipperName] [nvarchar](255) NOT NULL,
+	[Phone] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Shippers] PRIMARY KEY CLUSTERED 
+(
+	[ShipperID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Suppliers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Suppliers](
+	[SupplierID] [int] IDENTITY(1,1) NOT NULL,
+	[SupplierName] [nvarchar](255) NOT NULL,
+	[ContactName] [nvarchar](255) NOT NULL,
+	[Province] [nvarchar](255) NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Suppliers] PRIMARY KEY CLUSTERED 
+(
+	[SupplierID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+ALTER TABLE [dbo].[Categories] ADD  CONSTRAINT [DF__Categorie__Categ__35BCFE0A]  DEFAULT (NULL) FOR [CategoryName]
+GO
+ALTER TABLE [dbo].[Categories] ADD  CONSTRAINT [DF__Categorie__Descr__36B12243]  DEFAULT (NULL) FOR [Description]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Custo__38996AB5]  DEFAULT (NULL) FOR [CustomerName]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Conta__398D8EEE]  DEFAULT (NULL) FOR [ContactName]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Addre__3A81B327]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__City__3B75D760]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__LastN__3F466844]  DEFAULT (NULL) FOR [FullName]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__Birth__412EB0B6]  DEFAULT (NULL) FOR [BirthDate]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__Photo__4222D4EF]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[OrderDetails] ADD  CONSTRAINT [DF__OrderDeta__Quant__48CFD27E]  DEFAULT (NULL) FOR [Quantity]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__Customer__440B1D61]  DEFAULT (NULL) FOR [CustomerID]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__OrderDat__45F365D3]  DEFAULT (NULL) FOR [OrderTime]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__Employee__44FF419A]  DEFAULT (NULL) FOR [EmployeeID]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__ShipperI__46E78A0C]  DEFAULT (NULL) FOR [ShipperID]
+GO
+ALTER TABLE [dbo].[ProductPhotos] ADD  CONSTRAINT [DF_ProductGallery_IsHidden]  DEFAULT ((0)) FOR [IsHidden]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Produc__4AB81AF0]  DEFAULT (NULL) FOR [ProductName]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Suppli__4BAC3F29]  DEFAULT (NULL) FOR [SupplierID]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Catego__4CA06362]  DEFAULT (NULL) FOR [CategoryID]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Unit__4D94879B]  DEFAULT (NULL) FOR [Unit]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Price__4E88ABD4]  DEFAULT (NULL) FOR [Price]
+GO
+ALTER TABLE [dbo].[Shippers] ADD  CONSTRAINT [DF__Shippers__Shippe__619B8048]  DEFAULT (NULL) FOR [ShipperName]
+GO
+ALTER TABLE [dbo].[Shippers] ADD  CONSTRAINT [DF__Shippers__Phone__628FA481]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Suppl__6477ECF3]  DEFAULT (NULL) FOR [SupplierName]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Conta__656C112C]  DEFAULT (NULL) FOR [ContactName]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Addre__66603565]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Phone__6A30C649]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Customers]  WITH CHECK ADD  CONSTRAINT [FK_Customers_Provinces] FOREIGN KEY([Province])
+REFERENCES [dbo].[Provinces] ([ProvinceName])
+ON UPDATE CASCADE
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[Customers] CHECK CONSTRAINT [FK_Customers_Provinces]
+GO
+ALTER TABLE [dbo].[OrderDetails]  WITH CHECK ADD  CONSTRAINT [FK_OrderDetails_Orders] FOREIGN KEY([OrderID])
+REFERENCES [dbo].[Orders] ([OrderID])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [FK_OrderDetails_Orders]
+GO
+ALTER TABLE [dbo].[OrderDetails]  WITH CHECK ADD  CONSTRAINT [FK_OrderDetails_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [FK_OrderDetails_Products]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Customers] FOREIGN KEY([CustomerID])
+REFERENCES [dbo].[Customers] ([CustomerID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Customers]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Employees] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employees] ([EmployeeID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Employees]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_OrderStatus] FOREIGN KEY([Status])
+REFERENCES [dbo].[OrderStatus] ([Status])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_OrderStatus]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Shippers] FOREIGN KEY([ShipperID])
+REFERENCES [dbo].[Shippers] ([ShipperID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Shippers]
+GO
+ALTER TABLE [dbo].[ProductAttributes]  WITH CHECK ADD  CONSTRAINT [FK_ProductAttributes_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[ProductAttributes] CHECK CONSTRAINT [FK_ProductAttributes_Products]
+GO
+ALTER TABLE [dbo].[ProductPhotos]  WITH CHECK ADD  CONSTRAINT [FK_ProductGallery_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[ProductPhotos] CHECK CONSTRAINT [FK_ProductGallery_Products]
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD  CONSTRAINT [FK_Products_Categories] FOREIGN KEY([CategoryID])
+REFERENCES [dbo].[Categories] ([CategoryID])
+GO
+ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [FK_Products_Categories]
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD  CONSTRAINT [FK_Products_Suppliers] FOREIGN KEY([SupplierID])
+REFERENCES [dbo].[Suppliers] ([SupplierID])
+GO
+ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [FK_Products_Suppliers]
+GO
+ALTER TABLE [dbo].[Suppliers]  WITH CHECK ADD  CONSTRAINT [FK_Suppliers_Provinces] FOREIGN KEY([Province])
+REFERENCES [dbo].[Provinces] ([ProvinceName])
+ON UPDATE CASCADE
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[Suppliers] CHECK CONSTRAINT [FK_Suppliers_Provinces]
+GO
+USE [master]
+GO
+ALTER DATABASE [LiteCommerceDB] SET  READ_WRITE 
+GO
+
+* Mẫu các file code đã trả lời của thầy, tham khảo để code theo bài của tôi:
+- ICustomerRepository:
+using SV22T1020362.Models.Common;
+using SV22T1020362.Models.Partner;
+
+namespace SV22T1020362.DataLayers.Interfaces
+{
+    /// <summary>
+    /// Định nghĩa các phép xử lý dữ liệu liên quan đến khách hàng
+    /// </summary>
+    public interface ICustomerRepository
+    {
+        /// <summary>
+        /// Tìm kiếm và lấy danh sách khách hàng dưới dạng phân trang
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        Task<PagedResult<Customer>> ListAsync(PaginationSearchInput input);
+
+        /// <summary>
+        /// Lấy thông tin của một khách hàng
+        /// </summary>
+        /// <param name="id">Mã khách hàng</param>
+        /// <returns></returns>
+        Task<Customer?> GetAsync(int id);
+
+        /// <summary>
+        /// Thêm một khách hàng mới vào CSDL
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Mã khách hàng được bổ sung (lấy từ giá trị IDENTITY)</returns>
+        Task<int> AddAsync(Customer data);
+
+        /// <summary>
+        /// Cập nhật thông tin khách hàng
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        Task<bool> UpdateAsync(Customer data);
+
+        /// <summary>
+        /// Xóa khách hàng
+        /// </summary>
+        /// <param name="id">Mã khách hàng cần xóa</param>
+        /// <returns></returns>
+        Task<bool> DeleteAsync(int id);
+
+        /// <summary>
+        /// Kiểm tra khách hàng có dữ liệu liên quan hay không?
+        /// </summary>
+        /// <param name="id">Mã khách hàng</param>
+        /// <returns></returns>
+        Task<bool> IsUsed(int id);
+
+        /// <summary>
+        /// Kiểm tra xem email của khách hàng có hợp lệ hay không
+        /// (hợp lệ nếu không trùng với người khác)
+        /// </summary>
+        /// <param name="id">
+        /// 0: Kiểm tra email của khách hàng mới,
+        /// ngược lại: Kiểm tra email của khách hàng đã tồn tại</param>
+        /// <param name="email">Địa chỉ email cần kiểm tra</param>
+        /// <returns>true: nếu email không trùng, false: nếu email trùng</returns>
+        Task<bool> IsValidEmail(int id, string email);
+    }
+}
+- ISupplierRepository:
+using SV22T1020362.Models.Common;
+using SV22T1020362.Models.Partner;
+
+namespace SV22T1020362.DataLayers.Interfaces
+{
+    /// <summary>
+    /// Định nghĩa các phép xử lý dữ liệu liên quan đến nhà cung cấp
+    /// </summary>
+    public interface ISupplierRepository
+    {
+        /// <summary>
+        /// Tìm kiếm và lấy danh sách nhà cung cấp dưới dạng phân trang
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        Task<PagedResult<Supplier>> ListAsync(PaginationSearchInput input);
+        /// <summary>
+        /// Lấy thông tin của một nhà cung cấp
+        /// </summary>
+        /// <param name="id">Mã nhà cung cấp</param>
+        /// <returns></returns>
+        Task<Supplier?> GetAsync(int id);
+        /// <summary>
+        /// Thêm một nhà cung cấp mới vào CSDL
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Mã nhà cung cấp được bổ sung (lấy từ giá trị IDENTITY)</returns>
+        Task<int> AddAsync(Supplier data);
+        /// <summary>
+        /// Cập nhật thông tin nhà cung cấp
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        Task<bool> UpdateAsync(Supplier data);
+        /// <summary>
+        /// Xóa nhà cung cấp
+        /// </summary>
+        /// <param name="id">Mã nhà cung cấp cần xóa</param>
+        /// <returns></returns>
+        Task<bool> DeleteAsync(int id);
+        /// <summary>
+        /// Kiểm tra xem nhà cung cấp có dữ liệu liên quan hay không?
+        /// </summary>
+        /// <param name="id">Mã nhà cung cấp</param>
+        /// <returns></returns>
+        Task<bool> IsUsed(int id);
+    }
+}
+* các file code cần thiết khác:
+- SV22T1020362.Models/Partner/Customer.cs:
+namespace SV22T1020362.Models.Partner
+{
+    /// <summary>
+    /// Khách hàng
+    /// </summary>
+    public class Customer
+    {
+        /// <summary>
+        /// Mã khách hàng
+        /// </summary>
+        public int CustomerID { get; set; }
+        /// <summary>
+        /// Tên khách hàng
+        /// </summary>
+        public string CustomerName { get; set; } = string.Empty;
+        /// <summary>
+        /// Tên giao dịch
+        /// </summary>
+        public string ContactName { get; set; } = string.Empty;
+        /// <summary>
+        /// Tỉnh/thành
+        /// </summary>
+        public string? Province { get; set; }
+        /// <summary>
+        /// Địa chỉ
+        /// </summary>
+        public string? Address { get; set; }
+        /// <summary>
+        /// Điện thoại
+        /// </summary>
+        public string? Phone { get; set; }
+        /// <summary>
+        /// Email
+        /// </summary>
+        public string Email { get; set; } = string.Empty;
+        /// <summary>
+        /// Khách hàng hiện có bị khóa hay không?
+        /// </summary>
+        public bool? IsLocked { get; set; }
+    }
+}
+- SV22T1020362.Models/Partner/Shipper.cs:
+namespace SV22T1020362.Models.Partner
+{
+    /// <summary>
+    /// Người giao hàng
+    /// </summary>
+    public class Shipper
+    {
+        /// <summary>
+        /// Mã người giao hàng
+        /// </summary>
+        public int ShipperID { get; set; }
+        /// <summary>
+        /// Tên người giao hàng
+        /// </summary>
+        public string ShipperName { get; set; } = string.Empty;
+        /// <summary>
+        /// Điện thoại
+        /// </summary>
+        public string? Phone { get; set; }
+    }
+}
+- SV22T1020362.Models/Catalog/Category.cs:
+namespace SV22T1020362.Models.Catalog
+{
+    /// <summary>
+    /// Loại hàng
+    /// </summary>
+    public class Category
+    {
+        /// <summary>
+        /// Mã loại hàng
+        /// </summary>
+        public int CategoryID { get; set; }
+        /// <summary>
+        /// Tên loại hàng
+        /// </summary>
+        public string CategoryName { get; set; } = string.Empty;
+        /// <summary>
+        /// Mô tả loại hàng
+        /// </summary>
+        public string? Description { get; set; }
+    }
+}
+- SV22T1020362.Models/Catalog/Product.cs:
+namespace SV22T1020362.Models.Catalog
+{
+    /// <summary>
+    /// Mặt hàng
+    /// </summary>
+    public class Product
+    {
+        /// <summary>
+        /// Mã mặt hàng
+        /// </summary>
+        public int ProductID { get; set; }
+        /// <summary>
+        /// Tên mặt hàng
+        /// </summary>
+        public string ProductName { get; set; } = string.Empty;
+        /// <summary>
+        /// Mô tả mặt hàng
+        /// </summary>
+        public string? ProductDescription { get; set; }
+        /// <summary>
+        /// Mã nhà cung cấp
+        /// </summary>
+        public int? SupplierID { get; set; }
+        /// <summary>
+        /// Mã loại hàng
+        /// </summary>
+        public int? CategoryID { get; set; }
+        /// <summary>
+        /// Đơn vi tính
+        /// </summary>
+        public string Unit { get; set; } = string.Empty;
+        /// <summary>
+        /// Giá
+        /// </summary>
+        public decimal Price { get; set; }
+        /// <summary>
+        /// Tên file ảnh đại diện của mặt hàng (nếu có)
+        /// </summary>
+        public string? Photo { get; set; }
+        /// <summary>
+        /// Mặt hàng hiện có đang được bán hay không?
+        /// </summary>
+        public bool IsSelling { get; set; }
+    }
+}
+- SV22T1020362.Models/Catalog/ProductAttribute.cs:
+namespace SV22T1020362.Models.Catalog
+{
+    /// <summary>
+    /// Thuộc tính của mặt hàng
+    /// </summary>
+    public class ProductAttribute
+    {
+        /// <summary>
+        /// Mã thuộc tính
+        /// </summary>
+        public long AttributeID { get; set; }
+        /// <summary>
+        /// Mã mặt hàng
+        /// </summary>
+        public int ProductID { get; set; }
+        /// <summary>
+        /// Tên thuộc tính (ví dụ: "Màu sắc", "Kích thước", "Chất liệu", ...)
+        /// </summary>
+        public string AttributeName { get; set; } = string.Empty;
+        /// <summary>
+        /// Giá trị thuộc tính
+        /// </summary>
+        public string AttributeValue { get; set; } = string.Empty;
+        /// <summary>
+        /// Thứ tự hiển thị thuộc tính (giá trị nhỏ sẽ hiển thị trước)
+        /// </summary>
+        public int DisplayOrder { get; set; }
+    }
+}
+- SV22T1020362.Models/ProductPhoto.cs:
+namespace SV22T1020362.Models.Catalog
+{
+    /// <summary>
+    /// Ảnh của mặt hàng
+    /// </summary>
+    public class ProductPhoto
+    {
+        /// <summary>
+        /// Mã ảnh
+        /// </summary>
+        public long PhotoID { get; set; }
+        /// <summary>
+        /// Mã mặt hàng
+        /// </summary>
+        public int ProductID { get; set; }
+        /// <summary>
+        /// Tên file ảnh
+        /// </summary>
+        public string Photo { get; set; } = string.Empty;
+        /// <summary>
+        /// Mô tả ảnh
+        /// </summary>
+        public string Description { get; set; } = string.Empty;
+        /// <summary>
+        /// Thứ tự hiển thị (giá trị nhỏ sẽ hiển thị trước)
+        /// </summary>
+        public int DisplayOrder { get; set; }
+        /// <summary>
+        /// Có ẩn ảnh đối với khách hàng hay không?
+        /// </summary>
+        public bool IsHidden { get; set; }
+    }
+}
+- SV22T1020362.Models/Catalog/ProductSearchInput.cs:
+using SV22T1020362.Models.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SV22T1020362.Models.Catalog
+{
+    /// <summary>
+    /// Biểu diễn dữ liệu đầu vào tìm kiếm, phân trang đối với mặt hàng
+    /// </summary>
+    internal class ProductSearchInput : PaginationSearchInput
+    {
+        /// <summary>
+        /// Mã loại hàng (0 nếu bỏ qua)
+        /// </summary>
+        public int CategoryID { get; set; }
+        /// <summary>
+        /// Mã nhà cung cấp (0 nếu bỏ qua)
+        /// </summary>
+        public int SupplierID { get; set; }
+        /// <summary>
+        /// Giá tối thiểu (0 nếu bỏ qua)
+        /// </summary>
+        public decimal MinPrice { get; set; }
+        /// <summary>
+        /// Giá tối đa (0 nếu bỏ qua)
+        /// </summary>
+        public decimal MaxPrice { get; set; }
+    }
+}
+- SV22T1020362.Models/HR/Employee.cs:
+namespace SV22T1020362.Models.HR
+{
+    /// <summary>
+    /// Nhân viên
+    /// </summary>
+    public class Employee
+    {
+        /// <summary>
+        /// Mã nhân viên
+        /// </summary>
+        public int EmployeeID { get; set; }
+        /// <summary>
+        /// Họ và tên
+        /// </summary>
+        public string FullName { get; set; } = string.Empty;
+        /// <summary>
+        /// Ngày sinh
+        /// </summary>
+        public DateTime? BirthDate { get; set; }
+        /// <summary>
+        /// Địa chỉ
+        /// </summary>
+        public string? Address { get; set; }
+        /// <summary>
+        /// Điện thoại
+        /// </summary>
+        public string? Phone { get; set; }
+        /// <summary>
+        /// Email
+        /// </summary>
+        public string Email { get; set; } = string.Empty;
+        /// <summary>
+        /// Tên file ảnh (nếu có)
+        /// </summary>
+        public string? Photo { get; set; }
+        /// <summary>
+        /// Nhân viên đang làm việc hay không?
+        /// </summary>
+        public bool? IsWorking { get; set; }        
+    }
+}
+- SV22T1020362.Models/DataDictionary/Province.cs:
+namespace SV22T1020362.Models.DataDictionary
+{
+    /// <summary>
+    /// Tỉnh thành
+    /// </summary>
+    public class Province
+    {
+        /// <summary>
+        /// Tên tỉnh thành
+        /// </summary>
+        public string ProvinceName { get; set; } = "";
+    }
+}
+- SV22T1020362.Models/Security/UserAccount.cs:
+namespace SV22T1020362.Models.Security
+{
+    /// <summary>
+    /// Thông tin tài khoản người dùng
+    /// </summary>
+    public class UserAccount
+    {
+        /// <summary>
+        /// Mã tài khoản
+        /// </summary>
+        public string UserId { get; set; } = "";
+        /// <summary>
+        /// Tên đăng nhập
+        /// </summary>
+        public string UserName { get; set; } = "";
+        /// <summary>
+        /// Tên hiển thị (thường là họ tên của người dùng, hoặc có thể là tên đăng nhập nếu không có họ tên)
+        /// </summary>
+        public string DisplayName { get; set; } = "";
+        /// <summary>
+        /// Địa chỉ email (nếu có)
+        /// </summary>
+        public string Email { get; set; } = "";
+        /// <summary>
+        /// Tên fie ảnh đại diện của người dùng (nếu có)
+        /// </summary>
+        public string Photo { get; set; } = "";
+        /// <summary>
+        /// Danh sách tên các vai trò/quyền của người dùng, được phân cách bởi dấu chấm phẩy (nếu có)
+        /// </summary>
+        public string RoleNames { get; set; } = "";
+    }
+}
+* Yêu cầu các hàm của SV22T1020362.Admin (Project MVC):
+##### Home
+- Home/Index
+- 
+##### Account
+- Account/Login
+- Account/Logout
+- Account/ChangePassword
+
+##### Supplier
+- Supplier/Index    
+- Supplier/Create
+- Supplier/Edit/{id}
+- Supplier/Delete/{id}
+
+##### Customer
+- Customer/Index
+- Customer/Create
+- Customer/Edit/{id}
+- Customer/Delete/{id}
+- Customer/ChangePassword/{id}
+
+##### Shipper
+- Shipper/Index
+- Shipper/Create
+- Shipper/Edit/{id}
+- Shipper/Delete/{id}
+
+##### Employee
+- Employee/Index
+- Employee/Create
+- Employee/Edit/{id}
+- Employee/Delete/{id}
+- Employee/ChangePassword/{id}
+- Employee/ChangeRole/{id}
+
+##### Category
+- Category/Index
+- Category/Create
+- Category/Edit/{id}
+- Category/Delete/{id}
+
+##### Product
+- Product/Index
+- Product/Create
+- Product/Edit/{id}
+- Product/Delete/{id}
+- Product/ListAttributes/{id}
+- Product/CreateAttribute/{id}
+- Product/EditAttribute/{id}?attributeId={attributeId}
+- Product/DeleteAttribute/{id}?attributeId={attributeId}
+- Product/ListPhotos/{id}
+- Product/CreatePhoto/{id}
+- Product/EditPhoto/{id}?photoId={photoId}
+- Product/DeletePhoto/{id}?photoId={photoId}
+
+##### Order
+- Order/Index
+- Order/Search
+- Order/Create
+- Order/Detail/{id}
+- Order/CreateCartItem/{id}
+- Order/EditCartItem/{id}?productId={productId}
+- Order/DeleteCartItem/{id}?productId={productId}
+- Order/ClearCart
+- Order/Accept/{id}
+- Order/Shipping/{id}
+- Order/Finish/{id}
+- Order/Reject/{id}
+- Order/Cancel/{id}
+- Order/Delete/{id}
+
+* Các file Controller:
+- SV22T1020362.Admin/Controllers/CategoryController.cs
+using Microsoft.AspNetCore.Mvc;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    /// <summary>
+    /// Các chức năng liên quan đến loại hàng
+    /// </summary>
+    public class CategoryController : Controller
+    {
+        /// <summary>
+        /// Tìm kiếm, hiển thị danh sách loại hàng
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Bổ sung loại hàng mới
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Loại hàng";
+            return View("Edit");
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin của loại hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.Title = "Cập nhật thông tin Loại hàng";
+            return View();
+        }
+
+        /// <summary>
+        /// Xóa loại hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+    }
+}
+- SV22T1020362.Admin/Controllers/CustomerController.cs:
+using Microsoft.AspNetCore.Mvc;
+namespace SV22T1020362.Admin.Controllers
+{
+    /// <summary>
+    /// Các chức năng liên quan đến khách hàng
+    /// </summary>
+    public class CustomerController : Controller
+    {
+        /// <summary>
+        /// Tìm kiếm, hiển thị danh sách khách hàng.
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Tạo khách hàng mới
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Khách hàng";
+            return View("Edit");
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin khách hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.title = "Cập nhật thông tin Khách hàng";
+            return View();
+        }
+
+        /// <summary>
+        /// Đổi mật khẩu của khách hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult ChangePassword(int id)
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Xóa khách hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+    }
+}
+- SV22T1020362.Admin/Controllers/EmployeeController.cs:
+using Microsoft.AspNetCore.Mvc;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    /// <summary>
+    /// Cung cấp các chức năng liên quan đến nhân viên
+    /// </summary>
+    public class EmployeeController : Controller
+    {
+        /// <summary>
+        /// Tìm kiếm, hiển thị danh sách nhân viên
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Bổ sung nhân viên mới
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Nhân viên";
+            return View("Edit");
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin của nhân viên (Không đổi mật khẩu hay phân quyền)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.Title = "Cập nhật thông tin Nhân viên";
+            return View();
+        }
+
+        /// <summary>
+        /// Đổi mật khẩu của nhân viên
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult ChangePassword(int id)
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Phân quyền nhân viên
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult ChangeRole(int id)
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Xóa nhân viên
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+    }
+}
+- SV22T1020362.Admin/Controllers/ProductController.cs:
+using Microsoft.AspNetCore.Mvc;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    /// <summary>
+    /// Cung cấp các chức năng liên quan đến quản lý mặt hàng
+    /// </summary>
+    public class ProductController : Controller
+    {
+        #region Product
+
+        /// <summary>
+        /// Tìm kiếm, hiển thị danh sách mặt hàng
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Bổ sung thông tin của mặt hàng
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Mặt hàng";
+            return View("Edit");
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin của mặt hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.Title = "Cập nhật thông tin Mặt hàng";
+            return View();
+        }
+
+        /// <summary>
+        /// Xóa mặt hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+
+        #endregion
+
+        #region Product Attributes
+
+        /// <summary>
+        /// Hiển thị danh sách các thuộc tính của mặt hàng
+        /// </summary>
+        /// <param name="id">Mã mặt hàng</param>
+        /// <returns></returns>
+        public IActionResult ListAttributes(int id)
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Bổ sung thuộc tính của mặt hàng
+        /// </summary>
+        /// <param name="id">Mã mặt hàng</param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult CreateAttribute(int id)
+        {
+            ViewBag.Title = "Bổ sung Thuộc tính Mặt hàng";
+            return View("EditAttribute");
+        }
+
+        /// <summary>
+        /// Cập nhật thuộc tính của mặt hàng
+        /// </summary>
+        /// <param name="id">Mã mặt hàng</param>
+        /// <param name="attributeId">Mã thuộc tínht</param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult EditAttribute(int id, long attributeId)
+        {
+            ViewBag.Title = "Cập nhật thông tin Thuộc tính Mặt hàng";
+            return View();
+        }
+
+        /// <summary>
+        /// Xóa thuộc tính của mặt hàng
+        /// </summary>
+        /// <param name="id">Mã mặt hàng</param>
+        /// <param name="attributeId">Mã thuộc tính</param>
+        /// <returns></returns>
+        public IActionResult DeleteAttribute(int id, long attributeId)
+        {
+            return RedirectToAction("Edit", new { id });
+        }
+
+        #endregion
+
+        #region Product Photos
+
+        /// <summary>
+        /// Hiển thị danh sách ảnh của mặt hàng
+        /// </summary>
+        /// <param name="id">Mã mặt hàng</param>
+        /// <returns></returns>
+        public IActionResult ListPhotos(int id)
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Bổ sung ảnh cho mặt hàng
+        /// </summary>
+        /// <param name="id">Mã mặt hàng</param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult CreatePhoto(int id)
+        {
+            ViewBag.Title = "Bổ sung Ảnh Mặt hàng";
+            return View("EditPhoto");
+        }
+
+        /// <summary>
+        /// Cập nhật ảnh của mặt hàng
+        /// </summary>
+        /// <param name="id">Mã mặt hàng</param>
+        /// <param name="photoId">Mã thuộc tính</param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult EditPhoto(int id, long photoId)
+        {
+            ViewBag.Title = "Cập nhật thông tin Ảnh Mặt hàng";
+            return View();
+        }
+
+        /// <summary>
+        /// Xóa ảnh của mặt hàng
+        /// </summary>
+        /// <param name="id">Mã mặt hàng</param>
+        /// <param name="photoId">Mã thuộc tính</param>
+        /// <returns></returns>
+        public IActionResult DeletePhoto(int id, long photoId)
+        {
+            return RedirectToAction("Edit", new { id });
+        }
+
+        #endregion
+    }
+}
+- SV22T1020362.Admin/Controllers/ShipperController.cs:
+using Microsoft.AspNetCore.Mvc;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    /// <summary>
+    /// Các chức năng liên quan đến người giao hàng
+    /// </summary>
+    public class ShipperController : Controller
+    {
+        /// <summary>
+        /// Tìm kiếm, hiển thị danh sách người giao hàng
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Tạo người giao hàng mới
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Người giao hàng";
+            return View("Edit");
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin người giao hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.Title = "Cập nhật thông tin Người giao hàng";
+            return View();
+        }
+
+        /// <summary>
+        /// Xóa người giao hàng
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+    }
+}
+- SV22T1020362.Admin/Controllers/SupplierController.cs:
+using Microsoft.AspNetCore.Mvc;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    /// <summary>
+    /// Các chức năng liên quan đến nhà cung cấp
+    /// </summary>
+    public class SupplierController : Controller
+    {
+        /// <summary>
+        /// Tìm kiếm, hiển thị danh sách nhà cung cấp. Điều hướng đến các chức năng #.
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Bổ sung nhà cung cấp
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Nhà cung cấp";
+            return View("Edit");
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin nhà cung cấp
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.title = "Cập nhật thông tin Nhà cung cấp";
+            return View();
+        }
+
+        /// <summary>
+        /// Xóa nhà cung cấp
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+    }
+}
+* Các file Views:
+- SV22T1020362.Admin/Views/Category/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Loại hàng";
+}
+@section PageToolBar {
+    <a href="~/Category/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        Bổ sung
+    </a>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Tên loại hàng..." autofocus />
+                <button class="btn btn-info d-flex align-items-center">
+                    <i class="bi bi-search me-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>8</strong> loại hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Tên loại hàng</th>
+                    <th>Mô tả</th>
+                    <th class="text-center" style="width:100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i <= 8; i++)
+                {
+                    <tr>
+                        <td>Đồ uống</td>
+                        <td>Nước giải khát, nước khoáng, bia</td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Category/Edit/123" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="~/Category/Delete/123" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        <!-- Pagination -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Customer/Indes.cshtml:
+@{
+    ViewBag.Title = "Quản lý Khách hàng";
+}
+@section PageToolBar {
+    <a href="~/Customer/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        Bổ sung
+    </a>
+}
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Tên khách hàng..." autofocus />
+                <button class="btn btn-info d-flex align-items-center">
+                    <i class="bi bi-search me-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>25</strong> khách hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Tên khách hàng</th>
+                    <th>Tên giao dịch</th>
+                    <th>Điện thoại</th>
+                    <th>Email</th>
+                    <th>Địa chỉ</th>
+                    <th>Tỉnh / Thành</th>
+                    <th class="text-center" style="width:120px;">Trạng thái</th>
+                    <th class="text-center" style="width:100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i <= 10; i++)
+                {
+                    <tr>
+                        <td>Nguyễn Văn A</td>
+                        <td>A Trading</td>
+                        <td>0912345678</td>
+                        <td>a@gmail.com</td>
+                        <td>456 Nguyễn Huệ</td>
+                        <td>Hà Nội</td>
+                        <td class="text-center">
+                            <span class="badge bg-success">Hoạt động</span>
+                        </td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Customer/Edit/123" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="~/Customer/Delete/123" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <a href="~/Customer/ChangePassword/123" class="btn btn-sm btn-warning ms-2">
+                                <i class="bi bi-key"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        <!-- Pagination -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Employee/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Nhân viên";
+}
+@section PageToolBar {
+    <a href="~/Employee/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        Bổ sung
+    </a>
+}
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Tên nhân viên..." autofocus />
+                <button class="btn btn-info d-flex align-items-center">
+                    <i class="bi bi-search me-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>15</strong> nhân viên
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Ngày sinh</th>
+                    <th>Điện thoại</th>
+                    <th>Email</th>
+                    <th>Địa chỉ</th>
+                    <th class="text-center" style="width:140px;">Trạng thái</th>
+                    <th class="text-center" style="width:100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i <= 10; i++)
+                {
+                    <tr>
+                        <td>Nguyễn Văn A</td>
+                        <td>15/08/1990</td>
+                        <td>0912345678</td>
+                        <td>a.nguyen@gmail.com</td>
+                        <td>123 Lê Lợi</td>
+                        <td class="text-center">
+                            <span class="badge bg-success">Đang làm việc</span>
+                        </td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Employee/Edit/123" class="btn btn-sm btn-primary" title="Cập nhật">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="~/Employee/Delete/123" class="btn btn-sm btn-danger" title="Xóa">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <a href="~/Employee/ChangePassword/123" class="btn btn-sm btn-warning ms-2" title="Đổi mật khẩu">
+                                <i class="bi bi-key"></i>
+                            </a>
+                            <a href="~/Employee/ChangeRole/123" class="btn btn-sm btn-info" title="Cấp quyền">
+                                <i class="bi bi-shield-check"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        <ul class="pagination justify-content-center">
+            <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Product/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Mặt hàng";
+}
+@section PageToolBar {
+    <a href="~/Product/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        Bổ sung
+    </a>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label">Loại hàng</label>
+                    <select class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option>Đồ uống</option>
+                        <option>Thực phẩm</option>
+                        <option>Gia dụng</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Nhà cung cấp</label>
+                    <select class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option>Công ty ABC</option>
+                        <option>Công ty XYZ</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Khoảng giá</label>
+                    <div class="input-group">
+                        <input type="text"
+                               name="minPrice" 
+                               class="form-control money-input"
+                               placeholder="Từ" />
+                        <span class="input-group-text">-</span>
+                        <input type="text"
+                               name="maxPrice"
+                               class="form-control money-input"
+                               placeholder="Đến" />
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Tên mặt hàng</label>
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control"
+                               placeholder="Tên mặt hàng..." autofocus />
+                        <button class="btn btn-info d-flex align-items-center">
+                            <i class="bi bi-search me-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>20</strong> mặt hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0 align-middle">
+            <thead class="table-secondary">
+                <tr>
+                    <th style="width:80px;">Ảnh</th>
+                    <th>Mặt hàng</th>
+                    <th style="width:120px;">Đơn vị</th>
+                    <th style="width:120px;">Giá</th>
+                    <th class="text-center" style="width:140px;">Trạng thái</th>
+                    <th class="text-center" style="width:100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i <= 10; i++)
+                {
+                    <tr>
+                        <td class="text-center">
+                            <img src="~/images/products/demo.png"
+                                 class="img-thumbnail"
+                                 alt="Ảnh mặt hàng" />
+                        </td>
+                        <td>
+                            <strong>Nước suối Aquafina</strong><br />
+                            <small class="text-muted">
+                                Nước uống tinh khiết đóng chai 500ml
+                            </small>
+                        </td>
+                        <td>Chai</td>
+                        <td class="text-end">5,000</td>
+                        <td class="text-center">
+                            <span class="badge bg-success">Đang bán</span>
+                        </td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Product/Edit/123" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="~/Product/Delete/123" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        <ul class="pagination justify-content-center mb-0">
+            <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Shipper/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Người giao hàng";
+}
+@section PageToolBar {
+    <a href="~/Shipper/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        Bổ sung
+    </a>
+}
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Tên người giao hàng..." autofocus />
+                <button class="btn btn-info d-flex align-items-center">
+                    <i class="bi bi-search me-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>10</strong> người giao hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Tên người giao hàng</th>
+                    <th>Điện thoại</th>
+                    <th class="text-center" style="width:100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i <= 10; i++)
+                {
+                    <tr>
+                        <td>Nguyễn Văn Giao</td>
+                        <td>0909876543</td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Shipper/Edit/123" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="~/Shipper/Delete/123" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        <ul class="pagination justify-content-center">
+            <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+        </ul>
+    </div>
+</div>
+- SV22T1020362.Admin/Views/Supplier/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Nhà cung cấp";
+}
+@section PageToolBar {
+    <a href="~/Supplier/Create" class="btn btn-primary d-flex align-items-center ms-1">
+        <i class="bi bi-plus-circle me-1"></i>
+        Bổ sung
+    </a>
+}
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Tên nhà cung cấp..." autofocus />
+                <button class="btn btn-info d-flex align-items-center">
+                    <i class="bi bi-search me-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>25</strong> nhà cung cấp
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Tên nhà cung cấp</th>
+                    <th>Tên giao dịch</th>
+                    <th>Điện thoại</th>
+                    <th>Email</th>
+                    <th>Địa chỉ</th>
+                    <th>Tỉnh / Thành</th>
+                    <th class="text-center" style="width:120px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i <= 10; i++)
+                {
+                    <tr>
+                        <td>Công ty ABC</td>
+                        <td>ABC Trading</td>
+                        <td>0901234567</td>
+                        <td>contact@abc.com</td>
+                        <td>123 Lê Lợi</td>
+                        <td>TP. Hồ Chí Minh</td>
+                        <td class="text-center">
+                            <a href="~/Supplier/Edit/123" class="btn btn-sm btn-primary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="~/Supplier/Delete/123" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        <!-- Pagination -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+* Yêu cầu:
+Viết lớp SupplierRepository cài đặt cho Interface trên:
+- Sử dụng Dapper 2.1.66
+- CSDL SQLServer
+- Lớp có constructor nhận đầu vào là connectionString (Trong SV22T1020362.Admin/appsettings.json):
+  "ConnectionStrings": {
+    "LiteCommerce": "Server=.;Database=LiteCommerceDB;User Id=sa;Password=sa;TrustServerCertificate=True;"
+  }
+- Lớp nằm trong namespace: SV22T1020362.DataLayers/SQLServer/SupplierRepository.cs (Code vào file này)
+- Tên bảng trong CSDL là Suppliers.
+- IsUsed sử dụng hàm Exists chứ không Count(*).
+--------------------------
+Viết CustomerRepository (SQlServer) dựa vào ICustomerRepository.
+------------------------
+- Ngoài ra, sau đó, cần viết cho 6 đối tượng: Supplier, Customer, Shipper, Employee, Category, Product (Customer và Supplier đã có ở trên thì không cần viết ở đây), mỗi đối tượng cần có 2 file:
++ 1 file Interface I<TênĐT>Repository - cần hiểu và suy nghĩ để làm.
++ 1 file <TênĐT>Repository implements interface tương ứng ở trên theo SQL Server 2014 Developer Edition - AI Code theo interface.
+*** TÓM LẠI YÊU CẦU CHÍNH: Cần làm 10 file code cho 6 đối tượng (Trong SV22T1020362.DataLayers), tham khảo 2 file code interface mẫu thầy giải ở trên - ICustomerRepository và ISupplierRepository:
+- Interface: IShipperRepository, IEmployeeRepository, ICategoryRepository, IProductRepository (Tự lên ý tưởng các hàm).
+- Repository: CustomerRepository, SupplierRepository, ShipperRepository, EmployeeRepository, CategoryRepository, ProductRepository.
+(Product còn có cả ProductAttribute và ProductPhoto). Làm theo SQLServer Developer Edition 2014.
+* Lưu ý: Chỉ gửi code, không gửi file gì khác.
+* Lưu ý 2:
+- Cần làm trong project SV22T1020362.DataLayers (Class Library), có Package Dapper 2.1.66, Microsoft.Data.SQLClient 6.1.4, 1 project references là SV22T1020362.Models (Mô hình 3 Layers). 
+- Các Interface trong thư mục Interface trong project trên; các Repository trong thư mục SQLServer (SV22T1020362.DataLayers/SQLServer).
+- Sử dụng Dapper 2.1.66
+- CSDL SQLServer 2014, tên các bảng và quan hệ giữa các bảng trong Script SQL như trên.
+- Lớp có constructor nhận đầu vào là connectionString (Trong SV22T1020362.Admin/appsettings.json):
+  "ConnectionStrings": {
+    "LiteCommerce": "Server=.;Database=LiteCommerceDB;User Id=sa;Password=sa;TrustServerCertificate=True;"
+  }
+- IsUsed sử dụng hàm Exists chứ không Count(*).
+* Tiếp: Tôi muốn bạn bổ sung phần ghi chú cho từng hàm trong 6 file Repository. Chỉ bổ sung phần ghi chú cho từng hàm, không làm gì khác.
+Ghi chú có dạng giống ghi chú bên Inteface, với nội dung làm rõ từng hàm trong 6 file Repository (Các file Interface đã đầy đủ cả về nội dung và ghi chú, không cần làm thêm).
+* Thầy tôi đã thiết kế mô hình 3 Layers, với Modals theo hướng chia Domain gồm:
+- Models: Chia theo Domain (Miền nghiệp vụ). Các Domain: 
+    - Data Dictionary (Theo Technical là Entity, Từ điển dữ liệu: Là các định nghĩa / thuật ngữ / khái niệm dùng chung)
+        - Province.
+    - Partner (Đối tác). (Theo Technical là Entity, Nếu quy mô lớn thì Customer phải nằm trong CRM - Customer Relationship Management).
+        - Supplier
+        - Customer
+        - Shipper
+    - HR (Theo Technical là Entity, Có thể thêm Department - Bộ phận, Salary - Lương)
+        - Employee
+    - Catalog (Sản phẩm, Theo Technical là Entity)
+        - Category
+        - Product
+        - ProductAttribute
+        - ProductPhoto
+    - Sales (Bán hàng, Theo Technical là DTO) 
+        - OrderStatus (Trong Data Dictionary hay Sales ? Vì cũng là thuật ngữ dùng cho trạng thái đơn hàng, nhưng chỉ dùng trong Sales)
+        - Order
+        - OrderDetail
+    - Security (Bảo mật, Theo Technical là Entity)
+        - UserAccount
+    - Common (Những cái chung chung, gồm phân trang, số kết quả trả về... Theo Technical thì là View Models, hiển thị phân trang...)
+Sau đó, trong DataLayers ở trên, trong file ICustomerRepository, thầy tôi bảo không được tạo hàm ChangePassword trong file vì hàm đấy phải nằm ở file khác. Tôi chưa hiểu ý thầy. Bạn hãy giải thích ngắn gọn. Sau đó, trong 10 file code Interface và Repository mà bạn đã tạo ở trên, có file nào cần đổi theo ý thầy tôi muốn không. Bạn hãy sửa lại code nếu cần. Ví dụ như trong  2 file của đối tượng Employee có cần bỏ hàm ChangePassword và các hàm khác không. Bạn hãy giúp tôi sửa code các hàm và giải thích comment đầy đủ cho các hàm theo ý thầy tôi.
+File UserAccount.cs:
+namespace SV22T1020362.Models.Security
+{
+    /// <summary>
+    /// Thông tin tài khoản người dùng
+    /// </summary>
+    public class UserAccount
+    {
+        /// <summary>
+        /// Mã tài khoản
+        /// </summary>
+        public string UserId { get; set; } = "";
+        /// <summary>
+        /// Tên đăng nhập
+        /// </summary>
+        public string UserName { get; set; } = "";
+        /// <summary>
+        /// Tên hiển thị (thường là họ tên của người dùng, hoặc có thể là tên đăng nhập nếu không có họ tên)
+        /// </summary>
+        public string DisplayName { get; set; } = "";
+        /// <summary>
+        /// Địa chỉ email (nếu có)
+        /// </summary>
+        public string Email { get; set; } = "";
+        /// <summary>
+        /// Tên fie ảnh đại diện của người dùng (nếu có)
+        /// </summary>
+        public string Photo { get; set; } = "";
+        /// <summary>
+        /// Danh sách tên các vai trò/quyền của người dùng, được phân cách bởi dấu chấm phẩy (nếu có)
+        /// </summary>
+        public string RoleNames { get; set; } = "";
+    }
+}
+2 file ICustomerRepository và ISupplierRepository thầy tôi code mẫu tôi đã gửi ở đầu đoạn chat.
+Chỉ cần gửi code và giải thích ngắn gọn. Lưu ý hàm phân quyền (ChangeRole) thì bỏ trong UserAccount, còn Employee không có. ChangePassword cũng trong UserAccount.

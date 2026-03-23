@@ -1,0 +1,3709 @@
+﻿* Các file code:
+- script CSDL SQL Server 2014:
+USE [master]
+GO
+/****** Object:  Database [LiteCommerceDB]    Script Date: 29/01/2026 2:32:40 CH ******/
+CREATE DATABASE [LiteCommerceDB]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'LiteCommerceDB', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\LiteCommerceDB.mdf' , SIZE = 5120KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+ LOG ON 
+( NAME = N'LiteCommerceDB_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL12.MSSQLSERVER\MSSQL\DATA\LiteCommerceDB_log.ldf' , SIZE = 2304KB , MAXSIZE = 2048GB , FILEGROWTH = 10%)
+GO
+ALTER DATABASE [LiteCommerceDB] SET COMPATIBILITY_LEVEL = 120
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [LiteCommerceDB].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_CLOSE OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [LiteCommerceDB] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [LiteCommerceDB] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [LiteCommerceDB] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET RECOVERY FULL 
+GO
+ALTER DATABASE [LiteCommerceDB] SET  MULTI_USER 
+GO
+ALTER DATABASE [LiteCommerceDB] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [LiteCommerceDB] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [LiteCommerceDB] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [LiteCommerceDB] SET TARGET_RECOVERY_TIME = 0 SECONDS 
+GO
+ALTER DATABASE [LiteCommerceDB] SET DELAYED_DURABILITY = DISABLED 
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'LiteCommerceDB', N'ON'
+GO
+USE [LiteCommerceDB]
+GO
+/****** Object:  Table [dbo].[Categories]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Categories](
+	[CategoryID] [int] IDENTITY(1,1) NOT NULL,
+	[CategoryName] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Categories] PRIMARY KEY CLUSTERED 
+(
+	[CategoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Customers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Customers](
+	[CustomerID] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerName] [nvarchar](255) NOT NULL,
+	[ContactName] [nvarchar](255) NOT NULL,
+	[Province] [nvarchar](255) NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](50) NULL,
+	[Password] [nvarchar](50) NULL,
+	[IsLocked] [bit] NULL,
+ CONSTRAINT [PK__Customers] PRIMARY KEY CLUSTERED 
+(
+	[CustomerID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UK_Customers_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Employees]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Employees](
+	[EmployeeID] [int] IDENTITY(1,1) NOT NULL,
+	[FullName] [nvarchar](255) NOT NULL,
+	[BirthDate] [date] NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](50) NULL,
+	[Password] [nvarchar](50) NULL,
+	[Photo] [nvarchar](255) NULL,
+	[IsWorking] [bit] NULL,
+	[RoleNames] [nvarchar](500) NULL,
+ CONSTRAINT [PK__Employees] PRIMARY KEY CLUSTERED 
+(
+	[EmployeeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UK_Employees_Email] UNIQUE NONCLUSTERED 
+(
+	[Email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[OrderDetails]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrderDetails](
+	[OrderID] [int] NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[Quantity] [int] NOT NULL,
+	[SalePrice] [money] NOT NULL,
+ CONSTRAINT [PK_OrderDetails] PRIMARY KEY CLUSTERED 
+(
+	[OrderID] ASC,
+	[ProductID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Orders]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Orders](
+	[OrderID] [int] IDENTITY(1,1) NOT NULL,
+	[CustomerID] [int] NULL,
+	[OrderTime] [datetime] NOT NULL,
+	[DeliveryProvince] [nvarchar](255) NULL,
+	[DeliveryAddress] [nvarchar](255) NULL,
+	[EmployeeID] [int] NULL,
+	[AcceptTime] [datetime] NULL,
+	[ShipperID] [int] NULL,
+	[ShippedTime] [datetime] NULL,
+	[FinishedTime] [datetime] NULL,
+	[Status] [int] NOT NULL,
+ CONSTRAINT [PK__Orders] PRIMARY KEY CLUSTERED 
+(
+	[OrderID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[OrderStatus]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrderStatus](
+	[Status] [int] NOT NULL,
+	[Description] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_OrderStatus] PRIMARY KEY CLUSTERED 
+(
+	[Status] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[ProductAttributes]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductAttributes](
+	[AttributeID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[AttributeName] [nvarchar](255) NOT NULL,
+	[AttributeValue] [nvarchar](max) NOT NULL,
+	[DisplayOrder] [int] NOT NULL,
+ CONSTRAINT [PK_ProductAttributes] PRIMARY KEY CLUSTERED 
+(
+	[AttributeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[ProductPhotos]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ProductPhotos](
+	[PhotoID] [bigint] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[Photo] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](255) NOT NULL,
+	[DisplayOrder] [int] NOT NULL,
+	[IsHidden] [bit] NOT NULL,
+ CONSTRAINT [PK_ProductPhotos] PRIMARY KEY CLUSTERED 
+(
+	[PhotoID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Products]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Products](
+	[ProductID] [int] IDENTITY(1,1) NOT NULL,
+	[ProductName] [nvarchar](255) NOT NULL,
+	[ProductDescription] [nvarchar](2000) NULL,
+	[SupplierID] [int] NULL,
+	[CategoryID] [int] NULL,
+	[Unit] [nvarchar](255) NOT NULL,
+	[Price] [money] NOT NULL,
+	[Photo] [nvarchar](255) NULL,
+	[IsSelling] [bit] NULL,
+ CONSTRAINT [PK__Products] PRIMARY KEY CLUSTERED 
+(
+	[ProductID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Provinces]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Provinces](
+	[ProvinceName] [nvarchar](255) NOT NULL,
+ CONSTRAINT [PK_Provinces] PRIMARY KEY CLUSTERED 
+(
+	[ProvinceName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Shippers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Shippers](
+	[ShipperID] [int] IDENTITY(1,1) NOT NULL,
+	[ShipperName] [nvarchar](255) NOT NULL,
+	[Phone] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Shippers] PRIMARY KEY CLUSTERED 
+(
+	[ShipperID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+/****** Object:  Table [dbo].[Suppliers]    Script Date: 29/01/2026 2:32:40 CH ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Suppliers](
+	[SupplierID] [int] IDENTITY(1,1) NOT NULL,
+	[SupplierName] [nvarchar](255) NOT NULL,
+	[ContactName] [nvarchar](255) NOT NULL,
+	[Province] [nvarchar](255) NULL,
+	[Address] [nvarchar](255) NULL,
+	[Phone] [nvarchar](255) NULL,
+	[Email] [nvarchar](255) NULL,
+ CONSTRAINT [PK__Suppliers] PRIMARY KEY CLUSTERED 
+(
+	[SupplierID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+ALTER TABLE [dbo].[Categories] ADD  CONSTRAINT [DF__Categorie__Categ__35BCFE0A]  DEFAULT (NULL) FOR [CategoryName]
+GO
+ALTER TABLE [dbo].[Categories] ADD  CONSTRAINT [DF__Categorie__Descr__36B12243]  DEFAULT (NULL) FOR [Description]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Custo__38996AB5]  DEFAULT (NULL) FOR [CustomerName]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Conta__398D8EEE]  DEFAULT (NULL) FOR [ContactName]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__Addre__3A81B327]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[Customers] ADD  CONSTRAINT [DF__Customers__City__3B75D760]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__LastN__3F466844]  DEFAULT (NULL) FOR [FullName]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__Birth__412EB0B6]  DEFAULT (NULL) FOR [BirthDate]
+GO
+ALTER TABLE [dbo].[Employees] ADD  CONSTRAINT [DF__Employees__Photo__4222D4EF]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[OrderDetails] ADD  CONSTRAINT [DF__OrderDeta__Quant__48CFD27E]  DEFAULT (NULL) FOR [Quantity]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__Customer__440B1D61]  DEFAULT (NULL) FOR [CustomerID]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__OrderDat__45F365D3]  DEFAULT (NULL) FOR [OrderTime]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__Employee__44FF419A]  DEFAULT (NULL) FOR [EmployeeID]
+GO
+ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF__Orders__ShipperI__46E78A0C]  DEFAULT (NULL) FOR [ShipperID]
+GO
+ALTER TABLE [dbo].[ProductPhotos] ADD  CONSTRAINT [DF_ProductGallery_IsHidden]  DEFAULT ((0)) FOR [IsHidden]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Produc__4AB81AF0]  DEFAULT (NULL) FOR [ProductName]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Suppli__4BAC3F29]  DEFAULT (NULL) FOR [SupplierID]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Catego__4CA06362]  DEFAULT (NULL) FOR [CategoryID]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Unit__4D94879B]  DEFAULT (NULL) FOR [Unit]
+GO
+ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF__Products__Price__4E88ABD4]  DEFAULT (NULL) FOR [Price]
+GO
+ALTER TABLE [dbo].[Shippers] ADD  CONSTRAINT [DF__Shippers__Shippe__619B8048]  DEFAULT (NULL) FOR [ShipperName]
+GO
+ALTER TABLE [dbo].[Shippers] ADD  CONSTRAINT [DF__Shippers__Phone__628FA481]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Suppl__6477ECF3]  DEFAULT (NULL) FOR [SupplierName]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Conta__656C112C]  DEFAULT (NULL) FOR [ContactName]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Addre__66603565]  DEFAULT (NULL) FOR [Address]
+GO
+ALTER TABLE [dbo].[Suppliers] ADD  CONSTRAINT [DF__Suppliers__Phone__6A30C649]  DEFAULT (NULL) FOR [Phone]
+GO
+ALTER TABLE [dbo].[Customers]  WITH CHECK ADD  CONSTRAINT [FK_Customers_Provinces] FOREIGN KEY([Province])
+REFERENCES [dbo].[Provinces] ([ProvinceName])
+ON UPDATE CASCADE
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[Customers] CHECK CONSTRAINT [FK_Customers_Provinces]
+GO
+ALTER TABLE [dbo].[OrderDetails]  WITH CHECK ADD  CONSTRAINT [FK_OrderDetails_Orders] FOREIGN KEY([OrderID])
+REFERENCES [dbo].[Orders] ([OrderID])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [FK_OrderDetails_Orders]
+GO
+ALTER TABLE [dbo].[OrderDetails]  WITH CHECK ADD  CONSTRAINT [FK_OrderDetails_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [FK_OrderDetails_Products]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Customers] FOREIGN KEY([CustomerID])
+REFERENCES [dbo].[Customers] ([CustomerID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Customers]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Employees] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employees] ([EmployeeID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Employees]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_OrderStatus] FOREIGN KEY([Status])
+REFERENCES [dbo].[OrderStatus] ([Status])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_OrderStatus]
+GO
+ALTER TABLE [dbo].[Orders]  WITH CHECK ADD  CONSTRAINT [FK_Orders_Shippers] FOREIGN KEY([ShipperID])
+REFERENCES [dbo].[Shippers] ([ShipperID])
+GO
+ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Shippers]
+GO
+ALTER TABLE [dbo].[ProductAttributes]  WITH CHECK ADD  CONSTRAINT [FK_ProductAttributes_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[ProductAttributes] CHECK CONSTRAINT [FK_ProductAttributes_Products]
+GO
+ALTER TABLE [dbo].[ProductPhotos]  WITH CHECK ADD  CONSTRAINT [FK_ProductGallery_Products] FOREIGN KEY([ProductID])
+REFERENCES [dbo].[Products] ([ProductID])
+GO
+ALTER TABLE [dbo].[ProductPhotos] CHECK CONSTRAINT [FK_ProductGallery_Products]
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD  CONSTRAINT [FK_Products_Categories] FOREIGN KEY([CategoryID])
+REFERENCES [dbo].[Categories] ([CategoryID])
+GO
+ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [FK_Products_Categories]
+GO
+ALTER TABLE [dbo].[Products]  WITH CHECK ADD  CONSTRAINT [FK_Products_Suppliers] FOREIGN KEY([SupplierID])
+REFERENCES [dbo].[Suppliers] ([SupplierID])
+GO
+ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [FK_Products_Suppliers]
+GO
+ALTER TABLE [dbo].[Suppliers]  WITH CHECK ADD  CONSTRAINT [FK_Suppliers_Provinces] FOREIGN KEY([Province])
+REFERENCES [dbo].[Provinces] ([ProvinceName])
+ON UPDATE CASCADE
+ON DELETE SET NULL
+GO
+ALTER TABLE [dbo].[Suppliers] CHECK CONSTRAINT [FK_Suppliers_Provinces]
+GO
+USE [master]
+GO
+ALTER DATABASE [LiteCommerceDB] SET  READ_WRITE 
+GO
+
+- Views/_ViewImports.cshtml:
+@using SV22T1020362.Admin
+@using SV22T1020362.Admin.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+- Views/ViewStart.cshtml:
+@{
+    Layout = "_Layout";
+}
+- Views/Shared/_Footer.cshtml:
+<!--begin::Footer-->
+<footer class="app-footer bg-body-secondary">
+    <div class="float-end d-none d-sm-inline">Developed by Nguyễn Thế Quang</div>
+    <strong>
+        Copyright &copy; 2014-2025&nbsp;
+        <a href="https://adminlte.io" class="text-decoration-none">NTQ Shop</a>.
+    </strong>
+    All rights reserved.
+</footer>
+<!--end::Footer-->
+- Views/Shared/_Header.cshtml:
+<!--begin::Header-->
+<nav class="app-header navbar navbar-expand bg-body-secondary">
+    <div class="container-fluid">
+        <!--begin::Start Navbar Links-->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                    <i class="bi bi-list"></i>
+                </a>
+            </li>
+            <li class="nav-item d-none d-md-block"><a href="~/Home" class="nav-link">Trang chủ</a></li>
+        </ul>
+        <!--end::Start Navbar Links-->
+        <!--begin::End Navbar Links-->
+        <ul class="navbar-nav ms-auto">
+            <!--begin::User Menu Dropdown-->
+            <li class="nav-item dropdown user-menu">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    <img src="~/lib/adminlte/assets/img/user2-160x160.jpg" class="user-image rounded-circle shadow" alt="User Image" />
+                </a>
+                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                    <!--begin::User Image-->
+                    <li class="user-header text-bg-primary">
+                        <img src="~/lib/adminlte/assets/img/user2-160x160.jpg" class="rounded-circle shadow" alt="User Image" />
+                        <p>
+                            @{
+                                var currentUser = "Nguyễn Thế Quang";
+                            }
+                            @currentUser
+                        </p>
+                    </li>
+                    <!--end::User Image-->
+                    <!--begin::Menu Footer-->
+                    <li class="user-footer">
+                        <a href="~/Account/ChangePassword" class="btn btn-default btn-flat">Đổi mật khẩu</a>
+                        <a href="~/Account/Logout" class="btn btn-default btn-flat float-end">Thoát</a>
+                    </li>
+                    <!--end::Menu Footer-->
+                </ul>
+            </li>
+            <!--end::User Menu Dropdown-->
+        </ul>
+        <!--end::End Navbar Links-->
+    </div>
+</nav>
+<!--end::Header-->
+- Views/Shared/_Layout.cshtml:
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LiteCommerce</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <link rel="stylesheet" href="~/lib/overlay-scrollbars/overlayscrollbars.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/adminlte/css/adminlte.css" />
+    <link rel="stylesheet" href ="~/css/site.css" />
+</head>
+
+<body class="layout-fixed fixed-header fixed-footer sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+
+        <!--Cắt nội dung Header và SideBar bỏ vào file _Header.cshtml và _SideBar.cshtml, rồi gọi lại-->
+        @{ 
+            await Html.RenderPartialAsync("_Header");
+            await Html.RenderPartialAsync("_SideBar");
+        }
+        
+        <!--begin::App Main-->
+        <main class="app-main">
+            <!--begin::App Content Header: giữ lại-->
+            <div class="app-content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h3 class="mb-0">@ViewBag.Title</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end::App Content Header-->
+            <!--begin::App Content-->
+            <div class="app-content">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </div>
+            <!--end::App Content-->
+
+        </main>
+        <!--end::App Main-->
+
+        <!--Cắt nội dung SideBar bỏ vào file _SideBar.cshtml, rồi gọi lại-->
+        @{ await Html.RenderPartialAsync("_Footer"); }
+    </div>
+
+    <script src="~/lib/overlay-scrollbars/overlayscrollbars.browser.es6.min.js"></script>
+    <script src="~/lib/popperjs/popper.min.js"></script>
+    <script src="~/lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="~/lib/adminlte/js/adminlte.js"></script>
+
+</body>
+
+</html>
+- Views/Shared/_SideBar.cshtml:
+<!--begin::Sidebar-->
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <!--begin::Sidebar Brand-->
+    <div class="sidebar-brand">
+        <a href="~/Home" class="brand-link">
+            <img src="~/lib/adminlte/assets/img/AdminLTELogo.png" alt="Logo" class="brand-image opacity-75 shadow" />
+            <span class="brand-text fw-light">NTQ Shop</span>
+        </a>
+    </div>
+    <!--end::Sidebar Brand-->
+    <!--begin::Sidebar Wrapper-->
+    <div class="sidebar-wrapper">
+        <nav class="mt-2">
+            <!--begin::Sidebar Menu-->
+            <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation"
+                aria-label="Main navigation" data-accordion="false" id="navigation">
+
+                <li class="nav-item">
+                    <a href="~/Home" class="nav-link">
+                        <i class="nav-icon bi bi-speedometer2"></i>
+                        <p>Trang chủ</p>
+                    </a>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-archive"></i>
+                        <p>
+                            Quản lý dữ liệu
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Supplier" class="nav-link">
+                                <i class="nav-icon bi bi-truck"></i>
+                                <p>Nhà cung cấp</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Customer" class="nav-link">
+                                <i class="nav-icon bi bi-people"></i>
+                                <p>Khách hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Shipper" class="nav-link">
+                                <i class="nav-icon bi bi-bicycle"></i>
+                                <p>Người giao hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Employee" class="nav-link">
+                                <i class="nav-icon bi bi-people-fill"></i>
+                                <p>Nhân viên</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-archive"></i>
+                        <p>
+                            Quản lý hàng hóa
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Category" class="nav-link">
+                                <i class="nav-icon bi bi-collection"></i>
+                                <p>Loại hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Product" class="nav-link">
+                                <i class="nav-icon bi bi-boxes"></i>
+                                <p>Mặt hàng</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-cash-stack"></i>
+                        <p>
+                            Quản lý bán hàng
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Order/Create" class="nav-link">
+                                <i class="nav-icon bi bi-cart-plus"></i>
+                                <p>Lập đơn hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Order" class="nav-link">
+                                <i class="nav-icon bi bi-receipt"></i>
+                                <p>Quản lý đơn hàng</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+            <!--end::Sidebar Menu-->
+        </nav>
+    </div>
+    <!--end::Sidebar Wrapper-->
+</aside>
+<!--end::Sidebar-->
+- Views/Shared/_ValidationScriptsPartial.cshtml:
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+- Controllers/HomeController.cs:
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using SV22T1020362.Admin.Models;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
+
+        public IActionResult Index()
+        {
+            // BaseController tự động kiểm tra đăng nhập
+            // CurrentUser đã có sẵn
+            ViewBag.Title = "Trang chủ";
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}
+- Controllers/CustomerController.cs:
+using Microsoft.AspNetCore.Mvc;
+using SV22T1020362.BusinessLayers;
+using SV22T1020362.Models;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    // Controller cho quản lý khách hàng
+    public class CustomerController : Controller
+    {
+        // Hiển thị danh sách khách hàng (có tìm kiếm và phân trang)
+        // GET: /Customer hoặc /Customer/Index
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // Hiển thị form thêm khách hàng
+        // GET: /Customer/Create
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Khách hàng";
+            return View("Edit");
+        }
+
+        // Xử lý thêm khách hàng
+        // POST: /Customer/Create
+        
+        // Hiển thị form sửa khách hàng
+        // GET: /Customer/Edit/{id}
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.title = "Cập nhật thông tin Khách hàng";
+            return View();
+        }
+
+        // Xử lý sửa khách hàng
+        // POST: /Customer/Edit/{id}
+        
+        // Hiển thị form đổi mật khẩu khách hàng
+        // GET: /Customer/ChangePassword/{id}
+        [HttpGet]
+        public IActionResult ChangePassword(int id)
+        {
+            return View();
+        }
+
+        // Xử lý đổi mật khẩu khách hàng
+        // POST: /Customer/ChangePassword/{id}
+        
+        // Xóa khách hàng
+        // GET: /Customer/Delete/{id}
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+    }
+}
+- Controllers/EmployeeController.cs:
+using Microsoft.AspNetCore.Mvc;
+using SV22T1020362.BusinessLayers;
+using SV22T1020362.Models;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    // Controller cho quản lý nhân viên
+    public class EmployeeController : Controller
+    {
+        // Hiển thị danh sách nhân viên (có tìm kiếm và phân trang)
+        // GET: /Employee hoặc /Employee/Index
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // Hiển thị form thêm nhân viên
+        // GET: /Employee/Create
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Nhân viên";
+            return View("Edit");
+        }
+
+        // Xử lý thêm nhân viên
+        // POST: /Employee/Create
+        
+        // Hiển thị form sửa nhân viên
+        // GET: /Employee/Edit/{id}
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.Title = "Cập nhật thông tin Nhân viên";
+            return View();
+        }
+
+        // Xử lý sửa nhân viên (không cho phép sửa roles và password ở đây)
+        // POST: /Employee/Edit/{id}
+        
+        // Hiển thị form đổi mật khẩu nhân viên
+        // GET: /Employee/ChangePassword/{id}
+        [HttpGet]
+        public IActionResult ChangePassword(int id)
+        {
+            return View();
+        }
+
+        // Xử lý đổi mật khẩu nhân viên
+        // POST: /Employee/ChangePassword/{id}
+        
+        // Hiển thị form thay đổi quyền của nhân viên (chỉ Admin mới được làm)
+        // GET: /Employee/ChangeRole/{id}
+        [HttpGet]
+        public IActionResult ChangeRole(int id)
+        {
+            return View();
+        }
+
+        // Xử lý thay đổi quyền của nhân viên
+        // POST: /Employee/ChangeRole/{id}
+        
+        // Xóa nhân viên
+        // GET: /Employee/Delete/{id}
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+    }
+}
+- Controllers/OrderController.cs:
+using Microsoft.AspNetCore.Mvc;
+using SV22T1020362.BusinessLayers;
+using SV22T1020362.Models;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    // Controller cho quản lý đơn hàng (phức tạp nhất)
+    public class OrderController : Controller
+    {
+        #region Order List & Search
+
+        // Hiển thị danh sách đơn hàng (có tìm kiếm, lọc và phân trang)
+        // GET: /Order hoặc /Order/Index
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // Hiển thị chi tiết đơn hàng
+        // GET: /Order/Detail/{id}
+        public IActionResult Detail(int id)
+        {
+            return View();
+        }
+
+        #endregion
+
+        #region Order Create
+
+        // Hiển thị form tạo đơn hàng mới
+        // GET: /Order/Create
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // Xử lý tạo đơn hàng mới
+        // POST: /Order/Create
+        
+        #endregion
+
+        #region Order Status Management (Workflow)
+
+        // Nhân viên duyệt đơn hàng
+        // GET: /Order/Accept/{id}?employeeId={employeeId}
+        public async Task<IActionResult> Accept(int id, int employeeId)
+        {
+            try
+            {
+                bool result = await OrderService.AcceptOrderAsync(id, employeeId);
+                if (result)
+                    TempData["SuccessMessage"] = "Đơn hàng đã được duyệt.";
+                else
+                    TempData["ErrorMessage"] = "Không thể duyệt đơn hàng.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction("Detail", new { id });
+        }
+
+        // Giao đơn hàng cho shipper
+        // GET: /Order/AssignShipper/{id}?shipperId={shipperId}
+        public async Task<IActionResult> AssignShipper(int id, int shipperId)
+        {
+            try
+            {
+                bool result = await OrderService.AssignShipperAsync(id, shipperId);
+                if (result)
+                    TempData["SuccessMessage"] = "Đã giao đơn hàng cho người giao hàng.";
+                else
+                    TempData["ErrorMessage"] = "Không thể giao đơn hàng.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction("Detail", new { id });
+        }
+
+        // Hoàn tất đơn hàng
+        // GET: /Order/Finish/{id}
+        public async Task<IActionResult> Finish(int id)
+        {
+            try
+            {
+                bool result = await OrderService.FinishOrderAsync(id);
+                if (result)
+                    TempData["SuccessMessage"] = "Đơn hàng đã hoàn tất.";
+                else
+                    TempData["ErrorMessage"] = "Không thể hoàn tất đơn hàng.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction("Detail", new { id });
+        }
+
+        // Hủy đơn hàng
+        // GET: /Order/Cancel/{id}
+        public async Task<IActionResult> Cancel(int id)
+        {
+            try
+            {
+                bool result = await OrderService.CancelOrderAsync(id);
+                if (result)
+                    TempData["SuccessMessage"] = "Đơn hàng đã được hủy.";
+                else
+                    TempData["ErrorMessage"] = "Không thể hủy đơn hàng.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction("Detail", new { id });
+        }
+
+        // Từ chối đơn hàng
+        // GET: /Order/Reject/{id}
+        public async Task<IActionResult> Reject(int id)
+        {
+            try
+            {
+                bool result = await OrderService.RejectOrderAsync(id);
+                if (result)
+                    TempData["SuccessMessage"] = "Đơn hàng đã bị từ chối.";
+                else
+                    TempData["ErrorMessage"] = "Không thể từ chối đơn hàng.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction("Detail", new { id });
+        }
+
+        #endregion
+
+        #region Order Delete
+
+        // Xóa đơn hàng (chỉ xóa được đơn hàng NEW, REJECTED, CANCELLED)
+        // GET: /Order/Delete/{id}
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+
+        #endregion
+
+        #region Order Details Management (AJAX - Optional)
+
+        // Thêm sản phẩm vào đơn hàng (có thể dùng AJAX)
+        // POST: /Order/AddDetail
+        [HttpPost]
+        public async Task<IActionResult> AddDetail(OrderDetail detail)
+        {
+            try
+            {
+                await OrderService.AddOrderDetailAsync(detail);
+                return Json(new { success = true, message = "Đã thêm mặt hàng vào đơn hàng." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // Cập nhật chi tiết đơn hàng (có thể dùng AJAX)
+        // POST: /Order/UpdateDetail
+        [HttpPost]
+        public async Task<IActionResult> UpdateDetail(OrderDetail detail)
+        {
+            try
+            {
+                await OrderService.UpdateOrderDetailAsync(detail);
+                return Json(new { success = true, message = "Đã cập nhật chi tiết đơn hàng." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // Xóa sản phẩm khỏi đơn hàng (có thể dùng AJAX)
+        // POST: /Order/DeleteDetail
+        [HttpPost]
+        public async Task<IActionResult> DeleteDetail(int orderId, int productId)
+        {
+            try
+            {
+                bool result = await OrderService.DeleteOrderDetailAsync(orderId, productId);
+                if (result)
+                    return Json(new { success = true, message = "Đã xóa mặt hàng khỏi đơn hàng." });
+                else
+                    return Json(new { success = false, message = "Không thể xóa mặt hàng." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        #endregion
+    }
+}
+- Controllers/ProductController.cs:
+using Microsoft.AspNetCore.Mvc;
+using SV22T1020362.BusinessLayers;
+using SV22T1020362.Models;
+
+namespace SV22T1020362.Admin.Controllers
+{
+    // Controller cho quản lý sản phẩm, thuộc tính và ảnh sản phẩm
+    public class ProductController : Controller
+    {
+        #region Product
+
+        // Hiển thị danh sách sản phẩm (có tìm kiếm, lọc và phân trang)
+        // GET: /Product hoặc /Product/Index
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // Hiển thị chi tiết sản phẩm
+        // GET: /Product/Detail/{id}
+        public IActionResult Detail(int id)
+        {
+            return View();
+        }
+
+        // Hiển thị form thêm sản phẩm
+        // GET: /Product/Create
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Title = "Bổ sung Mặt hàng";
+            return View("Edit");
+        }
+
+        // Xử lý thêm sản phẩm
+        // POST: /Product/Create
+        
+        // Hiển thị form sửa sản phẩm
+        // GET: /Product/Edit/{id}
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            ViewBag.Title = "Cập nhật thông tin Mặt hàng";
+            return View();
+        }
+
+        // Xử lý sửa sản phẩm
+        // POST: /Product/Edit/{id}
+       
+        // Xóa sản phẩm
+        // GET: /Product/Delete/{id}
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
+
+        #endregion
+
+        #region Product Attributes
+
+        // Hiển thị danh sách thuộc tính của sản phẩm
+        // GET: /Product/ListAttributes/{id}
+        public IActionResult ListAttributes(int id)
+        {
+            return View();
+        }
+
+        // Hiển thị form thêm thuộc tính
+        // GET: /Product/AddAttribute/{id}
+        [HttpGet]
+        public IActionResult AddAttribute(int id)
+        {
+            ViewBag.Title = "Bổ sung Thuộc tính Mặt hàng";
+            return View("EditAttribute");
+        }
+
+        // Xử lý thêm thuộc tính
+        // POST: /Product/AddAttribute/{id}
+        
+        // Hiển thị form sửa thuộc tính
+        // GET: /Product/EditAttribute/{id}?attributeId={attributeId}
+        [HttpGet]
+        public IActionResult EditAttribute(int id, long attributeId)
+        {
+            ViewBag.Title = "Cập nhật thông tin Thuộc tính Mặt hàng";
+            return View();
+        }
+
+        // Xử lý sửa thuộc tính
+        // POST: /Product/EditAttribute/{id}?attributeId={attributeId}
+        
+        // Xóa thuộc tính
+        // GET: /Product/DeleteAttribute/{id}?attributeId={attributeId}
+        public IActionResult DeleteAttribute(int id, long attributeId)
+        {
+            return View();
+        }
+
+        #endregion
+
+        #region Product Photos
+
+        // Hiển thị danh sách ảnh của sản phẩm
+        // GET: /Product/ListPhotos/{id}
+        public IActionResult ListPhotos(int id)
+        {
+            return View();
+        }
+
+        // Hiển thị form thêm ảnh
+        // GET: /Product/AddPhoto/{id}
+        [HttpGet]
+        public IActionResult AddPhoto(int id)
+        {
+            ViewBag.Title = "Bổ sung Ảnh Mặt hàng";
+            return View("EditPhoto");
+        }
+
+        // Xử lý thêm ảnh
+        // POST: /Product/AddPhoto/{id}
+        
+        // Hiển thị form sửa ảnh
+        // GET: /Product/EditPhoto/{id}?photoId={photoId}
+        [HttpGet]
+        public IActionResult EditPhoto(int id, long photoId)
+        {
+            ViewBag.Title = "Cập nhật thông tin Ảnh Mặt hàng";
+            return View();
+        }
+
+        // Xử lý sửa ảnh
+        // POST: /Product/EditPhoto/{id}?photoId={photoId}
+        
+        // Xóa ảnh
+        // GET: /Product/DeletePhoto/{id}?photoId={photoId}
+        public IActionResult DeletePhoto(int id, long photoId)
+        {
+            return View();
+        }
+
+        #endregion
+    }
+}
+- Views/Customer/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Khách hàng";
+}
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <form>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Nhập tên khách hàng cần tìm">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="~/Customer/Create" class="btn btn-success" style="margin-left:2px">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body table-responsive p-1">
+        <span class="text-muted">Danh sách này có <b>25</b> khách hàng</span>
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th style="width:200px">Tên khách hàng</th>
+                    <th style="width:150px">Tên giao dịch</th>
+                    <th style="width:150px">Điện thoại</th>
+                    <th style="width:150px">Email</th>
+                    <th style="width:auto">Địa chỉ</th>
+                    <th style="width:180px">Tỉnh/Thành</th>
+                    <th style="width:80px">Bị khóa?</th>
+                    <th class="text-center" style="width: 130px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Công ty ABC</td>
+                    <td>ABC Trading</td>
+                    <td>0901 234 567</td>
+                    <td>contact@abc.com</td>
+                    <td>123 Lê Lợi</td>
+                    <td>Huế</td>
+                    <td class="text-center">&#10003;</td>
+                    <td class="text-center">
+                        <a href="~/Customer/Edit/123" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="~/Customer/Delete/123" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                        <a href="~/Customer/ChangePassword/123" class="btn btn-sm btn-warning">
+                            <i class="bi bi-key"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer clearfix">
+        <ul class="pagination pagination-sm m-0 float-end">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+- Views/Customer/Edit.cshtml:
+@{
+}
+<form>
+    <div class="row justify-content-center">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-people me-2"></i>
+                        Thông tin khách hàng
+                    </h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Tên khách hàng -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên khách hàng</label>
+                            <input type="text" class="form-control" placeholder="Nhập tên khách hàng" value="Công ty ABC">
+                        </div>
+
+                        <!-- Tên giao dịch -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tên giao dịch</label>
+                            <input type="text" class="form-control" placeholder="Nhập tên giao dịch" value="ABC Trading">
+                        </div>
+
+                        <!-- Điện thoại -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Điện thoại</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-telephone-fill"></i>
+                                </span>
+                                <input type="text" class="form-control" placeholder="Nhập số điện thoại" value="0901 234 567">
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope-fill"></i>
+                                </span>
+                                <input type="email" class="form-control" placeholder="Nhập email" value="contact@abc.com">
+                            </div>
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" rows="2" placeholder="Nhập địa chỉ">123 Lê Lợi</textarea>
+                        </div>
+
+                        <!-- Tỉnh thành -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tỉnh / Thành</label>
+                            <select class="form-select">
+                                <option value="">-- Chọn tỉnh / thành --</option>
+                                <option>Hà Nội</option>
+                                <option>TP. Hồ Chí Minh</option>
+                                <option>Đà Nẵng</option>
+                                <option selected>Huế</option>
+                                <option>Cần Thơ</option>
+                            </select>
+                        </div>
+
+                        <!-- Trạng thái khóa -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="isLocked" checked>
+                                <label class="form-check-label" for="isLocked">
+                                    Tài khoản bị khóa
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer text-end">
+                    <a href="~/Customer" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu dữ liệu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+- Views/Customer/Delete.cshtml:
+@{
+    ViewBag.Title = "Xóa Khách hàng";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="card card-danger">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Xác nhận xóa khách hàng
+                </h3>
+            </div>
+
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle-fill me-1"></i>
+                    Bạn đang chuẩn bị xóa khách hàng sau.
+                    <strong>Thao tác này không thể hoàn tác.</strong>
+                </div>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Tên khách hàng</dt>
+                    <dd class="col-sm-8">Công ty ABC</dd>
+
+                    <dt class="col-sm-4">Tên giao dịch</dt>
+                    <dd class="col-sm-8">ABC Trading</dd>
+
+                    <dt class="col-sm-4">Điện thoại</dt>
+                    <dd class="col-sm-8">0901 234 567</dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">contact@abc.com</dd>
+
+                    <dt class="col-sm-4">Địa chỉ</dt>
+                    <dd class="col-sm-8">123 Lê Lợi</dd>
+
+                    <dt class="col-sm-4">Tỉnh / Thành</dt>
+                    <dd class="col-sm-8">Huế</dd>
+
+                    <dt class="col-sm-4">Trạng thái</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-danger">Bị khóa</span>
+                    </dd>
+                </dl>
+            </div>
+
+            <div class="card-footer text-end">
+                <a href="~/Customer" class="btn btn-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+- Views/Customer/ChangePassword.cshtml:
+@{
+    ViewBag.Title = "Đổi mật khẩu Khách hàng";
+}
+<form>
+    <div class="row justify-content-center">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="card card-warning">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-key-fill me-2"></i>
+                        Đổi mật khẩu cho khách hàng
+                    </h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-1"></i>
+                        Bạn đang thực hiện đổi mật khẩu cho khách hàng: <strong>Công ty ABC (contact@abc.com)</strong>
+                    </div>
+
+                    <!-- Mật khẩu mới -->
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu mới</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                            <input type="password" class="form-control" placeholder="Nhập mật khẩu mới cho khách hàng">
+                        </div>
+                        <small class="text-muted">Mật khẩu nên có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số</small>
+                    </div>
+
+                    <!-- Xác nhận mật khẩu mới -->
+                    <div class="mb-3">
+                        <label class="form-label">Xác nhận mật khẩu mới</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </span>
+                            <input type="password" class="form-control" placeholder="Nhập lại mật khẩu mới">
+                        </div>
+                    </div>
+
+                    <!-- Gửi thông báo -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="sendNotification" checked>
+                        <label class="form-check-label" for="sendNotification">
+                            Gửi email thông báo mật khẩu mới cho khách hàng
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card-footer text-end">
+                    <a href="~/Customer" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-key"></i> Đổi mật khẩu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+- Views/Employee/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Nhân viên";
+}
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <form>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Nhập tên nhân viên cần tìm">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="~/Employee/Create" class="btn btn-success" style="margin-left:2px">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <span class="text-muted mb-3 d-block">Danh sách này có <b>25</b> nhân viên</span>
+
+        <div class="row g-3">
+            <!-- Card 1 - Mẫu -->
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Ảnh bên trái -->
+                            <div class="col-4">
+                                <img src="~/lib/adminlte/assets/img/user1-128x128.jpg"
+                                     class="img-fluid rounded border border-2 border-secondary"
+                                     alt="Employee Photo"
+                                     style="max-height: 150px; object-fit: cover; width: 100%;">
+                            </div>
+
+                            <!-- Thao tác bên phải -->
+                            <div class="col-8">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <a href="~/Employee/Edit/123" class="btn btn-sm btn-primary me-1" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a href="~/Employee/Delete/123" class="btn btn-sm btn-danger me-1" title="Xóa">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <a href="~/Employee/ChangePassword/123" class="btn btn-sm btn-warning me-1" title="Đổi mật khẩu">
+                                        <i class="bi bi-lock"></i>
+                                    </a>
+                                    <a href="~/Employee/ChangeRole/123" class="btn btn-sm btn-info" title="Phân quyền">
+                                        <i class="bi bi-person-check"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chi tiết -->
+                        <div class="mt-3">
+                            <div class="mb-3">
+                                <i class="bi bi-person-fill me-1 text-primary"></i>
+                                <span class="fw-bold text-primary fs-6">Trần Nguyên Phong</span>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    <strong>Ngày sinh:</strong> 11/01/2001
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-telephone-fill me-1"></i>
+                                    <strong>Điện thoại:</strong> 0901 234 567
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-envelope-fill me-1"></i>
+                                    <strong>Email:</strong> tnphong@abc.com
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-geo-alt-fill me-1"></i>
+                                    <strong>Địa chỉ:</strong> 123 Lê Lợi
+                                </small>
+                            </div>
+
+                            <div class="mt-2">
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Đã nghỉ việc
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 - Nhân viên đang làm việc -->
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">
+                                <img src="~/lib/adminlte/assets/img/user1-128x128.jpg"
+                                     class="img-fluid rounded border border-2 border-secondary"
+                                     alt="Employee Photo"
+                                     style="max-height: 150px; object-fit: cover; width: 100%;">
+                            </div>
+
+                            <div class="col-8">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <a href="~/Employee/Edit/124" class="btn btn-sm btn-primary me-1" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a href="~/Employee/Delete/124" class="btn btn-sm btn-danger me-1" title="Xóa">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <a href="~/Employee/ChangePassword/124" class="btn btn-sm btn-warning me-1" title="Đổi mật khẩu">
+                                        <i class="bi bi-lock"></i>
+                                    </a>
+                                    <a href="~/Employee/ChangeRole/124" class="btn btn-sm btn-info" title="Phân quyền">
+                                        <i class="bi bi-person-check"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="mb-3">
+                                <i class="bi bi-person-fill me-1 text-primary"></i>
+                                <span class="fw-bold text-primary fs-6">Nguyễn Văn A</span>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    <strong>Ngày sinh:</strong> 15/05/1995
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-telephone-fill me-1"></i>
+                                    <strong>Điện thoại:</strong> 0912 345 678
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-envelope-fill me-1"></i>
+                                    <strong>Email:</strong> nvan@abc.com
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-geo-alt-fill me-1"></i>
+                                    <strong>Địa chỉ:</strong> 456 Trần Phú, Đà Nẵng
+                                </small>
+                            </div>
+
+                            <div class="mt-2">
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Đang làm việc
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">
+                                <img src="~/lib/adminlte/assets/img/user1-128x128.jpg"
+                                     class="img-fluid rounded border border-2 border-secondary"
+                                     alt="Employee Photo"
+                                     style="max-height: 150px; object-fit: cover; width: 100%;">
+                            </div>
+
+                            <div class="col-8">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <a href="~/Employee/Edit/125" class="btn btn-sm btn-primary me-1" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a href="~/Employee/Delete/125" class="btn btn-sm btn-danger me-1" title="Xóa">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <a href="~/Employee/ChangePassword/125" class="btn btn-sm btn-warning me-1" title="Đổi mật khẩu">
+                                        <i class="bi bi-lock"></i>
+                                    </a>
+                                    <a href="~/Employee/ChangeRole/125" class="btn btn-sm btn-info" title="Phân quyền">
+                                        <i class="bi bi-person-check"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="mb-3">
+                                <i class="bi bi-person-fill me-1 text-primary"></i>
+                                <span class="fw-bold text-primary fs-6">Lê Thị Mai</span>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    <strong>Ngày sinh:</strong> 20/08/1998
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-telephone-fill me-1"></i>
+                                    <strong>Điện thoại:</strong> 0923 456 789
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-envelope-fill me-1"></i>
+                                    <strong>Email:</strong> ltmai@abc.com
+                                </small>
+                            </div>
+
+                            <div class="mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-geo-alt-fill me-1"></i>
+                                    <strong>Địa chỉ:</strong> 789 Nguyễn Huệ, Huế
+                                </small>
+                            </div>
+
+                            <div class="mt-2">
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Đang làm việc
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer clearfix">
+        <ul class="pagination pagination-sm m-0 float-end">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+- Views/Employee/Edit, Delete, ChangePassword: tương tự bên Views/Customer.
+- Views/Employee/ChangeRole.cshtml:
+@{
+    ViewBag.Title = "Phân quyền Nhân viên";
+}
+<form>
+    <div class="row justify-content-center">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-person-check-fill me-2"></i>
+                        Phân quyền cho nhân viên
+                    </h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-1"></i>
+                        Bạn đang thực hiện phân quyền cho nhân viên: <strong>Trần Nguyên Phong (tnphong@abc.com)</strong>
+                    </div>
+
+                    <!-- Thông tin nhân viên -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Thông tin nhân viên</h6>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-3">Họ tên:</dt>
+                                <dd class="col-sm-9">Trần Nguyên Phong</dd>
+
+                                <dt class="col-sm-3">Email:</dt>
+                                <dd class="col-sm-9">tnphong@gmail.com</dd>
+
+                                <dt class="col-sm-3">Quyền hiện tại:</dt>
+                                <dd class="col-sm-9">
+                                    <code>employee,admin</code>
+                                    <br>
+                                    <span class="badge bg-primary me-1">employee</span>
+                                    <span class="badge bg-danger">admin</span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách quyền -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Chọn quyền cho nhân viên</label>
+                        <small class="text-muted d-block mb-3">
+                            Lưu ý: Quyền sẽ được lưu dưới dạng chuỗi phân cách bằng dấu phẩy (VD: employee,admin)
+                        </small>
+
+                        <!-- Quyền admin -->
+                        <div class="card mb-2">
+                            <div class="card-header bg-danger text-white">
+                                <strong>
+                                    <i class="bi bi-shield-fill-check me-1"></i>
+                                    Quyền quản trị viên
+                                </strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="role_admin" name="roles" value="admin" checked>
+                                    <label class="form-check-label" for="role_admin">
+                                        <strong>admin</strong>
+                                        <br><small class="text-muted">Có toàn quyền quản trị hệ thống, quản lý nhân viên, phân quyền</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quyền employee -->
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <strong>
+                                    <i class="bi bi-person-fill me-1"></i>
+                                    Quyền nhân viên
+                                </strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="role_employee" name="roles" value="employee" checked>
+                                    <label class="form-check-label" for="role_employee">
+                                        <strong>employee</strong>
+                                        <br><small class="text-muted">Nhân viên cơ bản, có thể truy cập hệ thống và thực hiện các nghiệp vụ được phân công</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hướng dẫn -->
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <strong>Hướng dẫn:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li><strong>employee</strong>: Quyền nhân viên cơ bản (bắt buộc cho tất cả nhân viên)</li>
+                                <li><strong>admin</strong>: Quyền quản trị viên (chỉ dành cho người quản lý)</li>
+                                <li>Có thể chọn cả 2 quyền: <code>employee,admin</code></li>
+                                <li>Nếu không chọn quyền nào, nhân viên sẽ không thể đăng nhập hệ thống</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Ghi chú -->
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú</label>
+                        <textarea class="form-control" rows="2" placeholder="Nhập ghi chú về việc phân quyền (không bắt buộc)"></textarea>
+                    </div>
+                </div>
+
+                <div class="card-footer text-end">
+                    <a href="~/Employee" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-info">
+                        <i class="bi bi-person-check"></i> Lưu phân quyền
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+- Views/Home/Index.cshtml:
+@{
+    ViewBag.title = "Trang chủ";
+    var currentUser = ViewBag.CurrentUser as SV22T1020362.Models.UserAccount;
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-gradient-primary">
+            <div class="card-body">
+                <h3 class="text-white">
+                    <i class="bi bi-house-door me-2"></i>
+                    Chào mừng, @(currentUser?.FullName ?? "Người dùng")!
+                </h3>
+                <p class="text-white mb-0">
+                    Hệ thống quản lý LiteCommerce
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <!-- Quản lý dữ liệu -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Nhà cung cấp</h6>
+                        <h3 class="mb-0">
+                            <i class="bi bi-truck text-primary"></i>
+                        </h3>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Supplier" asp-action="Index" class="btn btn-sm btn-outline-primary w-100">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Xem danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Khách hàng</h6>
+                        <h3 class="mb-0">
+                            <i class="bi bi-people text-success"></i>
+                        </h3>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Customer" asp-action="Index" class="btn btn-sm btn-outline-success w-100">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Xem danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Người giao hàng</h6>
+                        <h3 class="mb-0">
+                            <i class="bi bi-bicycle text-warning"></i>
+                        </h3>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Shipper" asp-action="Index" class="btn btn-sm btn-outline-warning w-100">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Xem danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Nhân viên</h6>
+                        <h3 class="mb-0">
+                            <i class="bi bi-people-fill text-info"></i>
+                        </h3>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Employee" asp-action="Index" class="btn btn-sm btn-outline-info w-100">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Xem danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <!-- Quản lý hàng hóa -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Loại hàng</h6>
+                        <h3 class="mb-0">
+                            <i class="bi bi-collection text-secondary"></i>
+                        </h3>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Category" asp-action="Index" class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Xem danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Mặt hàng</h6>
+                        <h3 class="mb-0">
+                            <i class="bi bi-boxes text-primary"></i>
+                        </h3>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Product" asp-action="Index" class="btn btn-sm btn-outline-primary w-100">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Xem danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quản lý bán hàng -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Lập đơn hàng</h6>
+                        <h3 class="mb-0">
+                            <i class="bi bi-cart-plus text-success"></i>
+                        </h3>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Order" asp-action="Create" class="btn btn-sm btn-outline-success w-100">
+                        <i class="bi bi-plus-circle me-1"></i>Tạo đơn hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Đơn hàng</h6>
+                        <h3 class="mb-0">
+                            <i class="bi bi-receipt text-danger"></i>
+                        </h3>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Order" asp-action="Index" class="btn btn-sm btn-outline-danger w-100">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Quản lý đơn hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-info-circle me-2"></i>Thông tin hệ thống
+                </h3>
+            </div>
+            <div class="card-body">
+                <p>
+                    <strong>Phiên bản:</strong> 1.0.0<br />
+                    <strong>Người dùng:</strong> @(currentUser?.FullName)<br />
+                    <strong>Email:</strong> @(currentUser?.Email)<br />
+                    <strong>Vai trò:</strong>
+                    @if (currentUser?.Roles != null && currentUser.Roles.Any())
+                    {
+                        foreach (var role in currentUser.Roles)
+                        {
+                            <span class="badge bg-primary me-1">@role</span>
+                        }
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+- Views/Order/Index, Detail, Create, Delete: Chưa có nội dung.
+- Views/Product/Index.cshtml:
+@{
+    ViewBag.Title = "Quản lý Mặt hàng";
+}
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <form>
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <select class="form-control">
+                        <option>-- Loại hàng --</option>
+                        <option value="">Thực phẩm</option>
+                        <option value="">Điện tử</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control">
+                        <option>-- Nhà cung cấp --</option>
+                        <option value="">Công ty ABC</option>
+                        <option value="">Công ty XYZ</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" placeholder="Giá từ..." />
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" placeholder="...đến giá" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Nhập mặt hàng cần tìm">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <a href="~/Product/Create" class="btn btn-success" style="margin-left:2px">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body table-responsive p-1">
+        <span class="text-muted">Danh sách này có <b>25</b> người giao hàng</span>
+        <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th style="width:auto">Tên hàng</th>
+                    <th style="width:200px">Đơn vị tính</th>
+                    <th style="width:200px">Giá</th>
+                    <th style="width:100px">Dừng bán?</th>
+                    <th class="text-center" style="width: 120px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <a href="~/Product/Detail/123">
+                            Trà sữa Trân châu
+                        </a>
+                    </td>
+                    <td>Hộp</td>
+                    <td>15,000</td>
+                    <td class="text-center">&#10003;</td>
+                    <td class="text-center">
+                        <a href="~/Product/Edit/123" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="~/Product/Delete/123" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer clearfix">
+        <ul class="pagination pagination-sm m-0 float-end">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+- Views/Product/Edit,Detail,Delete,ListAttributes, EditAttributes,DeleteAttributes,ListPhotos,EditPhoto,DeletePhoto: Chưa có nội dung.
+* Ghi chú:
+- Tôi đang sử dụng Visual Studio 2022, SQL Server 2014 Developer Edition, trên Windows 11.
+- Có một Solution tên là SV22T1020362.
+- Có các projects nằm trong Solution ở trên:
++ 2 project ASP.NET Web Core MVC tên là: SV22T1020362.Admin và SV22T1020362.Shop. Thực hiện theo mô hình Model - View - Controllers. 2 project này, mỗi cái đều có 3 project references là: SV22T1020362.Models, SV22T1020362.DataLayers, SV22T1020362.BusinessLayers.
++ 3 project class library (Cho phần Model) với thứ tự: 1 cái là SV22T1020362.Models chỉ chứa file cs để khai báo lớp cho đối tượng bên CSDL; 1 cái là SV22T1020362.DataLayers có 1 project references là SV22T1020362.Models ở trên và 2 package là Dapper 2.1.66 và Microsoft.Data.SqlClient 6.1.4 để thực hiện kết nối cho DAL (hay còn gọi là DAO, kết nối trực tiếp tới CSDL, đóng vai trò là DAL (DAO); 1 cái là SV22T1020362.BusinessLayers có 2 project references là SV22T1020362.Models và SV22T1020362.DataLayers ở trên, đóng vai trò là BO, được sử dụng trong Controllers. 
++ Trong 2 project ASP.NET Web Core MVC, Sử dụng thư viện lib của AdminLTE-4 gồm 6: adminlte, bootstrap, font-awesome, overlay-scrollbars, popperjs, source-sans-3 trong wwwroot/lib. Trong wwwroot có favicon.ico và Layout.html. Layout.html có nội dung như trên.
+
+- index.cshmtl (AdminLTE4):
+<!doctype html>
+<html lang="en">
+  <!--begin::Head-->
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>AdminLTE v4 | Dashboard</title>
+    <!--begin::Accessibility Meta Tags-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
+    <!--end::Accessibility Meta Tags-->
+    <!--begin::Primary Meta Tags-->
+    <meta name="title" content="AdminLTE v4 | Dashboard" />
+    <meta name="author" content="ColorlibHQ" />
+    <meta
+      name="description"
+      content="AdminLTE is a Free Bootstrap 5 Admin Dashboard, 30 example pages using Vanilla JS. Fully accessible with WCAG 2.1 AA compliance."
+    />
+    <meta
+      name="keywords"
+      content="bootstrap 5, bootstrap, bootstrap 5 admin dashboard, bootstrap 5 dashboard, bootstrap 5 charts, bootstrap 5 calendar, bootstrap 5 datepicker, bootstrap 5 tables, bootstrap 5 datatable, vanilla js datatable, colorlibhq, colorlibhq dashboard, colorlibhq admin dashboard, accessible admin panel, WCAG compliant"
+    />
+    <!--end::Primary Meta Tags-->
+    <!--begin::Accessibility Features-->
+    <!-- Skip links will be dynamically added by accessibility.js -->
+    <meta name="supported-color-schemes" content="light dark" />
+    <link rel="preload" href="./css/adminlte.css" as="style" />
+    <!--end::Accessibility Features-->
+    <!--begin::Fonts-->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
+      integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q="
+      crossorigin="anonymous"
+      media="print"
+      onload="this.media='all'"
+    />
+    <!--end::Fonts-->
+    <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css"
+      crossorigin="anonymous"
+    />
+    <!--end::Third Party Plugin(OverlayScrollbars)-->
+    <!--begin::Third Party Plugin(Bootstrap Icons)-->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+      crossorigin="anonymous"
+    />
+    <!--end::Third Party Plugin(Bootstrap Icons)-->
+    <!--begin::Required Plugin(AdminLTE)-->
+    <link rel="stylesheet" href="./css/adminlte.css" />
+    <!--end::Required Plugin(AdminLTE)-->
+    <!-- apexcharts -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css"
+      integrity="sha256-4MX+61mt9NVvvuPjUWdUdyfZfxSB1/Rf9WtqRHgG5S0="
+      crossorigin="anonymous"
+    />
+    <!-- jsvectormap -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css"
+      integrity="sha256-+uGLJmmTKOqBr+2E6KDYs/NRsHxSkONXFHUL0fy2O/4="
+      crossorigin="anonymous"
+    />
+  </head>
+  <!--end::Head-->
+  <!--begin::Body-->
+  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      <!--begin::Header-->
+      <nav class="app-header navbar navbar-expand bg-body">
+        <!--begin::Container-->
+        <div class="container-fluid">
+          <!--begin::Start Navbar Links-->
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                <i class="bi bi-list"></i>
+              </a>
+            </li>
+            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Home</a></li>
+            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li>
+          </ul>
+          <!--end::Start Navbar Links-->
+          <!--begin::End Navbar Links-->
+          <ul class="navbar-nav ms-auto">
+            <!--begin::Navbar Search-->
+            <li class="nav-item">
+              <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                <i class="bi bi-search"></i>
+              </a>
+            </li>
+            <!--end::Navbar Search-->
+            <!--begin::Messages Dropdown Menu-->
+            <li class="nav-item dropdown">
+              <a class="nav-link" data-bs-toggle="dropdown" href="#">
+                <i class="bi bi-chat-text"></i>
+                <span class="navbar-badge badge text-bg-danger">3</span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <a href="#" class="dropdown-item">
+                  <!--begin::Message-->
+                  <div class="d-flex">
+                    <div class="flex-shrink-0">
+                      <img
+                        src="./assets/img/user1-128x128.jpg"
+                        alt="User Avatar"
+                        class="img-size-50 rounded-circle me-3"
+                      />
+                    </div>
+                    <div class="flex-grow-1">
+                      <h3 class="dropdown-item-title">
+                        Brad Diesel
+                        <span class="float-end fs-7 text-danger"
+                          ><i class="bi bi-star-fill"></i
+                        ></span>
+                      </h3>
+                      <p class="fs-7">Call me whenever you can...</p>
+                      <p class="fs-7 text-secondary">
+                        <i class="bi bi-clock-fill me-1"></i> 4 Hours Ago
+                      </p>
+                    </div>
+                  </div>
+                  <!--end::Message-->
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">
+                  <!--begin::Message-->
+                  <div class="d-flex">
+                    <div class="flex-shrink-0">
+                      <img
+                        src="./assets/img/user8-128x128.jpg"
+                        alt="User Avatar"
+                        class="img-size-50 rounded-circle me-3"
+                      />
+                    </div>
+                    <div class="flex-grow-1">
+                      <h3 class="dropdown-item-title">
+                        John Pierce
+                        <span class="float-end fs-7 text-secondary">
+                          <i class="bi bi-star-fill"></i>
+                        </span>
+                      </h3>
+                      <p class="fs-7">I got your message bro</p>
+                      <p class="fs-7 text-secondary">
+                        <i class="bi bi-clock-fill me-1"></i> 4 Hours Ago
+                      </p>
+                    </div>
+                  </div>
+                  <!--end::Message-->
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">
+                  <!--begin::Message-->
+                  <div class="d-flex">
+                    <div class="flex-shrink-0">
+                      <img
+                        src="./assets/img/user3-128x128.jpg"
+                        alt="User Avatar"
+                        class="img-size-50 rounded-circle me-3"
+                      />
+                    </div>
+                    <div class="flex-grow-1">
+                      <h3 class="dropdown-item-title">
+                        Nora Silvester
+                        <span class="float-end fs-7 text-warning">
+                          <i class="bi bi-star-fill"></i>
+                        </span>
+                      </h3>
+                      <p class="fs-7">The subject goes here</p>
+                      <p class="fs-7 text-secondary">
+                        <i class="bi bi-clock-fill me-1"></i> 4 Hours Ago
+                      </p>
+                    </div>
+                  </div>
+                  <!--end::Message-->
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+              </div>
+            </li>
+            <!--end::Messages Dropdown Menu-->
+            <!--begin::Notifications Dropdown Menu-->
+            <li class="nav-item dropdown">
+              <a class="nav-link" data-bs-toggle="dropdown" href="#">
+                <i class="bi bi-bell-fill"></i>
+                <span class="navbar-badge badge text-bg-warning">15</span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <span class="dropdown-item dropdown-header">15 Notifications</span>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">
+                  <i class="bi bi-envelope me-2"></i> 4 new messages
+                  <span class="float-end text-secondary fs-7">3 mins</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">
+                  <i class="bi bi-people-fill me-2"></i> 8 friend requests
+                  <span class="float-end text-secondary fs-7">12 hours</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">
+                  <i class="bi bi-file-earmark-fill me-2"></i> 3 new reports
+                  <span class="float-end text-secondary fs-7">2 days</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item dropdown-footer"> See All Notifications </a>
+              </div>
+            </li>
+            <!--end::Notifications Dropdown Menu-->
+            <!--begin::Fullscreen Toggle-->
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-lte-toggle="fullscreen">
+                <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i>
+                <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none"></i>
+              </a>
+            </li>
+            <!--end::Fullscreen Toggle-->
+            <!--begin::User Menu Dropdown-->
+            <li class="nav-item dropdown user-menu">
+              <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <img
+                  src="./assets/img/user2-160x160.jpg"
+                  class="user-image rounded-circle shadow"
+                  alt="User Image"
+                />
+                <span class="d-none d-md-inline">Alexander Pierce</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <!--begin::User Image-->
+                <li class="user-header text-bg-primary">
+                  <img
+                    src="./assets/img/user2-160x160.jpg"
+                    class="rounded-circle shadow"
+                    alt="User Image"
+                  />
+                  <p>
+                    Alexander Pierce - Web Developer
+                    <small>Member since Nov. 2023</small>
+                  </p>
+                </li>
+                <!--end::User Image-->
+                <!--begin::Menu Body-->
+                <li class="user-body">
+                  <!--begin::Row-->
+                  <div class="row">
+                    <div class="col-4 text-center"><a href="#">Followers</a></div>
+                    <div class="col-4 text-center"><a href="#">Sales</a></div>
+                    <div class="col-4 text-center"><a href="#">Friends</a></div>
+                  </div>
+                  <!--end::Row-->
+                </li>
+                <!--end::Menu Body-->
+                <!--begin::Menu Footer-->
+                <li class="user-footer">
+                  <a href="#" class="btn btn-default btn-flat">Profile</a>
+                  <a href="#" class="btn btn-default btn-flat float-end">Sign out</a>
+                </li>
+                <!--end::Menu Footer-->
+              </ul>
+            </li>
+            <!--end::User Menu Dropdown-->
+          </ul>
+          <!--end::End Navbar Links-->
+        </div>
+        <!--end::Container-->
+      </nav>
+      <!--end::Header-->
+      <!--begin::Sidebar-->
+      <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+        <!--begin::Sidebar Brand-->
+        <div class="sidebar-brand">
+          <!--begin::Brand Link-->
+          <a href="./index.html" class="brand-link">
+            <!--begin::Brand Image-->
+            <img
+              src="./assets/img/AdminLTELogo.png"
+              alt="AdminLTE Logo"
+              class="brand-image opacity-75 shadow"
+            />
+            <!--end::Brand Image-->
+            <!--begin::Brand Text-->
+            <span class="brand-text fw-light">AdminLTE 4</span>
+            <!--end::Brand Text-->
+          </a>
+          <!--end::Brand Link-->
+        </div>
+        <!--end::Sidebar Brand-->
+        <!--begin::Sidebar Wrapper-->
+        <div class="sidebar-wrapper">
+          <nav class="mt-2">
+            <!--begin::Sidebar Menu-->
+            <ul
+              class="nav sidebar-menu flex-column"
+              data-lte-toggle="treeview"
+              role="navigation"
+              aria-label="Main navigation"
+              data-accordion="false"
+              id="navigation"
+            >
+              <li class="nav-item menu-open">
+                <a href="#" class="nav-link active">
+                  <i class="nav-icon bi bi-speedometer"></i>
+                  <p>
+                    Dashboard
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="./index.html" class="nav-link active">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Dashboard v1</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./index2.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Dashboard v2</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./index3.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Dashboard v3</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="./generate/theme.html" class="nav-link">
+                  <i class="nav-icon bi bi-palette"></i>
+                  <p>Theme Generate</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-box-seam-fill"></i>
+                  <p>
+                    Widgets
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="./widgets/small-box.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Small Box</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./widgets/info-box.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>info Box</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./widgets/cards.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Cards</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-clipboard-fill"></i>
+                  <p>
+                    Layout Options
+                    <span class="nav-badge badge text-bg-secondary me-3">6</span>
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="./layout/unfixed-sidebar.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Default Sidebar</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/fixed-sidebar.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Fixed Sidebar</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/fixed-header.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Fixed Header</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/fixed-footer.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Fixed Footer</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/fixed-complete.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Fixed Complete</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/layout-custom-area.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Layout <small>+ Custom Area </small></p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/sidebar-mini.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Sidebar Mini</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/collapsed-sidebar.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Sidebar Mini <small>+ Collapsed</small></p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/logo-switch.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Sidebar Mini <small>+ Logo Switch</small></p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./layout/layout-rtl.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Layout RTL</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-tree-fill"></i>
+                  <p>
+                    UI Elements
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="./UI/general.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>General</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./UI/icons.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Icons</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./UI/timeline.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Timeline</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-pencil-square"></i>
+                  <p>
+                    Forms
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="./forms/general.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>General Elements</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-table"></i>
+                  <p>
+                    Tables
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="./tables/simple.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Simple Tables</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-header">EXAMPLES</li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-box-arrow-in-right"></i>
+                  <p>
+                    Auth
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <i class="nav-icon bi bi-box-arrow-in-right"></i>
+                      <p>
+                        Version 1
+                        <i class="nav-arrow bi bi-chevron-right"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="./examples/login.html" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>Login</p>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="./examples/register.html" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>Register</p>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <i class="nav-icon bi bi-box-arrow-in-right"></i>
+                      <p>
+                        Version 2
+                        <i class="nav-arrow bi bi-chevron-right"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="./examples/login-v2.html" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>Login</p>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="./examples/register-v2.html" class="nav-link">
+                          <i class="nav-icon bi bi-circle"></i>
+                          <p>Register</p>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./examples/lockscreen.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Lockscreen</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-header">DOCUMENTATIONS</li>
+              <li class="nav-item">
+                <a href="./docs/introduction.html" class="nav-link">
+                  <i class="nav-icon bi bi-download"></i>
+                  <p>Installation</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./docs/layout.html" class="nav-link">
+                  <i class="nav-icon bi bi-grip-horizontal"></i>
+                  <p>Layout</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./docs/color-mode.html" class="nav-link">
+                  <i class="nav-icon bi bi-star-half"></i>
+                  <p>Color Mode</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-ui-checks-grid"></i>
+                  <p>
+                    Components
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="./docs/components/main-header.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Main Header</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="./docs/components/main-sidebar.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Main Sidebar</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-filetype-js"></i>
+                  <p>
+                    Javascript
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="./docs/javascript/treeview.html" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Treeview</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="./docs/browser-support.html" class="nav-link">
+                  <i class="nav-icon bi bi-browser-edge"></i>
+                  <p>Browser Support</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./docs/how-to-contribute.html" class="nav-link">
+                  <i class="nav-icon bi bi-hand-thumbs-up-fill"></i>
+                  <p>How To Contribute</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./docs/faq.html" class="nav-link">
+                  <i class="nav-icon bi bi-question-circle-fill"></i>
+                  <p>FAQ</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./docs/license.html" class="nav-link">
+                  <i class="nav-icon bi bi-patch-check-fill"></i>
+                  <p>License</p>
+                </a>
+              </li>
+              <li class="nav-header">MULTI LEVEL EXAMPLE</li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-circle-fill"></i>
+                  <p>Level 1</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-circle-fill"></i>
+                  <p>
+                    Level 1
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Level 2</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>
+                        Level 2
+                        <i class="nav-arrow bi bi-chevron-right"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <a href="#" class="nav-link">
+                          <i class="nav-icon bi bi-record-circle-fill"></i>
+                          <p>Level 3</p>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="#" class="nav-link">
+                          <i class="nav-icon bi bi-record-circle-fill"></i>
+                          <p>Level 3</p>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="#" class="nav-link">
+                          <i class="nav-icon bi bi-record-circle-fill"></i>
+                          <p>Level 3</p>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <i class="nav-icon bi bi-circle"></i>
+                      <p>Level 2</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-circle-fill"></i>
+                  <p>Level 1</p>
+                </a>
+              </li>
+              <li class="nav-header">LABELS</li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-circle text-danger"></i>
+                  <p class="text">Important</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-circle text-warning"></i>
+                  <p>Warning</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon bi bi-circle text-info"></i>
+                  <p>Informational</p>
+                </a>
+              </li>
+            </ul>
+            <!--end::Sidebar Menu-->
+          </nav>
+        </div>
+        <!--end::Sidebar Wrapper-->
+      </aside>
+      <!--end::Sidebar-->
+      <!--begin::App Main-->
+      <main class="app-main">
+        <!--begin::App Content Header-->
+        <div class="app-content-header">
+          <!--begin::Container-->
+          <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+              <div class="col-sm-6"><h3 class="mb-0">Dashboard</h3></div>
+              <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                  <li class="breadcrumb-item"><a href="#">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+              </div>
+            </div>
+            <!--end::Row-->
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content Header-->
+        <!--begin::App Content-->
+        <div class="app-content">
+          <!--begin::Container-->
+          <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+              <!--begin::Col-->
+              <div class="col-lg-3 col-6">
+                <!--begin::Small Box Widget 1-->
+                <div class="small-box text-bg-primary">
+                  <div class="inner">
+                    <h3>150</h3>
+                    <p>New Orders</p>
+                  </div>
+                  <svg
+                    class="small-box-icon"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"
+                    ></path>
+                  </svg>
+                  <a
+                    href="#"
+                    class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover"
+                  >
+                    More info <i class="bi bi-link-45deg"></i>
+                  </a>
+                </div>
+                <!--end::Small Box Widget 1-->
+              </div>
+              <!--end::Col-->
+              <div class="col-lg-3 col-6">
+                <!--begin::Small Box Widget 2-->
+                <div class="small-box text-bg-success">
+                  <div class="inner">
+                    <h3>53<sup class="fs-5">%</sup></h3>
+                    <p>Bounce Rate</p>
+                  </div>
+                  <svg
+                    class="small-box-icon"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75zM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 01-1.875-1.875V8.625zM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 013 19.875v-6.75z"
+                    ></path>
+                  </svg>
+                  <a
+                    href="#"
+                    class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover"
+                  >
+                    More info <i class="bi bi-link-45deg"></i>
+                  </a>
+                </div>
+                <!--end::Small Box Widget 2-->
+              </div>
+              <!--end::Col-->
+              <div class="col-lg-3 col-6">
+                <!--begin::Small Box Widget 3-->
+                <div class="small-box text-bg-warning">
+                  <div class="inner">
+                    <h3>44</h3>
+                    <p>User Registrations</p>
+                  </div>
+                  <svg
+                    class="small-box-icon"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M6.25 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM3.25 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM19.75 7.5a.75.75 0 00-1.5 0v2.25H16a.75.75 0 000 1.5h2.25v2.25a.75.75 0 001.5 0v-2.25H22a.75.75 0 000-1.5h-2.25V7.5z"
+                    ></path>
+                  </svg>
+                  <a
+                    href="#"
+                    class="small-box-footer link-dark link-underline-opacity-0 link-underline-opacity-50-hover"
+                  >
+                    More info <i class="bi bi-link-45deg"></i>
+                  </a>
+                </div>
+                <!--end::Small Box Widget 3-->
+              </div>
+              <!--end::Col-->
+              <div class="col-lg-3 col-6">
+                <!--begin::Small Box Widget 4-->
+                <div class="small-box text-bg-danger">
+                  <div class="inner">
+                    <h3>65</h3>
+                    <p>Unique Visitors</p>
+                  </div>
+                  <svg
+                    class="small-box-icon"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path
+                      clip-rule="evenodd"
+                      fill-rule="evenodd"
+                      d="M2.25 13.5a8.25 8.25 0 018.25-8.25.75.75 0 01.75.75v6.75H18a.75.75 0 01.75.75 8.25 8.25 0 01-16.5 0z"
+                    ></path>
+                    <path
+                      clip-rule="evenodd"
+                      fill-rule="evenodd"
+                      d="M12.75 3a.75.75 0 01.75-.75 8.25 8.25 0 018.25 8.25.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V3z"
+                    ></path>
+                  </svg>
+                  <a
+                    href="#"
+                    class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover"
+                  >
+                    More info <i class="bi bi-link-45deg"></i>
+                  </a>
+                </div>
+                <!--end::Small Box Widget 4-->
+              </div>
+              <!--end::Col-->
+            </div>
+            <!--end::Row-->
+            <!--begin::Row-->
+            <div class="row">
+              <!-- Start col -->
+              <div class="col-lg-7 connectedSortable">
+                <div class="card mb-4">
+                  <div class="card-header"><h3 class="card-title">Sales Value</h3></div>
+                  <div class="card-body"><div id="revenue-chart"></div></div>
+                </div>
+                <!-- /.card -->
+                <!-- DIRECT CHAT -->
+                <div class="card direct-chat direct-chat-primary mb-4">
+                  <div class="card-header">
+                    <h3 class="card-title">Direct Chat</h3>
+                    <div class="card-tools">
+                      <span title="3 New Messages" class="badge text-bg-primary"> 3 </span>
+                      <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                        <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                        <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-tool"
+                        title="Contacts"
+                        data-lte-toggle="chat-pane"
+                      >
+                        <i class="bi bi-chat-text-fill"></i>
+                      </button>
+                      <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                    <!-- Conversations are loaded here -->
+                    <div class="direct-chat-messages">
+                      <!-- Message. Default to the start -->
+                      <div class="direct-chat-msg">
+                        <div class="direct-chat-infos clearfix">
+                          <span class="direct-chat-name float-start"> Alexander Pierce </span>
+                          <span class="direct-chat-timestamp float-end"> 23 Jan 2:00 pm </span>
+                        </div>
+                        <!-- /.direct-chat-infos -->
+                        <img
+                          class="direct-chat-img"
+                          src="./assets/img/user1-128x128.jpg"
+                          alt="message user image"
+                        />
+                        <!-- /.direct-chat-img -->
+                        <div class="direct-chat-text">
+                          Is this template really for free? That's unbelievable!
+                        </div>
+                        <!-- /.direct-chat-text -->
+                      </div>
+                      <!-- /.direct-chat-msg -->
+                      <!-- Message to the end -->
+                      <div class="direct-chat-msg end">
+                        <div class="direct-chat-infos clearfix">
+                          <span class="direct-chat-name float-end"> Sarah Bullock </span>
+                          <span class="direct-chat-timestamp float-start"> 23 Jan 2:05 pm </span>
+                        </div>
+                        <!-- /.direct-chat-infos -->
+                        <img
+                          class="direct-chat-img"
+                          src="./assets/img/user3-128x128.jpg"
+                          alt="message user image"
+                        />
+                        <!-- /.direct-chat-img -->
+                        <div class="direct-chat-text">You better believe it!</div>
+                        <!-- /.direct-chat-text -->
+                      </div>
+                      <!-- /.direct-chat-msg -->
+                      <!-- Message. Default to the start -->
+                      <div class="direct-chat-msg">
+                        <div class="direct-chat-infos clearfix">
+                          <span class="direct-chat-name float-start"> Alexander Pierce </span>
+                          <span class="direct-chat-timestamp float-end"> 23 Jan 5:37 pm </span>
+                        </div>
+                        <!-- /.direct-chat-infos -->
+                        <img
+                          class="direct-chat-img"
+                          src="./assets/img/user1-128x128.jpg"
+                          alt="message user image"
+                        />
+                        <!-- /.direct-chat-img -->
+                        <div class="direct-chat-text">
+                          Working with AdminLTE on a great new app! Wanna join?
+                        </div>
+                        <!-- /.direct-chat-text -->
+                      </div>
+                      <!-- /.direct-chat-msg -->
+                      <!-- Message to the end -->
+                      <div class="direct-chat-msg end">
+                        <div class="direct-chat-infos clearfix">
+                          <span class="direct-chat-name float-end"> Sarah Bullock </span>
+                          <span class="direct-chat-timestamp float-start"> 23 Jan 6:10 pm </span>
+                        </div>
+                        <!-- /.direct-chat-infos -->
+                        <img
+                          class="direct-chat-img"
+                          src="./assets/img/user3-128x128.jpg"
+                          alt="message user image"
+                        />
+                        <!-- /.direct-chat-img -->
+                        <div class="direct-chat-text">I would love to.</div>
+                        <!-- /.direct-chat-text -->
+                      </div>
+                      <!-- /.direct-chat-msg -->
+                    </div>
+                    <!-- /.direct-chat-messages-->
+                    <!-- Contacts are loaded here -->
+                    <div class="direct-chat-contacts">
+                      <ul class="contacts-list">
+                        <li>
+                          <a href="#">
+                            <img
+                              class="contacts-list-img"
+                              src="./assets/img/user1-128x128.jpg"
+                              alt="User Avatar"
+                            />
+                            <div class="contacts-list-info">
+                              <span class="contacts-list-name">
+                                Count Dracula
+                                <small class="contacts-list-date float-end"> 2/28/2023 </small>
+                              </span>
+                              <span class="contacts-list-msg"> How have you been? I was... </span>
+                            </div>
+                            <!-- /.contacts-list-info -->
+                          </a>
+                        </li>
+                        <!-- End Contact Item -->
+                        <li>
+                          <a href="#">
+                            <img
+                              class="contacts-list-img"
+                              src="./assets/img/user7-128x128.jpg"
+                              alt="User Avatar"
+                            />
+                            <div class="contacts-list-info">
+                              <span class="contacts-list-name">
+                                Sarah Doe
+                                <small class="contacts-list-date float-end"> 2/23/2023 </small>
+                              </span>
+                              <span class="contacts-list-msg"> I will be waiting for... </span>
+                            </div>
+                            <!-- /.contacts-list-info -->
+                          </a>
+                        </li>
+                        <!-- End Contact Item -->
+                        <li>
+                          <a href="#">
+                            <img
+                              class="contacts-list-img"
+                              src="./assets/img/user3-128x128.jpg"
+                              alt="User Avatar"
+                            />
+                            <div class="contacts-list-info">
+                              <span class="contacts-list-name">
+                                Nadia Jolie
+                                <small class="contacts-list-date float-end"> 2/20/2023 </small>
+                              </span>
+                              <span class="contacts-list-msg"> I'll call you back at... </span>
+                            </div>
+                            <!-- /.contacts-list-info -->
+                          </a>
+                        </li>
+                        <!-- End Contact Item -->
+                        <li>
+                          <a href="#">
+                            <img
+                              class="contacts-list-img"
+                              src="./assets/img/user5-128x128.jpg"
+                              alt="User Avatar"
+                            />
+                            <div class="contacts-list-info">
+                              <span class="contacts-list-name">
+                                Nora S. Vans
+                                <small class="contacts-list-date float-end"> 2/10/2023 </small>
+                              </span>
+                              <span class="contacts-list-msg"> Where is your new... </span>
+                            </div>
+                            <!-- /.contacts-list-info -->
+                          </a>
+                        </li>
+                        <!-- End Contact Item -->
+                        <li>
+                          <a href="#">
+                            <img
+                              class="contacts-list-img"
+                              src="./assets/img/user6-128x128.jpg"
+                              alt="User Avatar"
+                            />
+                            <div class="contacts-list-info">
+                              <span class="contacts-list-name">
+                                John K.
+                                <small class="contacts-list-date float-end"> 1/27/2023 </small>
+                              </span>
+                              <span class="contacts-list-msg"> Can I take a look at... </span>
+                            </div>
+                            <!-- /.contacts-list-info -->
+                          </a>
+                        </li>
+                        <!-- End Contact Item -->
+                        <li>
+                          <a href="#">
+                            <img
+                              class="contacts-list-img"
+                              src="./assets/img/user8-128x128.jpg"
+                              alt="User Avatar"
+                            />
+                            <div class="contacts-list-info">
+                              <span class="contacts-list-name">
+                                Kenneth M.
+                                <small class="contacts-list-date float-end"> 1/4/2023 </small>
+                              </span>
+                              <span class="contacts-list-msg"> Never mind I found... </span>
+                            </div>
+                            <!-- /.contacts-list-info -->
+                          </a>
+                        </li>
+                        <!-- End Contact Item -->
+                      </ul>
+                      <!-- /.contacts-list -->
+                    </div>
+                    <!-- /.direct-chat-pane -->
+                  </div>
+                  <!-- /.card-body -->
+                  <div class="card-footer">
+                    <form action="#" method="post">
+                      <div class="input-group">
+                        <input
+                          type="text"
+                          name="message"
+                          placeholder="Type Message ..."
+                          class="form-control"
+                        />
+                        <span class="input-group-append">
+                          <button type="button" class="btn btn-primary">Send</button>
+                        </span>
+                      </div>
+                    </form>
+                  </div>
+                  <!-- /.card-footer-->
+                </div>
+                <!-- /.direct-chat -->
+              </div>
+              <!-- /.Start col -->
+              <!-- Start col -->
+              <div class="col-lg-5 connectedSortable">
+                <div class="card text-white bg-primary bg-gradient border-primary mb-4">
+                  <div class="card-header border-0">
+                    <h3 class="card-title">Sales Value</h3>
+                    <div class="card-tools">
+                      <button
+                        type="button"
+                        class="btn btn-primary btn-sm"
+                        data-lte-toggle="card-collapse"
+                      >
+                        <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                        <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body"><div id="world-map" style="height: 220px"></div></div>
+                  <div class="card-footer border-0">
+                    <!--begin::Row-->
+                    <div class="row">
+                      <div class="col-4 text-center">
+                        <div id="sparkline-1" class="text-dark"></div>
+                        <div class="text-white">Visitors</div>
+                      </div>
+                      <div class="col-4 text-center">
+                        <div id="sparkline-2" class="text-dark"></div>
+                        <div class="text-white">Online</div>
+                      </div>
+                      <div class="col-4 text-center">
+                        <div id="sparkline-3" class="text-dark"></div>
+                        <div class="text-white">Sales</div>
+                      </div>
+                    </div>
+                    <!--end::Row-->
+                  </div>
+                </div>
+              </div>
+              <!-- /.Start col -->
+            </div>
+            <!-- /.row (main row) -->
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content-->
+      </main>
+      <!--end::App Main-->
+      <!--begin::Footer-->
+      <footer class="app-footer">
+        <!--begin::To the end-->
+        <div class="float-end d-none d-sm-inline">Anything you want</div>
+        <!--end::To the end-->
+        <!--begin::Copyright-->
+        <strong>
+          Copyright &copy; 2014-2025&nbsp;
+          <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
+        </strong>
+        All rights reserved.
+        <!--end::Copyright-->
+      </footer>
+      <!--end::Footer-->
+    </div>
+    <!--end::App Wrapper-->
+    <!--begin::Script-->
+    <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <script
+      src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
+    <script src="./js/adminlte.js"></script>
+    <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
+    <script>
+      const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
+      const Default = {
+        scrollbarTheme: 'os-theme-light',
+        scrollbarAutoHide: 'leave',
+        scrollbarClickScroll: true,
+      };
+      document.addEventListener('DOMContentLoaded', function () {
+        const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+        if (sidebarWrapper && OverlayScrollbarsGlobal?.OverlayScrollbars !== undefined) {
+          OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+            scrollbars: {
+              theme: Default.scrollbarTheme,
+              autoHide: Default.scrollbarAutoHide,
+              clickScroll: Default.scrollbarClickScroll,
+            },
+          });
+        }
+      });
+    </script>
+    <!--end::OverlayScrollbars Configure-->
+    <!-- OPTIONAL SCRIPTS -->
+    <!-- sortablejs -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <!-- sortablejs -->
+    <script>
+      new Sortable(document.querySelector('.connectedSortable'), {
+        group: 'shared',
+        handle: '.card-header',
+      });
+
+      const cardHeaders = document.querySelectorAll('.connectedSortable .card-header');
+      cardHeaders.forEach((cardHeader) => {
+        cardHeader.style.cursor = 'move';
+      });
+    </script>
+    <!-- apexcharts -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
+      integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
+      crossorigin="anonymous"
+    ></script>
+    <!-- ChartJS -->
+    <script>
+      // NOTICE!! DO NOT USE ANY OF THIS JAVASCRIPT
+      // IT'S ALL JUST JUNK FOR DEMO
+      // ++++++++++++++++++++++++++++++++++++++++++
+
+      const sales_chart_options = {
+        series: [
+          {
+            name: 'Digital Goods',
+            data: [28, 48, 40, 19, 86, 27, 90],
+          },
+          {
+            name: 'Electronics',
+            data: [65, 59, 80, 81, 56, 55, 40],
+          },
+        ],
+        chart: {
+          height: 300,
+          type: 'area',
+          toolbar: {
+            show: false,
+          },
+        },
+        legend: {
+          show: false,
+        },
+        colors: ['#0d6efd', '#20c997'],
+        dataLabels: {
+          enabled: false,
+        },
+        stroke: {
+          curve: 'smooth',
+        },
+        xaxis: {
+          type: 'datetime',
+          categories: [
+            '2023-01-01',
+            '2023-02-01',
+            '2023-03-01',
+            '2023-04-01',
+            '2023-05-01',
+            '2023-06-01',
+            '2023-07-01',
+          ],
+        },
+        tooltip: {
+          x: {
+            format: 'MMMM yyyy',
+          },
+        },
+      };
+
+      const sales_chart = new ApexCharts(
+        document.querySelector('#revenue-chart'),
+        sales_chart_options,
+      );
+      sales_chart.render();
+    </script>
+    <!-- jsvectormap -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js"
+      integrity="sha256-/t1nN2956BT869E6H4V1dnt0X5pAQHPytli+1nTZm2Y="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js"
+      integrity="sha256-XPpPaZlU8S/HWf7FZLAncLg2SAkP8ScUTII89x9D3lY="
+      crossorigin="anonymous"
+    ></script>
+    <!-- jsvectormap -->
+    <script>
+      // World map by jsVectorMap
+      new jsVectorMap({
+        selector: '#world-map',
+        map: 'world',
+      });
+
+      // Sparkline charts
+      const option_sparkline1 = {
+        series: [
+          {
+            data: [1000, 1200, 920, 927, 931, 1027, 819, 930, 1021],
+          },
+        ],
+        chart: {
+          type: 'area',
+          height: 50,
+          sparkline: {
+            enabled: true,
+          },
+        },
+        stroke: {
+          curve: 'straight',
+        },
+        fill: {
+          opacity: 0.3,
+        },
+        yaxis: {
+          min: 0,
+        },
+        colors: ['#DCE6EC'],
+      };
+
+      const sparkline1 = new ApexCharts(document.querySelector('#sparkline-1'), option_sparkline1);
+      sparkline1.render();
+
+      const option_sparkline2 = {
+        series: [
+          {
+            data: [515, 519, 520, 522, 652, 810, 370, 627, 319, 630, 921],
+          },
+        ],
+        chart: {
+          type: 'area',
+          height: 50,
+          sparkline: {
+            enabled: true,
+          },
+        },
+        stroke: {
+          curve: 'straight',
+        },
+        fill: {
+          opacity: 0.3,
+        },
+        yaxis: {
+          min: 0,
+        },
+        colors: ['#DCE6EC'],
+      };
+
+      const sparkline2 = new ApexCharts(document.querySelector('#sparkline-2'), option_sparkline2);
+      sparkline2.render();
+
+      const option_sparkline3 = {
+        series: [
+          {
+            data: [15, 19, 20, 22, 33, 27, 31, 27, 19, 30, 21],
+          },
+        ],
+        chart: {
+          type: 'area',
+          height: 50,
+          sparkline: {
+            enabled: true,
+          },
+        },
+        stroke: {
+          curve: 'straight',
+        },
+        fill: {
+          opacity: 0.3,
+        },
+        yaxis: {
+          min: 0,
+        },
+        colors: ['#DCE6EC'],
+      };
+
+      const sparkline3 = new ApexCharts(document.querySelector('#sparkline-3'), option_sparkline3);
+      sparkline3.render();
+    </script>
+    <!--end::Script-->
+  </body>
+  <!--end::Body-->
+</html>
+
+
+* Yêu cầu: Hãy làm trong project SV22T1020362.Admin (Trang Web cho Admin), trong phần Views/Order hoặc Views/Product hoặc Views/Home:
+1. - Order/Create:
+    - Ý tưởng: Chia ra 3 phase:
+        - Phase 1: Gồm 2 phần: 
+            - Phần trên: Là tìm kiếm và lựa chọn mặt hàng (trong Products), có thể nhập tên mặt hàng cần tìm, hiển thị danh sách mặt hàng thỏa điều kiện gồm: Tên ở đầu, hình ảnh ở dưới bên trái, giá bán và số lượng (số lượng có thể tùy chỉnh) ở dưới bên phái, dưới cùng là nút thêm vào giỏ hàng.
+            - Phần dưới: Là danh sách mặt hàng trong giỏ hàng. Khi thêm một mặt hàng vào giỏ hàng thông qua nút ở phần trên, thì thông tin mặt hàng sẽ được thêm vào danh sách này. Thông tin mặt hàng gồm: Số thứ tự, hình ảnh, tên, Đơn vị tính, Số lượng, Giá, Thành tiền (Số lượng x Giá), Thao tác: gồm nút để sửa số lượng, nút để xóa mặt hàng ở dòng tương ứng và nút checkbox để chọn. Ở phía dưới danh sách là thông tin tiền tổng cộng của tất cả thành tiền ở trên, sau đó ở dưới nữa là 2 nút: Xóa các hàng được chọn trong checkbox và Xóa giỏ hàng (Xóa tất cả hàng).
+            - Sau khi đã thêm xác nhận giỏ hàng, người dùng bấm nút Tiếp (Giữ lại thông tin Phase 1) để chuyển qua Phase 2.
+        - Phase 2: Là thông tin khách hàng và nơi giao hàng. Gồm:
+            - Đầu tiên là trường Tên khách hàng, yêu cầu nhập ký tự. Khi chưa nhập gì thì hiển thị sẵn top 50 khách hàng được thêm gần nhất (Nếu số khách hàng hiện có quá 50) dưới dạng danh sách gợi ý dưới trường nhập tên. Nếu đã nhập ký tự thì hiển thị top 30 khách hàng theo ký tự tìm kiếm dưới dạng danh sách gợi ý dưới trường nhập tên. Nếu nhập tên mới (Không chọn trong danh sách gợi ý) thì tự nhập 2 trường còn lại: Tỉnh/thành và Địa chỉ, sau khi nhập xong thì thêm (Add) vào CSDL Customers. Nếu chọn trong danh sách gợi ý thì có 2 trường hợp: 1 là khách hàng được chọn đã có đủ thông tin Tỉnh/thành và địa chỉ - chỉ cần bấm Tiếp. 2 là khách hàng được chọn chưa có 2 trường trên, thì phải tự nhập và khi bấm Tiếp sẽ Update (Edit, cập nhật) thông tin vào CSDL Customers.
+            - Ở dưới là 2 trường Tỉnh/thành và Địa chỉ, yêu cầu nhập ký tự, đã có mô tả ở trên.
+            - Cuối cùng là nút Quay lại để quay lại Phase 1 (Giữ lại thông tin Phase 2), và nút Tiếp để chuyển qua Phase 3 (Giữ lại thông tin Phase 2).
+        - Phase 3: Xác nhận cuối cùng (Hiện Pop-up) để tạo đơn hàng. Nếu bấm có thì lấy thông tin tài khoản hiện tại (Của Employees) và tạo đơn hàng, thêm đơn hàng vào Quản lý đơn hàng, trạng thái ban đầu là 1 - Đơn hàng vừa gửi/khởi tạo, chi tiết đơn hàng là danh sách mặt hàng. Nếu bấm Không thì quay lại Phase 2 (Giữ lại thông tin Phase 2). Tạo xong thì trừ số lượng tổng của các mặt hàng tương ứng có trong danh sách. Hiện mới là giao diện nên chưa cần xử lý. 
+2. - Order/Index:
+    - Ý tưởng: Là danh sách đơn hàng. Gồm:
+        - Đầu tiên là thanh tìm kiếm theo ID order / tên khách hàng / trạng thái.
+        - Tiếp đến là danh sách Order gồm: OrderID, tên khách, thời gian Order, trạng thái, thao tác: gồm nút Xóa Order để chuyển qua trang Order/Delete là giao diện xác nhận xóa giống mẫu Delete các trang Employee, Customer ở trên. OrderID sẽ là link liên kết đến trang Xem chi tiết đơn hàng.
+3. - Order/Detail: Chi tiết đơn hàng, gồm:
+    - Các thông tin tổng quan về đơn hàng, có trong CSDL bảng Orders (CustomerID, EmployeeID, ShipperID chuyển qua tên tương ứng), và danh sách mặt hàng có trong CSDL bảng OrderDetails, liên kết OrderID. Tiếp đến là thông tin khách hàng và thông tin nhân viên (Account tạo đơn hàng). 
+    - Dưới cùng là các nút: Cập nhật để chỉnh sửa số lượng các mặt hàng và chỉnh sửa trạng thái đơn hàng và có thể thêm / chỉnh sửa thông tin shipper giống như phần thông tin khách hàng ở trên Order/Create; Khi chỉnh sửa xong thì ở dưới hiện 2 nút là Hủy và Lưu dữ liệu để hủy thay đổi hoặc lưu thay đổi và quay lại trang Order/Detail; nếu lưu thay đổi thì phải cập nhật số lượng tổng của Products, hiện mới làm giao diện nên chưa cần chú ý. Còn có nút Quay lại để quay lại Order/Index và nút Xóa để chuyển qua trang Order/Delete là giao diện xác nhận xóa đơn hàng.
+    - Lưu ý nếu cập nhật trạng thái đơn hàng thành -2 (Từ chối) hoặc -1 (Hủy) thì lập tức cộng lại số lượng tổng Products của các hàng trong danh sách mặt hàng. Hiện chỉ giao diện nên chưa cần.
+    - Có nút Quay lại ở dưới cùng để về Order/Index.
+4. - Order/Delete: Giao diện xác nhận xóa đơn hàng giống mẫu các file trên. Có nút Quay lại để quay lại Order/Index và nút Xác nhận xóa để xóa thẳng.
+5. - Product/Index: Đã có.
+6. - Product/Detail: Thông tin chi tiết mặt hàng, gồm các trường trong CSDL bảng Products (SupplierID, CategoryID chuyển qua tên tương ứng, có ảnh mẫu riêng). Tiếp dưới 3 nút: Nút Quay lại để về Product/Index; Nút Danh sách thuộc tính để qua trang Product/ListAttributes/{ProductID} để quản lý thuộc tính của mặt hàng; Nút Thư viện ảnh để qua trang Product/ListPhotos/{ProductID} để quản lý trong thư viện ảnh của mặt hàng.
+7. - Product/Edit: gồm Thêm và Cập nhật mặt hàng:
+    - Thêm gồm 3 Phase:
+        - Phase 1: Đầu tiên yêu cầu nhập các thuộc tính Products: Tên, Mô tả, chọn nhà cung cấp, chọn loại hàng (Giống bên thông tin khách hàng trong Order/Create), Đơn vị, Giá, Chọn ảnh ngoài (1 ảnh mẫu). Tiếp đến là nút Tiếp để qua Phase 2 và nút Quay lại để về Product/Index. Cần giữ lại thông tin Phase 1 này kể cả khi bấm Tiếp. Mỗi lần bấm Tiếp là lưu vào CSDL (Thêm hoặc Cập nhật) và lấy thông tin ProductID.
+        - Phase 2: Chuyển trang Product/ListAttributes/{ProductID}. Bấm nút Thêm thuộc tính trong trang để thêm. Dưới cùng là nút Quay lại để về Phase 1 và nút Tiếp để qua Phase 3. Cần giữ lại thông tin Phase 2 này kể cả khi bấm Quay lại hoặc Tiếp. Nếu không có thuộc tính thì nút Tiếp sẽ là nút Bỏ qua để qua Phase 3 và không có dữ liệu thuộc tính.
+        - Phase 3: Chuyển trang Product/ListPhotos/{ProductID}. Bấm nút Thêm ảnh trong trang để thêm. Có nút Quay lại để về Phase 2 và nút Xác nhận thêm mặt hàng để thêm mặt hàng và quay lại Product/Index. Giữ lại dữ liệu Phase 3 kể cả khi Quay lại. Nếu không có thư viện ảnh thì nút Xác nhận Thêm vẫn hoạt động và không có dữ liệu thư viện ảnh.
+    - Cập nhật cũng giống Thêm, nhưng lưu ý ở Phase 1 có thể thêm nút Dừng bán để tích chọn, và cuối Phase 3 là Lưu dữ liệu thay vì Xác nhận Thêm.
+8. - Product/Delete: Giao diện xác nhận Xóa Mặt hàng, có nút Quay lại để về Product/Index và nút Xác nhận xóa để xóa, giống mẫu các file trên.
+9. - Product/ListAttributes: Giao diện giống bên Customer/Index. Có các nút: Thêm mới ở đầu bên phải thanh tìm kiếm theo tên thuộc tính; các nút trong Thao tác: Cập nhật, Xóa. Các nút hoạt động tương tự như bên Customer.
+10. - Product/ListPhotos: Giao diện giống bên Customer/Index. Có các nút tương tự như Product/ListAttributes. Các nút hoạt động tương tự như bên Customer.
+11. - Home/Index: Tham khảo Dashboard v1 của AdminLTE4 (file code index.html). Cần thống kê:
+        - Doanh thu theo ngày / tháng / năm. Nếu là tháng và năm thì hiển thị dưới dạng biểu đồ đường lên / xuống như Dashboard v1 và canvas.
+        - Tổng khách hàng / nhân viên/ nhà cung cấp / Shipper.
+        - Tổng số đơn hàng / loại hàng / mặt hàng.
+        - Vinh danh khách hàng mua nhiều đơn nhất / chi nhiều tiền nhất (Top 10).
+
+* Hãy giúp tôi làm phần yêu cầu, theo các file code và ghi chú ở trên. Lưu ý là đang làm giao diện chưa có kết nối CSDL. Đã có thì không cần làm. Chỉ cần gửi file code, các file khác không gửi. Làm theo thứ tự phù hợp, từ đơn giản đến phức tạp các yêu cầu trên. Tham khảo giao diện bên Views/Customer và các giao diện liên quan ở trên.
