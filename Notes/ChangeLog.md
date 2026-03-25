@@ -703,4 +703,54 @@ Các file ChangePassword và ChangeRole
 - Bổ sung 2 file CryptHelper.cs và WebSecurityModels.cs (Trong AppCodes).
     - CryptHelper: Hàm mã hóa mật khẩu MD5
     - WebSecurityModels: Lưu thông tin người dùng, khi người dùng đăng nhập sẽ tạo ra cookies, kiểm tra cookies của người dùng: ID, tên, tên hiển thị, email, photo, quyền.
+- Khai báo để dùng Authentication, Authorization cho Cookie trong Program.cs (Comment thêm).
+- Tối thiểu phải có ID trong WebUserData để Authentication.
+- Sửa Login.cshtml, AccountController
+- Nguyên lý là phải try catch khi bắt lỗi
+- Viết database cho Login, AccountController,...
+- Sửa CustomerController.cs
+- Authorize cho các đối tượng
+- [Authorize] cho OrderController
+- Có thể liệt dê danh sách các quyền và phân cách nhau bởi dấu phẩy
+- Tạo Action AccessDeined.
+- Tạo View AccessDenied
+- Lấy thông tin của User [User]
+- Mở rộng thêm phương thức có this trước đó + Kiểu dữ liệu trong tên biến của hàm được truyền vào.
+- Đổi mật khẩu cũng dùng cái User.GetUserData() để biết đổi mật khẩu của ai.
+- _Header.cshtml có đổi code.
+- Trong AccountController cũng có Authorize, nhưng Login cũng trong -> AllowAnonymous
+- Hoàn thiện Authorize cho các đối tượng còn lại
 - 
+
+### 1. Làm code
+- Trong AppCodes/WebSecurityModels.cs có 3 Roles có thể cho nhân viên, sửa lại trong Views Employee ChangeRoles theo 3 Role cho hợp lệ, và kể cả các phần liên quan nếu cần.
+- Kết nối phần AccountController với server CSDL, hoàn thiện AccountController.
+- Bổ sung Authorize cho các Controller của các đối tượng còn lại.
+- Làm những gì liên quan đến bảo mật, Authentication, Authorize.
+- File code đã sửa:
+    - Views/Employee/ChangeRole.cshtml
+    - Controllers/EmployeeController.cs
+    - BusinessLayers/HRDataService.cs
+    - DataLayers/Interfaces/IEmployeeRepository.cs
+    - DataLayers/SQLServer/EmployeeRepository.cs
+    - Controllers/AccountController.cs
+    - Views/Account/ChangePassword.cshtml 
+    - Views/Account/AccessDenied.cshtml
+    - Controllers/CategoryController.cs
+    - Controllers/SupplierController.cs
+    - Controllers/CustomerController.cs 
+    - Controllers/ShipperController.cs
+    - Controllers/EmployeeController.cs
+    - Controllers/ProductController.cs
+    - Controllers/HomeController.cs
+- ControllerRoles được phép:
+    - AccountController: [Authorize] (Login/AccessDenied dùng [AllowAnonymous])
+    - HomeController: [Authorize] — mọi người dùng đã đăng nhập
+    - CategoryController: Administrator, DataManager
+    - ProductController: Administrator, DataManager
+    - SupplierController: Administrator, DataManager
+    - CustomerController: Administrator, DataManager
+    - ShipperController: Administrator, DataManager
+    - EmployeeController: Administrator
+    - OrderController: Administrator, Sales (đã có)
+

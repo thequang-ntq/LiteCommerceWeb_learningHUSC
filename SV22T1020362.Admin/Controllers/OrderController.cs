@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SV22T1020362.BusinessLayers;
 using SV22T1020362.Models.Sales;
 
@@ -8,6 +9,7 @@ namespace SV22T1020362.Admin.Controllers
     /// Các chức năng liên quan đến quản lý đơn hàng.
     /// Workflow xử lý đơn hàng sử dụng modal dialog (open-modal pattern).
     /// </summary>
+    [Authorize(Roles = $"{WebUserRoles.Sales},{WebUserRoles.Administrator}")]
     public class OrderController : Controller
     {
         public const int PAGESIZE = 20;

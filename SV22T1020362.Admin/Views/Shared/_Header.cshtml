@@ -8,17 +8,21 @@
             </li>
             <li class="nav-item d-none d-md-block"><a href="~/" class="nav-link">Trang chủ</a></li>            
         </ul>        
-        <ul class="navbar-nav ms-auto">            
+        <ul class="navbar-nav ms-auto">
+            @{
+                // Bản chất của User chính là Principal, khi cấp Cookie thì gửi Principal cho Cookie
+                var userData = User.GetUserData();
+            }
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                     <img src="~/lib/adminlte/assets/img/avatar-ntq.jpg" class="user-image rounded-circle shadow" alt="User Image" />
-                    <span class="d-none d-md-inline">Nguyễn Thế Quang</span>
+                    <span class="d-none d-md-inline">@userData?.DisplayName</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">                    
                     <li class="user-header text-bg-primary">
                         <img src="~/lib/adminlte/assets/img/avatar-ntq.jpg" class="rounded-circle shadow" alt="User Image" />
                         <p>
-                            Nguyễn Thế Quang
+                            @userData?.DisplayName
                         </p>
                     </li>                    
                     <li class="user-footer">

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SV22T1020362.BusinessLayers;
 using SV22T1020362.Models.Common;
 using SV22T1020362.Models.HR;
@@ -7,7 +8,9 @@ namespace SV22T1020362.Admin.Controllers
 {
     /// <summary>
     /// Cung cấp các chức năng liên quan đến nhân viên
+    /// // Chỉ Administrator mới được quản lý nhân viên, phân quyền
     /// </summary>
+    [Authorize(Roles = WebUserRoles.Administrator)]
     public class EmployeeController : Controller
     {
         public const string SEARCH_EMPLOYEE = "SearchEmployee";
@@ -173,7 +176,7 @@ namespace SV22T1020362.Admin.Controllers
             try
             {
                 // Đổi mật khẩu thông qua SecurityDataService theo hướng bảo mật
-                await SecurityDataService.ChangeEmployeePasswordAsync(model.Email, ApplicationContext.HashMD5(newPassword));
+                await SecurityDataService.ChangeEmployeePasswordAsync(model.Email, CryptHelper.HashMD5(newPassword));
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -184,7 +187,8 @@ namespace SV22T1020362.Admin.Controllers
         }
 
         /// <summary>
-        /// Hiển thị form phân quyền nhân viên
+        /// Hiển thị form phân quyền nhân viên.
+        /// Truyền danh sách quyền hiện tại của nhân viên qua ViewBag để pre-check checkbox.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> ChangeRole(int id)
@@ -192,7 +196,17 @@ namespace SV22T1020362.Admin.Controllers
             var model = await HRDataService.GetEmployeeAsync(id);
             if (model == null)
                 return RedirectToAction("Index");
+
             ViewBag.Title = "Phân quyền nhân viên";
+
+            // Lấy RoleNames hiện tại từ DB thông qua EmployeeAccount
+            // Employee model không có RoleNames, cần lấy từ bảng Employees trực tiếp
+            // Tạm thời lấy qua SecurityDataService (bằng cách đọc từ DB)
+            // Để đơn giản, dùng Dapper trực tiếp trong controller hoặc bổ sung method vào HRDataService
+            // Ở đây dùng cách đơn giản: lấy thông qua EmployeeRepository đã có
+            var currentRoles = await HRDataService.GetEmployeeRoleNamesAsync(model.EmployeeID);
+            ViewBag.CurrentRoles = currentRoles;
+
             return View(model);
         }
 

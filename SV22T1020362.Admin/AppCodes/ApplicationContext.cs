@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace SV22T1020362.Admin
@@ -122,17 +121,5 @@ namespace SV22T1020362.Admin
         /// Số dòng hiển thị trên mỗi trang khi phân trang dữ liệu
         /// </summary>
         public static int PageSize => Convert.ToInt32(GetConfigValue("PageSize"));
-
-        /// <summary>
-        /// Hàm mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string HashMD5(string input)
-        {
-            using var md5 = MD5.Create();
-            var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
-            return string.Concat(bytes.Select(b => b.ToString("x2")));
-        }
     }
 }

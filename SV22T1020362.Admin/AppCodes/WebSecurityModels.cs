@@ -16,7 +16,7 @@ namespace SV22T1020362.Admin
         public List<string>? Roles { get; set; }
 
         /// <summary>
-        /// Lấy danh sách các Claim chứa thông tin của user
+        /// Lấy danh sách các Claim - đối tượng chứa thông tin của user
         /// </summary>
         /// <returns></returns>
         private List<Claim> Claims
@@ -39,7 +39,7 @@ namespace SV22T1020362.Admin
         }
 
         /// <summary>
-        /// Tạo Principal dựa trên thông tin của người dùng
+        /// Tạo Principal, in thẻ dựa trên thông tin của người dùng
         /// </summary>
         /// <returns></returns>
         public ClaimsPrincipal CreatePrincipal()
@@ -56,15 +56,15 @@ namespace SV22T1020362.Admin
     public class WebUserRoles
     {        
         /// <summary>
-        /// Quản trị
+        /// Quản trị - toàn quyền
         /// </summary>
         public const string Administrator = "admin";  
         /// <summary>
-        /// Quản lý dữ liệu
+        /// Quản lý dữ liệu - liên quan CSDL, trừ phân quyền, đổi mật khẩu, chỉ CRUD
         /// </summary>
         public const string DataManager = "datamanager";
         /// <summary>
-        /// Quản lý bán hàng
+        /// Quản lý bán hàng - liên quan đến Order
         /// </summary>
         public const string Sales = "sales";
     }
@@ -75,7 +75,10 @@ namespace SV22T1020362.Admin
     public static class WebUserExtensions
     {
         /// <summary>
-        /// 
+        /// Đọc thông tin của user từ principal (Giấy chứng nhận)
+        /// Hàm mở rộng cho User, có this ClaimsPrincipal mở rộng cho System.Security.Claims.ClaimsPrincipal cho User.
+        /// Yêu cầu: Nằm trong lớp static, khi extend có tham số this trong hàm static
+        /// Mở rộng chức năng của một lớp mà không can thiệp vào code của nó (khi gọi chỗ khác có dấu mũi tên)
         /// </summary>
         /// <param name="principal"></param>
         /// <returns></returns>

@@ -145,5 +145,23 @@ namespace SV22T1020362.DataLayers.SQLServer
             int count = await connection.ExecuteScalarAsync<int>(sql, new { email, id });
             return count == 0;
         }
+
+        /// <summary>
+        /// Lấy danh sách tên quyền của nhân viên từ cột RoleNames (phân cách bởi dấu phẩy hoặc chấm phẩy)
+        /// </summary>
+        public async Task<List<string>> GetRoleNamesAsync(int id)
+        {
+            using var connection = GetConnection();
+            var sql = "SELECT ISNULL(RoleNames, '') FROM Employees WHERE EmployeeID = @id";
+            var roleNamesStr = await connection.ExecuteScalarAsync<string>(sql, new { id }) ?? "";
+            if (string.IsNullOrWhiteSpace(roleNamesStr))
+                return new List<string>();
+            // Hỗ trợ cả dấu phẩy và chấm phẩy
+            return roleNamesStr
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(r => r.Trim())
+                .Where(r => !string.IsNullOrEmpty(r))
+                .ToList();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SV22T1020362.BusinessLayers;
 using SV22T1020362.Models.Catalog;
 
@@ -8,6 +9,7 @@ namespace SV22T1020362.Admin.Controllers
     /// Cung cấp các chức năng liên quan đến quản lý mặt hàng,
     /// bao gồm cả thuộc tính (Attribute) và ảnh (Photo) của mặt hàng.
     /// </summary>
+    [Authorize(Roles = $"{WebUserRoles.Administrator},{WebUserRoles.DataManager}")]
     public class ProductController : Controller
     {
         public const int PAGESIZE = 20;

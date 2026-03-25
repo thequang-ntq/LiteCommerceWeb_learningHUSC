@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SV22T1020362.BusinessLayers;
 using SV22T1020362.Models.Common;
 using SV22T1020362.Models.Partner;
@@ -8,6 +9,7 @@ namespace SV22T1020362.Admin.Controllers
     /// <summary>
     /// Các chức năng liên quan đến khách hàng
     /// </summary>
+    [Authorize(Roles = $"{WebUserRoles.Administrator},{WebUserRoles.DataManager}")]
     public class CustomerController : Controller
     {
         public const string SEARCH_CUSTOMER = "SearchCustomer";
@@ -194,7 +196,7 @@ namespace SV22T1020362.Admin.Controllers
 
             try
             {
-                await SecurityDataService.ChangeCustomerPasswordAsync(model.Email, ApplicationContext.HashMD5(newPassword));
+                await SecurityDataService.ChangeCustomerPasswordAsync(model.Email, CryptHelper.HashMD5(newPassword));
                 return RedirectToAction("Index");
             }
             catch (Exception ex)

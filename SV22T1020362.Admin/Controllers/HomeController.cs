@@ -1,12 +1,14 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020362.Admin.Models;
+using System.Diagnostics;
 
 namespace SV22T1020362.Admin.Controllers
 {
     /// <summary>
     /// Trang chủ
     /// </summary>
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

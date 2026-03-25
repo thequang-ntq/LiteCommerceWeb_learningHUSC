@@ -129,6 +129,15 @@ namespace SV22T1020362.BusinessLayers
             return await employeeDB.ValidateEmailAsync(email, employeeID);
         }
 
+        /// <summary>
+        /// Lấy danh sách tên quyền hiện tại của nhân viên (từ cột RoleNames).
+        /// </summary>
+        /// <param name="employeeID">Mã nhân viên</param>
+        /// <returns>Danh sách tên quyền</returns>
+        public static async Task<List<string>> GetEmployeeRoleNamesAsync(int employeeID)
+        {
+            return await employeeDB.GetRoleNamesAsync(employeeID);
+        }
         #endregion
     }
 }

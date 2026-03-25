@@ -12,14 +12,14 @@ builder.Services.AddControllersWithViews()
                     option.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
                 });
 
-// Configure Authentication
+// Configure Authentication, khai báo dùng cho xác thực đăng nhập tạo Cookie
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(option =>
                 {
-                    option.Cookie.Name = "LiteCommerce.Admin";
-                    option.LoginPath = "/Account/Login";
-                    option.AccessDeniedPath = "/Account/AccessDenied";
-                    option.ExpireTimeSpan = TimeSpan.FromDays(7);
+                    option.Cookie.Name = "LiteCommerce.Admin"; //tên của Cookie
+                    option.LoginPath = "/Account/Login"; //Đăng nhập
+                    option.AccessDeniedPath = "/Account/AccessDenied"; //Khi truy cập Fail thì qua
+                    option.ExpireTimeSpan = TimeSpan.FromDays(7); //Sau 7 ngày thì hủy phiên đăng nhập
                     option.SlidingExpiration = true;
                     option.Cookie.HttpOnly = true;
                     option.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -42,7 +42,7 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication();
+app.UseAuthentication(); //Cookie trước, Session sau
 app.UseAuthorization();
 app.UseSession();
 
