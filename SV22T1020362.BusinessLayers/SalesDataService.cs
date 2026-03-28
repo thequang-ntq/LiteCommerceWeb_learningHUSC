@@ -1,6 +1,7 @@
 ﻿using SV22T1020362.DataLayers.Interfaces;
 using SV22T1020362.DataLayers.SQLServer;
 using SV22T1020362.Models.Common;
+using SV22T1020362.Models.HR;
 using SV22T1020362.Models.Sales;
 
 namespace SV22T1020362.BusinessLayers
@@ -13,9 +14,6 @@ namespace SV22T1020362.BusinessLayers
     {
         private static readonly IOrderRepository orderDB;
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
         static SalesDataService()
         {
             orderDB = new OrderRepository(Configuration.ConnectionString);
@@ -40,30 +38,33 @@ namespace SV22T1020362.BusinessLayers
         }
 
         /// <summary>
-        /// Tạo đơn hàng mới
+        /// Tạo đơn hàng mới.
+        /// Status mặc định là New (1), OrderTime là hiện tại.
         /// </summary>
-        public static async Task<int> AddOrderAsync(Order data)
+        /// <param name="customerID">Mã khách hàng (0 nếu không có)</param>
+        /// <param name="deliveryProvince">Tỉnh/thành giao hàng</param>
+        /// <param name="deliveryAddress">Địa chỉ giao hàng</param>
+        /// <param name="employeeID">Mã nhân viên tạo đơn (0 nếu không có)</param>
+        /// <returns>Mã đơn hàng được tạo mới</returns>
+        public static async Task<int> AddOrderAsync(int customerID, string deliveryProvince = "",
+            string deliveryAddress = "")
         {
-            //Kiểm tra dữ liệu đơn hàng trước khi thêm
-            if (data.CustomerID == null || data.CustomerID <= 0)
-                throw new ArgumentException("Đơn hàng phải có khách hàng.");
-            if (string.IsNullOrWhiteSpace(data.DeliveryProvince))
-                throw new ArgumentException("Tỉnh/thành giao hàng không được để trống.");
-            if (string.IsNullOrWhiteSpace(data.DeliveryAddress))
-                throw new ArgumentException("Địa chỉ giao hàng không được để trống.");
-
-            data.Status = OrderStatusEnum.New;
-            data.OrderTime = DateTime.Now;
-
-            return await orderDB.AddAsync(data);
+            var order = new Order()
+            {
+                CustomerID = customerID == 0 ? null : customerID,
+                DeliveryProvince = deliveryProvince,
+                DeliveryAddress = deliveryAddress,
+                OrderTime = DateTime.Now,
+                Status = OrderStatusEnum.New
+            };
+            return await orderDB.AddAsync(order);
         }
 
         /// <summary>
-        /// Cập nhật thông tin đơn hàng
+        /// Cập nhật thông tin đơn hàng (chỉ cho phép khi đang ở trạng thái New)
         /// </summary>
         public static async Task<bool> UpdateOrderAsync(Order data)
         {
-            //Kiểm tra dữ liệu và trạng thái đơn hàng trước khi cập nhật
             var order = await orderDB.GetAsync(data.OrderID);
             if (order == null)
                 return false;
@@ -73,11 +74,10 @@ namespace SV22T1020362.BusinessLayers
         }
 
         /// <summary>
-        /// Xóa đơn hàng
+        /// Xóa đơn hàng (chỉ cho phép khi đang ở trạng thái New)
         /// </summary>
         public static async Task<bool> DeleteOrderAsync(int orderID)
         {
-            //Kiểm tra trạng thái đơn hàng trước khi xóa
             var order = await orderDB.GetAsync(orderID);
             if (order == null)
                 return false;
@@ -86,21 +86,55 @@ namespace SV22T1020362.BusinessLayers
             return await orderDB.DeleteAsync(orderID);
         }
 
+        /// <summary>
+        /// Cập nhật CustomerID cho đơn hàng.
+        /// Cho phép ở trạng thái New và Accepted.
+        /// </summary>
+        public static async Task<bool> UpdateOrderCustomerAsync(int orderID, int? customerID)
+        {
+            var order = await orderDB.GetAsync(orderID);
+            if (order == null)
+                return false;
+            if (order.Status != OrderStatusEnum.New && order.Status != OrderStatusEnum.Accepted)
+                throw new InvalidOperationException("Chỉ được cập nhật khách hàng khi đơn hàng ở trạng thái chờ duyệt hoặc đã duyệt.");
+            return await orderDB.UpdateCustomerAsync(orderID, customerID);
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin shipper và địa chỉ giao hàng.
+        /// Chỉ cho phép ở trạng thái Accepted.
+        /// </summary>
+        public static async Task<bool> UpdateOrderShipperDeliveryAsync(int orderID, int? shipperID,
+            string deliveryProvince, string deliveryAddress)
+        {
+            var order = await orderDB.GetAsync(orderID);
+            if (order == null)
+                return false;
+            if (order.Status != OrderStatusEnum.Accepted)
+                throw new InvalidOperationException("Chỉ được cập nhật thông tin giao hàng khi đơn hàng đã được duyệt.");
+            return await orderDB.UpdateShipperDeliveryAsync(orderID, shipperID, deliveryProvince, deliveryAddress);
+        }
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng của một khách hàng
+        /// </summary>
+        public static async Task<List<OrderViewInfo>> ListOrdersByCustomerAsync(int customerID)
+        {
+            return await orderDB.ListByCustomerAsync(customerID);
+        }
+
         #endregion
 
         #region Order Status Processing
 
         /// <summary>
-        /// Duyệt đơn hàng
+        /// Duyệt đơn hàng (New → Accepted)
         /// </summary>
         public static async Task<bool> AcceptOrderAsync(int orderID, int employeeID)
         {
             var order = await orderDB.GetAsync(orderID);
-            if (order == null) 
-                return false;
-
-            if (order.Status != OrderStatusEnum.New)
-                return false;
+            if (order == null) return false;
+            if (order.Status != OrderStatusEnum.New) return false;
 
             order.EmployeeID = employeeID;
             order.AcceptTime = DateTime.Now;
@@ -110,77 +144,82 @@ namespace SV22T1020362.BusinessLayers
         }
 
         /// <summary>
-        /// Từ chối đơn hàng
+        /// Từ chối đơn hàng (New → Rejected)
         /// </summary>
         public static async Task<bool> RejectOrderAsync(int orderID, int employeeID)
         {
             var order = await orderDB.GetAsync(orderID);
-            if (order == null) 
-                return false;
-
-            if (order.Status != OrderStatusEnum.New)
-                return false;
+            if (order == null) return false;
+            if (order.Status != OrderStatusEnum.New) return false;
 
             order.EmployeeID = employeeID;
             order.FinishedTime = DateTime.Now;
             order.Status = OrderStatusEnum.Rejected;
-            
+
             return await orderDB.UpdateAsync(order);
         }
 
         /// <summary>
-        /// Hủy đơn hàng
+        /// Hủy đơn hàng (New/Accepted/Shipping → Cancelled)
         /// </summary>
-        public static async Task<bool> CancelOrderAsync(int orderID)
+        public static async Task<bool> CancelOrderAsync(int orderID, int employeeID)
         {
             var order = await orderDB.GetAsync(orderID);
-            if (order == null) 
-                return false;
+            if (order == null) return false;
 
             if (order.Status != OrderStatusEnum.New &&
-                order.Status != OrderStatusEnum.Accepted)
+                order.Status != OrderStatusEnum.Accepted &&
+                order.Status != OrderStatusEnum.Shipping)
                 return false;
 
+            order.EmployeeID = employeeID;
             order.FinishedTime = DateTime.Now;
             order.Status = OrderStatusEnum.Cancelled;
-            
+
             return await orderDB.UpdateAsync(order);
         }
 
         /// <summary>
-        /// Giao đơn hàng cho người giao hàng
+        /// Chuyển đơn hàng sang trạng thái đang giao (Accepted → Shipping).
+        /// Yêu cầu phải có đầy đủ thông tin khách hàng và giao hàng.
         /// </summary>
         public static async Task<bool> ShipOrderAsync(int orderID, int shipperID)
         {
             var order = await orderDB.GetAsync(orderID);
-            if (order == null) 
-                return false;
+            if (order == null) return false;
+            if (order.Status != OrderStatusEnum.Accepted) return false;
 
-            if (order.Status != OrderStatusEnum.Accepted)
-                return false;
+            // Kiểm tra bắt buộc có khách hàng
+            if (order.CustomerID == null || order.CustomerID == 0)
+                throw new InvalidOperationException("Phải chọn khách hàng trước khi giao hàng.");
+
+            // Kiểm tra bắt buộc có shipper
+            if (shipperID == 0)
+                throw new InvalidOperationException("Phải chọn người giao hàng trước khi giao hàng.");
+
+            // Kiểm tra bắt buộc có địa chỉ giao hàng
+            if (string.IsNullOrWhiteSpace(order.DeliveryProvince) || string.IsNullOrWhiteSpace(order.DeliveryAddress))
+                throw new InvalidOperationException("Phải nhập đầy đủ địa chỉ giao hàng trước khi giao hàng.");
 
             order.ShipperID = shipperID;
             order.ShippedTime = DateTime.Now;
             order.Status = OrderStatusEnum.Shipping;
-            
+
             return await orderDB.UpdateAsync(order);
         }
 
         /// <summary>
-        /// Hoàn tất đơn hàng
+        /// Hoàn tất đơn hàng (Shipping → Completed)
         /// </summary>
         public static async Task<bool> CompleteOrderAsync(int orderID)
         {
             var order = await orderDB.GetAsync(orderID);
-            if (order == null) 
-                return false;
-
-            if (order.Status != OrderStatusEnum.Shipping)
-                return false;
+            if (order == null) return false;
+            if (order.Status != OrderStatusEnum.Shipping) return false;
 
             order.FinishedTime = DateTime.Now;
             order.Status = OrderStatusEnum.Completed;
-            
+
             return await orderDB.UpdateAsync(order);
         }
 
@@ -205,14 +244,12 @@ namespace SV22T1020362.BusinessLayers
         }
 
         /// <summary>
-        /// Thêm mặt hàng vào đơn hàng
+        /// Thêm mặt hàng vào đơn hàng (chỉ khi trạng thái New)
         /// </summary>
         public static async Task<bool> AddDetailAsync(OrderDetail data)
         {
-            //Kiểm tra dữ liệu và trạng thái đơn hàng trước khi thêm mặt hàng
             var order = await orderDB.GetAsync(data.OrderID);
-            if (order == null)
-                return false;
+            if (order == null) return false;
             if (order.Status != OrderStatusEnum.New)
                 throw new InvalidOperationException("Chỉ được thêm mặt hàng vào đơn hàng ở trạng thái chờ duyệt.");
             if (data.Quantity <= 0)
@@ -223,14 +260,12 @@ namespace SV22T1020362.BusinessLayers
         }
 
         /// <summary>
-        /// Cập nhật mặt hàng trong đơn hàng
+        /// Cập nhật mặt hàng trong đơn hàng (chỉ khi trạng thái New)
         /// </summary>
         public static async Task<bool> UpdateDetailAsync(OrderDetail data)
         {
-            //Kiểm tra dữ liệu và trạng thái đơn hàng trước khi cập nhật mặt hàng
             var order = await orderDB.GetAsync(data.OrderID);
-            if (order == null)
-                return false;
+            if (order == null) return false;
             if (order.Status != OrderStatusEnum.New)
                 throw new InvalidOperationException("Chỉ được cập nhật mặt hàng trong đơn hàng ở trạng thái chờ duyệt.");
             if (data.Quantity <= 0)
@@ -241,16 +276,20 @@ namespace SV22T1020362.BusinessLayers
         }
 
         /// <summary>
-        /// Xóa mặt hàng khỏi đơn hàng
+        /// Xóa mặt hàng khỏi đơn hàng (chỉ khi trạng thái New, tối thiểu phải còn 1 mặt hàng)
         /// </summary>
         public static async Task<bool> DeleteDetailAsync(int orderID, int productID)
         {
-            //Kiểm tra trạng thái đơn hàng trước khi xóa mặt hàng
             var order = await orderDB.GetAsync(orderID);
-            if (order == null)
-                return false;
+            if (order == null) return false;
             if (order.Status != OrderStatusEnum.New)
                 throw new InvalidOperationException("Chỉ được xóa mặt hàng khỏi đơn hàng ở trạng thái chờ duyệt.");
+
+            // Kiểm tra tối thiểu 1 mặt hàng
+            int count = await orderDB.CountDetailsAsync(orderID);
+            if (count <= 1)
+                throw new InvalidOperationException("Đơn hàng phải có ít nhất 1 mặt hàng. Không thể xóa mặt hàng cuối cùng.");
+
             return await orderDB.DeleteDetailAsync(orderID, productID);
         }
 

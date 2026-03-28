@@ -754,3 +754,350 @@ Các file ChangePassword và ChangeRole
     - EmployeeController: Administrator
     - OrderController: Administrator, Sales (đã có)
 
+- TODO: Chưa xóa vật lý ảnh không dùng nữa trong: wwwroot/images/employees và /products.
+
+### 25/03/2026 - 26/03/2026
+#### 1. Demo code Shop
+- Các file trong SV22T1020362.Shop:
+    - Program.cs
+    - appsettings.json, appsettings.Development.jon
+    - AppCodes
+    - Controllers
+    - Models
+    - Views: 
+        - _ViewImports
+        - _ViewStart
+        - Account
+        - Cart
+        - Home
+        - Order
+        - Product
+        - Shared
+    - wwwroot: shop.css, shop.js
+- BusinessLayers/SalesDataService.cs
+- IOrderRepository
+- OrderRepository
+
+# Công việc ngày 26/03/2026
+## LiteCommerce
+### Admin
+#### HƯớng dẫn làm chức năng Order/Create
+- Lưu giỏ hàng đang được tạo trong session, thoát trình duyệt là mất
+- ShoppingCartHelper trong AppCodes -> giống DataService trong BusinessLayers, nhưng làm với session, bên kia làm trong DB.
+- Bên Customer (Shop) không được cập nhật giá bán của hàng tnong giỏ, nhưng bên Admin thì được.
+- site.js, site.css cần bỏ vào prompt
+- Làm cái thêm, sửa, xóa, xem, tìm kiếm, xóa hết giỏ hàng, cập nhật các giao diện tương ứng
+- Admin:
+    - OrderController
+    - Views/Order/Create
+        - Form search (Cóp bên CustomerIndex)
+        - section scripts
+    - Views/Order/SearchProduct
+        - Căt ra từ Create, sau đó ghép vào bằng AJAX
+        - File mới tìm kiếm mặt hàng giống Product, đều chỉ cần tên
+        - Copy bên CustomerSearch
+        - Mỗi phần tử trong vòng lặp không dùng asp-for được
+    - Views/Order/ShowCart
+        - List đổi thành IEnumerable (Tổng quát)
+        - Cắt ra từ Create sau đó ghép vào bằng AJAX
+    - AppCodes
+        - ApiResult
+        - ShoppingCartHelper.cs
+    - DeleteCartItem.cshtml: xóa hàng trong giỏ
+    - ClearCart.cshtml: xóa tất cả hàng trong giỏ
+    - EditCartItem.cshtml: cập nhật hàng trong giỏ, cập nhật số lượng.
+    - SalesDataService.cs
+- TODO: 
+    - Những cái còn thiếu
+    - Thông tin khách hàng và nơi giao hàng:
+        - Không bắt buộc tên, không bắt buộc chọn tỉnh/thành, có thể POST trực tiếp
+        - Các phần xem, tìm kiếm, thêm, sửa, xóa, xử lý đơn hàng trong Detail tương tự như giỏ hàng, tạo mới file.
+    - Khi thêm đơn hàng chỉ cần mã khách hàng, địa chỉ đơn hàng
+    - Làm trong SalesDataService, thay hàm AddOrderAsync cho tốt hơn.
+    - Vậy sửa lại bên OrderRepository luôn hàm AddOrderAsync
+    - Sau khi thêm xong, phải xóa giỏ hàng.
+    - Còn: 2 cái xóa hàng và xóa hết hàng trong giỏ, lập đơn hàng, và những cái tương tự bên xử lý chi tiết đơn hàng (Tham khảo giỏ hàng).
+    - Xử lý chi tiết đơn hầng: Dùng Ajax để load thông tin đơn hàng, thông tin khách hàng, thông tin giao hàng, chia nhỏ ra để load, ajax load danh sách hàng trong đơn hàng ở dưới cùng trong trang chi tiết đơn hàng.
+
+#### Đã sửa 14:00 
+- Controllers/OrderController.cs
+    - action DeleteCartItem và ClearCart check Request.Method == "POST" nhưng JS gọi bằng fetch POST — tuy nhiên vấn đề thực sự là DeleteCartItem có route [HttpGet] mà JS gọi POST, nên nó không match. Tương tự ClearCart.
+    - thay action CreateOrder
+    - thêm các action mới cho detail, AJAX load từng phần + thêm/sửa/xóa hàng trong đơn
+- BusinessLayers/SalesDataService.cs: 
+    - thay phần AddOrderAsync overload thứ 2
+- View/Order/Detail.cshtml: sửa lại để load AJAX
+- Views/Order/_OrderDetails.cshtml: partial view danh sách mặt hàng trong đơn
+- Views/Order/AddOrderItem.cshtml: partial view modal tìm & thêm hàng
+- Views/Order/_SearchProductInDetail.cshtml: partial kết quả tìm kiếm trong modal
+- Views/Order/EditOrderItem.cshtml: partial view modal sửa mặt hàng trong đơn
+- Views/Order/DeleteOrderItem.cshtml: partial view modal xác nhận xóa hàng trong đơn
+
+#### Đã sửa 17:00
+* Trong project SV22T1020362.Admin (Dành cho quản trị viên) đã sửa:
+1. Trong trang Lập đơn hàng (Order/Create), ở phần Thông tin khách hàng & nơi giao hàng, trường Khách hàng:
+1.1. Đầu tiên trong phần Dropdown để Select sẽ hiển thị 50 khách hàng đầu tiên trong danh sách khách hàng, lấy danh sách này giống như bên Customer/Index. Ở cuối Dropdown sẽ có lựa chọn là Tìm kiếm thêm.
+1.2. Khi bấm vào Tìm kiếm thêm, sẽ hiển thị bootstrap 5 modal với dạng tương tự như phần nhập thông tin bên Customer/Edit, nhưng trường Tên khách hàng khi bấm vào sẽ hiển thị dropdown tất cả khách hàng trong danh sách và có thể nhập. Nếu chọn trong dropdown thì các trường còn lại được bổ sung tương ứng dữ liệu khách hàng đó, còn nếu nhập thì cũng kiểm tra giống bên Customer/Edit, bắt nhập Tên khách hàng, Email đúng, chọn Tỉnh/Thành và thực hiện tạo khách hàng mới và lấy thông tin khách hàng luôn.
+1.3. Khi Cuối modal có 2 nút Chọn và Hủy. Bấm chọn thì đóng modal, ghi nhớ thông tin khách hàng được chọn vào đơn hàng được lập (Lấy CustomerID) và hiển thị tên ở trường Tên khách hàng ở ngoài. Còn nếu bấm Hủy thì modal và không thay đổi.
+1.4. Nếu không bấm Tìm kiếm thêm thì chọn trong dropdown (Không được nhập đối với Tên khách hàng ở ngoài modal) và ghi nhs thông tin khách hàng được chọn vào đơn hàng được lập. Nếu bấm Lập đơn hàng thì khi đó mới bắt đầu lưu thông tin khách hàng vào đơn hàng. Không chọn dropdown cũng được, có thể bổ sung sau khi tạo đơn.
+1.5. Còn lại giữ nguyên. Tỉnh thành và Địa chỉ ở đây là DeliveryProvince và DeliveryAddress trong Order. Status ban đầu khi mới tạo là 1 - Đơn hàng vừa gửi/khởi tạo. 
+1.6. Phải có thông tin nhân viên phụ trách khi tạo đơn thành công. Nhân viên phụ trách phải lấy từ Claims tài khoản nhân viên đang đăng nhập (WebSecurityModesl, các phần trong Account).
+
+2. Trong trang chi tiết đơn hàng (Order/Detail): Khi vừa tạo đơn hàng mới (Trong Lập đơn hàng Order/Create) thành công, sẽ chuyển qua trang Order/Detail này và có: Trạng thái 1 - là Đơn hàng vừa gửi/khởi tạo,và thời gian tạo (OrderTime) lấy thời gian thực ngay lúc tạo, lúc này:
+2.1. Ở phần Thông tin đơn hàng:
+- Mã đơn hàng là mã của đơn vừa tạo, nhân viên phụ trách chưa có, Ngày lập (OrderTime) lấy thời điểm ngay lúc tạo đơn, ngày nhận đơn (AcceptTime) chưa có.
+2.2. Ở phần Thông tin khách hàng:
+- Nếu ở Lập đơn hàng trước đó chưa chọn khách hàng, thì bây giờ sẽ có nút Thêm khách hàng ở đầu. Bấm vào thì hiển thị modal và thực hiện chức năng trong modal giống yêu cầu 1.2 và 1.3, cụ thể là giống bên modal khi Tìm kiếm thêm trong Lập đơn hàng.
+- Nếu có rồi thì không có gì cả, giữ nguyên.
+- Thêm xong nút vẫn còn đó để chỉnh sửa nếu cần.
+- Chưa bắt buộc chọn.
+2.3. Ở phần Thông tin giao hàng:
+- Chưa có thông tin người giao hàng, cũng chưa có nút gì cả.
+2.4. Ở phần Danh sách mặt hàng:
+- Có nút Thêm mặt hàng ở đầu, bấm vào sẽ hiển thị modal với giao diện và chức năng hiển thị, tìm kiếm, phân trang giống phần Lựa chọn hàng cần bán trong trang Lập đơn hàng (Order/Create). Khi bấm Thêm vào đơn hàng (Giống nút Thêm vào giỏ) thì sẽ thêm hàng vào danh sách mặt hàng trong đơn hàng. Cuối modal có nút Hủy nếu không muốn thêm.
+- Ở cuối mỗi dòng dữ liệu mặt hàng, cũng sẽ có 2 nút hình Sửa và Xóa giống bên Danh sách mặt hàng đã chọn trong Lập đơn hàng, nhưng sẽ không có nút Xóa tất cả hàng ở dưới cùng. Và cũng không cho phép xóa tất cả hàng trong đơn, tối thiểu phải còn lại 1 hàng trong đơn hàng (1 dòng dữ liệu).
+- Không bắt buộc phải thao tác ở phần này, có thể làm hoặc không.
+- Thêm sửa xóa xong nút vẫn còn đó.
+2.5. Phần xử lý đơn hàng: Có thể duyệt đơn hàng (Trạng thái 2: Đơn hàng đã chấp nhận); Hủy đơn hàng (Trạng thái -1: Đơn hàng đã bị hủy); Từ chối đơn hàng (Trạng thái -2: Đơn hàng bị từ chối).
+2.6. Có thể Xóa đơn hàng (Nút Xóa). Cập nhật trạng thái đơn hàng. Còn lại giữ nguyên.
+
+3. Trong trang chi tiết đơn hàng (Order/Detail): Khi duyệt đơn hàng qua đang ở trạng thái 2: Đơn hàng đã chấp nhận:
+3.1. Ở phần thông tin đơn hàng:
+- Cập nhật Ngày nhận đơn là thời điểm duyệt.
+3.2. Ở phần Thông tin khách hàng:
+- Giống bên Trạng thái 1 - Đơn hàng vừa gửi/khởi tạo, chỉ có điều nếu trong phần xử lý đơn hàng, bấm qua trạng thái 3: Đơn hàng đang được vận chuyển thì bắt buộc phải chọn khách hàng cho có trước khi chuyển qua trạng thái 3. Ngoài ra cũng phải kiểm tra đã chọn shipper chưa ở phần Thông tin giao hàng trước khi chuyển qua trạng thái 3 (Phần dưới này).
+- Thêm xong nút vẫn còn đó để chỉnh sửa nếu cần.
+3.3. Ở phần Thông tin giao hàng:
+- Chưa có thông tin người giao hàng, có nút Thêm người giao hàng ở vị tri giống trên phần Thông tin khách hàng.
+- Khi bấm cũng hiện modal bootstrap 5 với dạng tương tự như bên Shipper/Edit, nhưng trường Tên người giao hàng có thể chọn 1 người trong Dropdown tất cả người giao hàng, cũng có thể nhập. Chọn thì cũng lấy thông tin người được chọn; còn nhập thì kiểm tra dữ liệu giống bên Shipper/Edit là tên người giao hàng phải có.
+- Cuối modal cũng có nút Hủy nếu chưa muốn lưu thay đổi, và có nút Chọn nếu hợp lệ thì thêm vào Người giao hàng và Điện thoại (nếu có Điện thoại). 
+- Có thêm nút Thêm địa chỉ bên cạnh nút Thêm người giao hàng. Khi bấm cũng hiện modal bootstrap 5 yêu cầu nhập không được rỗng gồm Địa chỉ giao hàng và Tỉnh/thành. Bấm Chọn để thêm vào 2 trường tương ứng ở ngoài và Hủy để không lưu.
+- Phần này bắt buộc nhập cả 4 trường thông tin trên nếu muốn qua trạng thái 3 - Đơn hàng đang được vận chuyển.
+- Thêm xong nút vẫn còn đó để chỉnh sửa nếu cần.
+3.4. Ở phần Danh sách mặt hàng:
+- Không thể thay đổi được nữa, chỉ xem, không có nút hay thao tác gì nữa.
+3.5. Phần xử lý đơn hàng: Có thể giao hàng vận chuyển (Trạng thái 3: Đơn hàng đang được vận chuyển); Hủy đơn hàng (Trạng thái -1: Đơn hàng đã bị hủy). Nếu qua trạng thái 3 phải có đầy đủ Thông tin khách hàng và Thông tin giao hàng như đã ghi ở trên.
+3.6. Không thể Xóa đơn hàng. Cập nhật trạng thái đơn hàng. Còn lại giữ nguyên.
+
+4. Trong trang chi tiết đơn hàng (Order/Detail): Khi đơn hàng đang ở trạng thái 3 - Đơn hàng đang được vận chuyển:
+4.1. Ở phần thông tin đơn hàng:
+- Không đổi
+4.2. Ở phần Thông tin khách hàng:
+- Không đổi
+4.3. Ở phần Thông tin giao hàng:
+- Không đổi
+4.4. Ở phần Danh sách mặt hàng:
+- Không đổi
+4.5. Phần xử lý đơn hàng: Có thể hoàn tất (Trạng thái 4: Đơn hàng đã hoàn tất); Hủy đơn hàng (Trạng thái -1: Đơn hàng đã bị hủy).
+4.6. Không thể Xóa đơn hàng. Cập nhật trạng thái đơn hàng. Còn lại giữ nguyên.
+
+5. Trong trang chi tiết đơn hàng (Order/Detail): Khi đơn hàng đang ở trạng thái 4 - Đơn hàng đã hoàn tất:
+5.1. Ở phần thông tin đơn hàng:
+- Không đổi
+5.2. Ở phần Thông tin khách hàng:
+- Không đổi
+5.3. Ở phần Thông tin giao hàng:
+- Không đổi
+5.4. Ở phần Danh sách mặt hàng:
+- Không đổi
+5.5. Phần xử lý đơn hàng: Không có thao tác.
+5.6. Không thể Xóa đơn hàng. Cập nhật trạng thái đơn hàng. Các hàng trong danh sách mặt hàng phải trừ số lượng cho tổng số lượng các hàng tương ứng trong Product (Mặt hàng).
+
+6. Trong trang chi tiết đơn hàng (Order/Detail): Khi đơn hàng đang ở trạng thái -1 - Đơn hàng đã bị hủy:
+6.1. Ở phần thông tin đơn hàng:
+- Không thể đổi
+6.2. Ở phần Thông tin khách hàng:
+- Không thể đổi
+6.3. Ở phần Thông tin giao hàng:
+- Không thể đổi
+6.4. Ở phần Danh sách mặt hàng:
+- Không thể đổi
+6.5. Phần xử lý đơn hàng: Không có thao tác.
+6.6. Không thể Xóa đơn hàng. Cập nhật trạng thái đơn hàng. Còn lại giữ nguyên.
+
+7. Trong trang chi tiết đơn hàng (Order/Detail): Khi đơn hàng đang ở trạng thái -2 - Đơn hàng bị từ chối:
+7.1. Ở phần thông tin đơn hàng:
+- Không thể đổi
+7.2. Ở phần Thông tin khách hàng:
+- Không thể đổi
+7.3. Ở phần Thông tin giao hàng:
+- Không thể đổi
+7.4. Ở phần Danh sách mặt hàng:
+- Không thể đổi
+7.5. Phần xử lý đơn hàng: Không có thao tác.
+7.6. Không thể Xóa đơn hàng. Cập nhật trạng thái đơn hàng. Còn lại giữ nguyên.
+
+- IOrderRepository.cs
+- OrderRepository.cs
+- SalesDataService.cs
+- Admin/Controllers/OrderController.cs
+- Views/Order/_OrderDetails.cshtml
+- Views/Order/Detail.cshtml
+- Views/Order/Create.cshtml
+- Views/Order/Shipping.cshtml
+- Views/Order/Delete.cshtml
+- Views/Order/Cancel.cshtml
+- Views/Order/Reject.cshtml
+- Views/Order/Finish.cshtml
+- Views/Order/Accept.cshtml
+- Các lỗi:
+    - Tìm kiếm trong trang OrderDetail, phần Thêm mặt hàng cho Danh sách mặt hàng thì bị văng ra trang khác và không có CSS. Cần tìm được reload mặt hàng ngay trong modal.
+    - Phần Thêm mặt hàng cho Danh sách mặt hàng trong trang OrderDetail chưa hoạt động, hàng được chọn chưa được thêm vào.
+    - Phần Cập nhật hàng và Xóa hàng cho các mặt hàng trong Danh sách mặt hàng trong trang OrderDetail chưa hoạt động.
+    - Phần Thêm khách hàng ở Thông tin khách hàng trong trang OrderDetail chưa chọn được, chỉ mới có thể thêm mới. Cần chọn được từ danh sách khách hàng đã có. Tương tự với modal Tìm kiếm thêm trong Lập đơn hàng.
+    - Phần người giao hàng, khi chọn người giao hàng đã có thì chưa load được danh sách người giao hàng từ CSDL.
+    - Lỗi xử lý đơn hàng khi qua trạng thái 3: chuyển giao hàng (qua trạng thái 3) không được:
+Microsoft.Data.SqlClient.SqlException (0x80131904): The number of rows provided for a FETCH clause must be greater then zero. at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction) at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction) at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose) at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady) at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows) at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more) at Microsoft.Data.SqlClient.SqlDataReader.ReadAsyncExecute(Task task, Object state) at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context) --- End of stack trace from previous location --- at Dapper.SqlMapper.GridReader.ReadBufferedAsync[T](Int32 index, Func`2 deserializer) in /_/Dapper/SqlMapper.GridReader.Async.cs:line 233 at Dapper.SqlMapper.GridReader.ReadBufferedAsync[T](Int32 index, Func`2 deserializer) in /_/Dapper/SqlMapper.GridReader.Async.cs:line 241 at SV22T1020362.DataLayers.SQLServer.ShipperRepository.ListAsync(PaginationSearchInput input) in D:\Nam4\HK2\LapTrinhUngDungWeb\BaiTap\SV22T1020362\SV22T1020362.DataLayers\SQLServer\ShipperRepository.cs:line 47 at SV22T1020362.BusinessLayers.PartnerDataService.ListShippersAsync(PaginationSearchInput input) in D:\Nam4\HK2\LapTrinhUngDungWeb\BaiTap\SV22T1020362\SV22T1020362.BusinessLayers\PartnerDataService.cs:line 243 at AspNetCoreGeneratedDocument.Views_Order_Shipping.
+b__12_0() in D:\Nam4\HK2\LapTrinhUngDungWeb\BaiTap\SV22T1020362\SV22T1020362.Admin\Views\Order\Shipping.cshtml:line 26 at Microsoft.AspNetCore.Razor.Runtime.TagHelpers.TagHelperExecutionContext.GetChildContentAsync(Boolean useCachedResult, HtmlEncoder encoder) at Microsoft.AspNetCore.Mvc.TagHelpers.RenderAtEndOfFormTagHelper.ProcessAsync(TagHelperContext context, TagHelperOutput output) at Microsoft.AspNetCore.Razor.Runtime.TagHelpers.TagHelperRunner.g__Awaited|0_0(Task task, TagHelperExecutionContext executionContext, Int32 i, Int32 count) at AspNetCoreGeneratedDocument.Views_Order_Shipping.ExecuteAsync() in D:\Nam4\HK2\LapTrinhUngDungWeb\BaiTap\SV22T1020362\SV22T1020362.Admin\Views\Order\Shipping.cshtml:line 4 at Microsoft.AspNetCore.Mvc.Razor.RazorView.RenderPageCoreAsync(IRazorPage page, ViewContext context) at Microsoft.AspNetCore.Mvc.Razor.RazorView.RenderPageAsync(IRazorPage page, ViewContext context, Boolean invokeViewStarts) at Microsoft.AspNetCore.Mvc.Razor.RazorView.RenderAsync(ViewContext context) at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewExecutor.ExecuteAsync(ViewContext viewContext, String contentType, Nullable`1 statusCode) at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewExecutor.ExecuteAsync(ViewContext viewContext, String contentType, Nullable`1 statusCode) at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewExecutor.ExecuteAsync(ActionContext actionContext, IView view, ViewDataDictionary viewData, ITempDataDictionary tempData, String contentType, Nullable`1 statusCode) at Microsoft.AspNetCore.Mvc.ViewFeatures.PartialViewResultExecutor.ExecuteAsync(ActionContext context, PartialViewResult result) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.g__Awaited|28_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope) at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope) at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context) at Microsoft.AspNetCore.Session.SessionMiddleware.Invoke(HttpContext context) at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context) at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context) at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context) ClientConnectionId:968151aa-fdc1-492b-90b2-327cc7339606 Error Number:10744,State:1,Class:15 HEADERS ======= Accept: */* Connection: keep-alive Host: localhost:5204 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Accept-Encoding: gzip, deflate, br, zstd Accept-Language: en-US,en;q=0.9,vi;q=0.8 Cookie: .AspNetCore.Antiforgery.39A-_mUPJeg=CfDJ8OOoybDCW9JEsuDeu6k6vUfPriQ3yGPRNCy2wi1qM5e3lRTrlQCYQ0-zW3qnieUTdv5xRTjv79ePNiav1dIJGuU6jdCwqLBrdMbNxhxRfKBhCJ_318qIykPMUiCuPJ7A79S743bk1038xQMI8oq07qs; LiteCommerce.Admin=CfDJ8OOoybDCW9JEsuDeu6k6vUe5Isrg4j25-tiwS1IFy_XsCd8wFi_Bk_QgtRSYiis6Ws5DLQ1UsHe_EDX9MGDm2CIG6JZ5uGBlvS68DxqH4uLNAHG2eh8ebiZKhNejX72vlIoYdL9M9bHl3dLt7q5F94piAkV5PtVXpmUS7EuIcYWmKvzP0cLeY2Q5K7LVw0K1mMIvmlniP5Ci23UszlDVbpBp8gP4cGVzJ9moIpvkMJ2VlFyWPNECKvFnYKZpPPhSOsHGJjQWwLopsh06ZKa8Xl0W5DKQJWBgoGSKV0hndq0JpshXi04nlfyiPO8RlHJRG7bYnDV3xzAo1rA8Em5E8jsrFRsgmJW6Ab5u4lv5uHO9VvEgnLofa5YrxyWzfAqeH-b4vv2b87mqw7LObNiyB0v3Ebc8yhKgDScvB1QI17q0_yQLfCoQmCb1Fs3j809MsdpMN4Fx21aLqpd0xN0UuzAETBngKUHFRqJnNg17ET41iT_IdLMEYxMEKyuHErLWrMenS_UW3ZT0TaGAeV_oz0Goq1-O1Qm35062NZVDYGLhsCL8dG7n4e4kOddSrpWfbPipDTQhpi2cHpOv1lK024BgG6unI_K6Ukm8u8ku9oMiyxtujHgG8bR4_bCzZXogBijdlSfKd7tWsEEjZjtW8HPS4l8NHu8uVC03euTqncXxb47weYdfKqFmPOo3Dxb2Hgq30P7QBERh_-UxHI4x1J8; .AspNetCore.Session=CfDJ8OOoybDCW9JEsuDeu6k6vUdJnLWAoocDBWpFBYPaoygkCjQuo6Zu5Hmktnz%2FhAro20TCnHPCX%2BPF1oE6AxnBpyHslAC5uNEJQE1wHouzhGmXlwYKvtmSKD2GqlWlpdWtjxz5hmipzaDfm4bHZQ7UAL0zmbshZpz4E1HKPaCPpF7m Referer: http://localhost:5204/Order/Detail/1004 sec-ch-ua-platform: "Windows" sec-ch-ua: "Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146" sec-ch-ua-mobile: ?0 Sec-Fetch-Site: same-origin Sec-Fetch-Mode: cors Sec-Fetch-Dest: empty
+    - Thêm người giao hàng (shipper) đang bị lỗi:
+        - Lỗi ở trên
+        - Thêm lỗi: Tải lại thì bị mất ở giao diện. Khi thêm người giao hàng thi Update cho Order đang xử lý luôn lưu vào CSDL luôn. Lưu vào CSDL lúc được lúc không, chưa được.
+        - Đổi nút Thêm người giao hàng thành nút Sửa người giao hàng khi đã có thông tin người giao hàng (Đã update) cho Order đang xử lý trong CSDL.
+        - Sửa tương tự với Thông tin khách hàng và Địa chỉ trong Thông tin giao hàng nếu cần, nhưng hiện tại tôi thấy 2 cái đó hoạt động đúng rồi.
+
+#### Đã sửa 22:00
+- SQLServer/ShipperRepository.cs 
+    - (thêm nhánh PageSize == 0 giống CategoryRepository
+    - SQL Server 2014 không hỗ trợ FETCH NEXT 0 ROWS — phải dùng nhánh riêng khi PageSize = 0.
+- SQLServer/OrderRepository.cs
+    - đơn hàng không có khách hàng không hiển thị
+    - WHERE (c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue) — khi CustomerID là NULL thì LEFT JOIN cho c là NULL, điều kiện WHERE loại bỏ chúng.
+- Controllers/OrderController.cs
+    - action Shipping GET
+- Views/Order/Shipping.cshtml 
+    - fix lỗi PageSize=0 trong view
+    - thay toàn bộ
+- Views/Order/AddOrderItem.cshtml
+    - fix tìm kiếm modal không bị bay ra trang khác
+    - thay toàn bộ
+- Views/Order/_SearchProductInDetail.cshtml
+    - dùng addOrderItemFromModal mới
+- Controllers/OrderController.cs
+    - action SearchProductInDetail
+    - Thay vì nhận ProductSearchInput input, nhận các param rời để tránh model binding bị lẫn
+- Views/Order/Detail.cshtml
+    - 3 vấn đề: reload modal, shipper button, customer chọn từ danh sách
+- Views/Order/Create.cshtml
+    - modal tìm kiếm thêm khách hàng: chọn từ danh sách
+    - Chỉ sửa hàm confirmSelectCustomer trong @section Scripts
+- File không cần thiết cần xóa
+    - Views/Product/DeleteAttribute.cshtml
+    - Views/Product/DeletePhoto.cshtml
+    - Views/Product/Detail.cshtml
+    - Models/PaginationSerachViewModel.cs
+
+- TODO (Luồng cơ bản đã tạm OK):
+    - Lập đơn hàng, Thông tin khách hàng và nơi giao hàng, tìm kiếm / thêm khách hàng, hiện modal ra thì trường Tên khách hàng chưa hiện danh sách Dropdown để chọn khách hàng đã có để tự điền thông tin, mới cho nhập mới.
+    - OrderDetail, trạng thái 1, thêm mặt hàng, sửa xóa hàng trong Danh sách mặt hàng chưa được. Thêm mặt hàng không hiển thị hàng trong danh sách trong modal, tìm kiếm bị văng ra ngoài màn hình chi tiết lại. Sửa xóa bấm nút không tác dụng.
+    - OrderDetail, trạng thái 1 và 2, thêm khách hàng, trong modal, trường tên khách hàng chưa hiển thị danh sách drop down để chọn khách hàng đã có được, mới chỉ thêm mới.
+    - HomeIndex (Trang chủ) chưa chèn dữ liệu thực.
+    - Làm SV22T1020362.Shop (Bên User).
+
+#### 27/03/2026 07:32
+- SalesDataService.cs
+    - Bỏ employeeID trong SalesDataService.cs
+    - Thêm employeeID trong Cancel
+
+- OrderController.cs
+    - CreateOrder bỏ employeeID
+    - Thêm employeeID trong POST Cancel
+    
+- Views/Order/Create.cshtml
+    - Dropdown khách hàng
+    - Modal thêm khách hàng
+
+- Views/Order/Detail.cshtml
+    - Thay Section Script
+
+- Views/Order/_OrderDetails.cshtml 
+    — Fix nút sửa/xóa trong danh sách mặt hàng
+
+- Views/Order/AddOrderItem.cshtml
+    - Fix tìm kiếm không bay ra ngoài
+
+- Views/Order/_SearchProductInDetail.cshtml
+    - thay paginateInDetail và hàm submit
+
+- Views/Home/Index
+    - Chèn dữ liệu thực
+
+- Sales/OrderViewInfo.cs
+    - Thêm SumOfPrice
+
+- OrderRepository.cs
+    - Sửa hàm ListAsync() để có thể SELECT toàn bộ bên cạnh offset
+
+- CustomerRepository.cs
+    - Sửa hàm ListAsync() để có thể SELECT toàn bộ bên cạnh offset
+
+TODO:
+    - Thêm/sửa/xóa hàng trong Danh sách mặt hàng thuộc trang Chi tiết đơn hàng chưa được.
+
+#### 27/03/2026 12:00
+- wwwroot/js/site.js
+- Views/Order/AddOrderItem.cshtml
+- Views/Order/EditOrderItem.cshtml
+- Views/Order/DeleteOrderItem.cshtml
+- Qua Shop:
+    - Program.cs
+    - appsettings.json
+    - AppCodes:
+        - ApplicationContext.cs
+        - CryptHelper.cs
+        - WebSecurityModels.cs
+        - ShoppingCartHelper.cs
+    - Controllers:
+        - AccountController.cs
+        - HomeController
+        - ProductController
+        - CartController
+        - OrderController.cs
+    - Views:
+        - Shared
+            - _Layout.cshtml (Bỏ file _Footer, _Header)
+        - _ViewImports.cshtml
+        - _ViewStart.cshtml
+        - Home
+            - Index.cshtml
+        - Product
+            - Index.cshtml (Bỏ Search)
+            - Detail.cshtml
+        - Cart
+            - Index.cshtml
+            - Checkout.cshtml
+            - OrderSuccess.cshtml
+        - Order
+            - Index.cshtml (Bỏ History, Checkout)
+            - Detail.cshtml
+        - Account
+            - Login
+            - Register
+            - Profile
+            - ChangePassword
+    - Properties/launchSettings.json
+    - wwwroot:
+        - css/shop.css
+        - js/shop.js
+        - images
+            - employees
+            - products
+        - lib
+            - favicon.ico
+            - bootstrap
+                - bootstrap.min.css
+                - bootstrap.bundle.min.js
+                - bootstrap-icons.min.css (và font icons)
+#### 28/03/2026 11:30
+- Test:
+1.Đăng ký tài khoản mới.
+2. Đăng nhập vào hệ thống.
+3. Quản lý thông tin cá nhân và mật khẩu.
+4. Xem, tìm kiếm danh mục mặt hàng theo loại hàng, tên hàng, khoảng giá.
+5. Xem thông tin chi tiết của mặt hàng.
+6. Đưa hàng vào giỏ hàng
+7. Quản lý giỏ hàng
+8. Đặt mua hàng
+9. Theo dõi trạng thái xử lý của đơn hàng.
+10. Theo dõi lịch sử mua hàng của cá nhân
+
+

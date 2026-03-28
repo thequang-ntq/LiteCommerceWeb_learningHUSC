@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "Đặt hàng";
+    var customer = ViewBag.Customer as Customer;
+    var cart = ViewBag.Cart as List<OrderDetailViewInfo> ?? new List<OrderDetailViewInfo>();
+    var provinces = ViewBag.Provinces as List<Province> ?? new List<Province>();
+    decimal total = cart.Sum(x => x.TotalPrice);
+}
+
+<div class="container py-4">
+    <h2 class="section-title">
+        <i class="bi bi-bag-check me-2"></i>Xác nhận đặt hàng
+    </h2>
+
+    @if (TempData["OrderError"] != null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["OrderError"]
+        </div>
+    }
+
+    <form method="post" action="~/Cart/PlaceOrder">
+        <div class="row g-4">
+
+            <!-- Thông tin giao hàng -->
+            <div class="col-lg-7">
+                <div class="bg-white border rounded p-4">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">
+                        <i class="bi bi-geo-alt me-2 text-primary"></i>Thông tin giao hàng
+                    </h5>
+
+                    <!-- Thông tin khách hàng (chỉ đọc) -->
+                    @if (customer != null)
+                    {
+                        <div class="mb-3 p-3 bg-light rounded">
+                            <div class="fw-semibold">@customer.CustomerName</div>
+                            <div class="text-muted small">
+                                <i class="bi bi-envelope me-1"></i>@customer.Email
+                                @if (!string.IsNullOrEmpty(customer.Phone))
+                                {
+                                    <span class="ms-2"><i class="bi bi-telephone me-1"></i>@customer.Phone</span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Tỉnh/Thành -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Tỉnh/Thành phố giao hàng <span class="text-danger">*</span>
+                        </label>
+                        <select name="deliveryProvince" class="form-select" required>
+                            <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                            @foreach (var p in provinces)
+                            {
+                                bool selected = customer?.Province == p.ProvinceName;
+                                <option value="@p.ProvinceName" selected="@(selected ? "selected" : null)">
+                                    @p.ProvinceName
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Địa chỉ -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Địa chỉ giao hàng <span class="text-danger">*</span>
+                        </label>
+                        <textarea name="deliveryAddress" class="form-control" rows="3"
+                                  placeholder="Số nhà, tên đường, phường/xã..." required>@(customer?.Address ?? "")</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tóm tắt đơn hàng -->
+            <div class="col-lg-5">
+                <div class="checkout-summary">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">
+                        <i class="bi bi-receipt me-2 text-primary"></i>Sản phẩm đặt mua
+                    </h5>
+
+                    @foreach (var item in cart)
+                    {
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "nophoto.png" : item.Photo)"
+                                     style="width:40px;height:40px;object-fit:contain;border:1px solid #eee;" />
+                                <div>
+                                    <div class="small fw-semibold">@item.ProductName</div>
+                                    <div class="text-muted small">x@item.Quantity @item.Unit</div>
+                                </div>
+                            </div>
+                            <div class="small fw-semibold text-nowrap">
+                                @item.TotalPrice.ToString("N0") đ
+                            </div>
+                        </div>
+                    }
+
+                    <hr />
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold fs-5">Tổng cộng</span>
+                        <span class="checkout-total">@total.ToString("N0") đ</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">
+                        <i class="bi bi-check-circle me-2"></i>Xác nhận đặt hàng
+                    </button>
+                    <a href="~/Cart" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="bi bi-arrow-left me-1"></i>Quay lại giỏ hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

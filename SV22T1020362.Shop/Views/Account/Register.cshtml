@@ -1,0 +1,135 @@
+﻿@{
+    ViewBag.Title = "Đăng ký";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng ký | NTQ Shop</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/shop.css" />
+</head>
+<body class="bg-light">
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="text-center mb-3">
+                    <a href="~/" class="text-decoration-none">
+                        <h3 class="fw-bold text-primary">
+                            <i class="bi bi-shop me-2"></i>NTQ Shop
+                        </h3>
+                    </a>
+                    <p class="text-muted">Tạo tài khoản để bắt đầu mua sắm</p>
+                </div>
+
+                <div class="bg-white rounded border p-4 shadow-sm">
+                    <h5 class="fw-bold mb-4">Đăng ký tài khoản</h5>
+
+                    <form method="post" action="~/Account/Register">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Họ và tên <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="customerName" class="form-control"
+                                       value="@ViewBag.CustomerName"
+                                       placeholder="Nguyễn Văn A" autofocus />
+                                <span class="text-danger small">
+                                    @(ViewData.ModelState["customerName"]?.Errors.FirstOrDefault()?.ErrorMessage)
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tên giao dịch</label>
+                                <input type="text" name="contactName" class="form-control"
+                                       value="@ViewBag.ContactName"
+                                       placeholder="Tên hiển thị (không bắt buộc)" />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" name="email" class="form-control"
+                                       value="@ViewBag.Email"
+                                       placeholder="your@email.com" />
+                                <span class="text-danger small">
+                                    @(ViewData.ModelState["email"]?.Errors.FirstOrDefault()?.ErrorMessage)
+                                </span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Điện thoại</label>
+                                <input type="tel" name="phone" class="form-control"
+                                       value="@ViewBag.Phone"
+                                       placeholder="0901234567" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tỉnh/Thành</label>
+                                <select name="province" class="form-select">
+                                    <option value="">-- Chọn Tỉnh/Thành --</option>
+                                    @{
+                                        var provinces = await DictionaryDataService.ListProvincesAsync();
+                                        foreach (var p in provinces)
+                                        {
+                                            bool selected = (string?)ViewBag.Province == p.ProvinceName;
+                                            <option value="@p.ProvinceName" selected="@(selected ? "selected" : null)">
+                                                @p.ProvinceName
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Địa chỉ</label>
+                                <textarea name="address" class="form-control" rows="2"
+                                          placeholder="Số nhà, đường, phường/xã...">@ViewBag.Address</textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Mật khẩu <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" name="password" class="form-control"
+                                       placeholder="Ít nhất 6 ký tự" />
+                                <span class="text-danger small">
+                                    @(ViewData.ModelState["password"]?.Errors.FirstOrDefault()?.ErrorMessage)
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Xác nhận mật khẩu <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" name="confirmPassword" class="form-control"
+                                       placeholder="Nhập lại mật khẩu" />
+                                <span class="text-danger small">
+                                    @(ViewData.ModelState["confirmPassword"]?.Errors.FirstOrDefault()?.ErrorMessage)
+                                </span>
+                            </div>
+                        </div>
+
+                        @Html.ValidationMessage("", new { @class = "text-danger small d-block mt-2" })
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3">
+                            <i class="bi bi-person-plus me-2"></i>Đăng ký
+                        </button>
+                    </form>
+
+                    <hr />
+                    <p class="text-center mb-0 small">
+                        Đã có tài khoản?
+                        <a href="~/Account/Login" class="fw-semibold">Đăng nhập</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -26,7 +26,7 @@
         /// </summary>
         public string Photo { get; set; } = "";
         /// <summary>
-        /// Danh sách tên các vai trò/quyền của người dùng, được phân cách bởi dấu chấm phẩy (nếu có)
+        /// Danh sách tên các vai trò/quyền của người dùng, được phân cách bởi dấu phẩy (nếu có)
         /// </summary>
         public string RoleNames { get; set; } = "";
     }

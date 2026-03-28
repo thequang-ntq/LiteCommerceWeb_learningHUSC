@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using SV22T1020362.DataLayers.Interfaces;
+using SV22T1020362.Models.Catalog;
 using SV22T1020362.Models.Common;
 using SV22T1020362.Models.Sales;
 
@@ -14,7 +15,6 @@ namespace SV22T1020362.DataLayers.SQLServer
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="connectionString">Chuỗi kết nối đến CSDL</param>
         public OrderRepository(string connectionString) : base(connectionString)
         {
         }
@@ -23,26 +23,25 @@ namespace SV22T1020362.DataLayers.SQLServer
 
         /// <summary>
         /// Tìm kiếm và lấy danh sách đơn hàng dưới dạng phân trang
-        /// theo tên khách hàng, trạng thái và khoảng ngày lập đơn
         /// </summary>
-        /// <param name="input">Đầu vào tìm kiếm, phân trang đơn hàng</param>
-        /// <returns>Kết quả phân trang danh sách thông tin đơn hàng dùng để hiển thị</returns>
         public async Task<PagedResult<OrderViewInfo>> ListAsync(OrderSearchInput input)
         {
             using var connection = GetConnection();
             var parameters = new DynamicParameters();
             parameters.Add("@searchValue", $"%{input.SearchValue}%");
-            // Dùng nullable int thay vì DBNull.Value — Dapper không hỗ trợ DBNull trực tiếp
             parameters.Add("@status", (int)input.Status == 0 ? null : (int?)input.Status);
             parameters.Add("@dateFrom", input.DateFrom);
             parameters.Add("@dateTo", input.DateTo);
-            parameters.Add("@pageSize", input.PageSize);
-            parameters.Add("@offset", input.Offset);
 
-            var sql = @"SELECT COUNT(*)
+            int rowCount;
+            List<OrderViewInfo> data;
+
+            if (input.PageSize == 0)
+            {
+                var sql = @"SELECT COUNT(*)
                         FROM   Orders o
                                LEFT JOIN Customers c ON o.CustomerID = c.CustomerID
-                        WHERE  (c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
+                        WHERE  (@searchValue = '%%' OR c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
                           AND  (@status   IS NULL OR o.Status     = @status)
                           AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
                           AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo));
@@ -67,7 +66,50 @@ namespace SV22T1020362.DataLayers.SQLServer
                         FROM   Orders o
                                LEFT JOIN Customers c  ON o.CustomerID = c.CustomerID
                                LEFT JOIN Employees e  ON o.EmployeeID = e.EmployeeID
-                        WHERE  (c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
+                        WHERE  (@searchValue = '%%' OR c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
+                          AND  (@status   IS NULL OR o.Status     = @status)
+                          AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
+                          AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo))
+                        ORDER  BY o.OrderTime DESC;";
+
+                using var multi = await connection.QueryMultipleAsync(sql, parameters);
+                rowCount = await multi.ReadFirstAsync<int>();
+                data = (await multi.ReadAsync<OrderViewInfo>()).ToList();
+            }
+            else
+            {
+                parameters.Add("@pageSize", input.PageSize);
+                parameters.Add("@offset", input.Offset);
+
+                var sql = @"SELECT COUNT(*)
+                        FROM   Orders o
+                               LEFT JOIN Customers c ON o.CustomerID = c.CustomerID
+                        WHERE  (@searchValue = '%%' OR c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
+                          AND  (@status   IS NULL OR o.Status     = @status)
+                          AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
+                          AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo));
+
+                        SELECT o.OrderID,
+                               o.CustomerID,
+                               o.OrderTime,
+                               o.DeliveryProvince,
+                               o.DeliveryAddress,
+                               o.EmployeeID,
+                               o.AcceptTime,
+                               o.ShipperID,
+                               o.ShippedTime,
+                               o.FinishedTime,
+                               o.Status,
+                               ISNULL(c.CustomerName, N'') AS CustomerName,
+                               ISNULL(c.Phone,        N'') AS CustomerPhone,
+                               ISNULL(e.FullName,     N'') AS EmployeeName,
+                               ISNULL((SELECT SUM(d.Quantity * d.SalePrice)
+                                       FROM   OrderDetails d
+                                       WHERE  d.OrderID = o.OrderID), 0) AS SumOfPrice
+                        FROM   Orders o
+                               LEFT JOIN Customers c  ON o.CustomerID = c.CustomerID
+                               LEFT JOIN Employees e  ON o.EmployeeID = e.EmployeeID
+                        WHERE  (@searchValue = '%%' OR c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
                           AND  (@status   IS NULL OR o.Status     = @status)
                           AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
                           AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo))
@@ -75,9 +117,10 @@ namespace SV22T1020362.DataLayers.SQLServer
                         OFFSET @offset ROWS
                         FETCH  NEXT @pageSize ROWS ONLY;";
 
-            using var multi = await connection.QueryMultipleAsync(sql, parameters);
-            int rowCount = await multi.ReadFirstAsync<int>();
-            var data = (await multi.ReadAsync<OrderViewInfo>()).ToList();
+                using var multi = await connection.QueryMultipleAsync(sql, parameters);
+                rowCount = await multi.ReadFirstAsync<int>();
+                data = (await multi.ReadAsync<OrderViewInfo>()).ToList();
+            }
 
             return new PagedResult<OrderViewInfo>
             {
@@ -89,11 +132,8 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
-        /// Lấy thông tin chi tiết của 1 đơn hàng để hiển thị
-        /// (bao gồm thông tin khách hàng, nhân viên, người giao hàng)
+        /// Lấy thông tin chi tiết của 1 đơn hàng
         /// </summary>
-        /// <param name="orderID">Mã đơn hàng</param>
-        /// <returns>Thông tin đơn hàng dùng để hiển thị hoặc null nếu không tồn tại</returns>
         public async Task<OrderViewInfo?> GetAsync(int orderID)
         {
             using var connection = GetConnection();
@@ -125,10 +165,8 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
-        /// Bổ sung một đơn hàng mới vào CSDL
+        /// Bổ sung một đơn hàng mới
         /// </summary>
-        /// <param name="data">Dữ liệu đơn hàng cần bổ sung</param>
-        /// <returns>Mã đơn hàng vừa được bổ sung</returns>
         public async Task<int> AddAsync(Order data)
         {
             using var connection = GetConnection();
@@ -142,11 +180,8 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
-        /// Cập nhật thông tin đơn hàng trong CSDL
-        /// (thường dùng để cập nhật trạng thái, thông tin giao hàng, nhân viên xử lý, người giao hàng...)
+        /// Cập nhật thông tin đơn hàng
         /// </summary>
-        /// <param name="data">Dữ liệu đơn hàng cần cập nhật</param>
-        /// <returns>true nếu cập nhật thành công, false nếu không có bản ghi nào được cập nhật</returns>
         public async Task<bool> UpdateAsync(Order data)
         {
             using var connection = GetConnection();
@@ -167,17 +202,72 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
-        /// Xóa đơn hàng có mã là orderID (bao gồm cả chi tiết đơn hàng liên quan)
+        /// Xóa đơn hàng (bao gồm chi tiết)
         /// </summary>
-        /// <param name="orderID">Mã đơn hàng cần xóa</param>
-        /// <returns>true nếu xóa thành công, false nếu không tìm thấy bản ghi</returns>
         public async Task<bool> DeleteAsync(int orderID)
         {
             using var connection = GetConnection();
-            // OrderDetails sẽ bị xóa tự động nhờ ON DELETE CASCADE trên FK_OrderDetails_Orders
             var sql = "DELETE FROM Orders WHERE OrderID = @orderID";
             int rows = await connection.ExecuteAsync(sql, new { orderID });
             return rows > 0;
+        }
+
+        /// <summary>
+        /// Cập nhật chỉ CustomerID cho đơn hàng
+        /// </summary>
+        public async Task<bool> UpdateCustomerAsync(int orderID, int? customerID)
+        {
+            using var connection = GetConnection();
+            var sql = "UPDATE Orders SET CustomerID = @customerID WHERE OrderID = @orderID";
+            int rows = await connection.ExecuteAsync(sql, new { orderID, customerID });
+            return rows > 0;
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin shipper và địa chỉ giao hàng cho đơn hàng
+        /// </summary>
+        public async Task<bool> UpdateShipperDeliveryAsync(int orderID, int? shipperID, string deliveryProvince, string deliveryAddress)
+        {
+            using var connection = GetConnection();
+            var sql = @"UPDATE Orders
+                        SET ShipperID        = @shipperID,
+                            DeliveryProvince = @deliveryProvince,
+                            DeliveryAddress  = @deliveryAddress
+                        WHERE OrderID = @orderID";
+            int rows = await connection.ExecuteAsync(sql, new { orderID, shipperID, deliveryProvince, deliveryAddress });
+            return rows > 0;
+        }
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng của một khách hàng
+        /// </summary>
+        public async Task<List<OrderViewInfo>> ListByCustomerAsync(int customerID)
+        {
+            using var connection = GetConnection();
+            var sql = @"SELECT o.OrderID,
+                           o.CustomerID,
+                           o.OrderTime,
+                           o.DeliveryProvince,
+                           o.DeliveryAddress,
+                           o.EmployeeID,
+                           o.AcceptTime,
+                           o.ShipperID,
+                           o.ShippedTime,
+                           o.FinishedTime,
+                           o.Status,
+                           ISNULL(c.CustomerName,  N'') AS CustomerName,
+                           ISNULL(c.Phone,         N'') AS CustomerPhone,
+                           ISNULL(e.FullName,      N'') AS EmployeeName,
+                           ISNULL((SELECT SUM(d.Quantity * d.SalePrice)
+                                   FROM   OrderDetails d
+                                   WHERE  d.OrderID = o.OrderID), 0) AS SumOfPrice
+                    FROM   Orders o
+                           LEFT JOIN Customers c ON o.CustomerID = c.CustomerID
+                           LEFT JOIN Employees e ON o.EmployeeID = e.EmployeeID
+                    WHERE  o.CustomerID = @customerID
+                    ORDER  BY o.OrderTime DESC";
+            var data = await connection.QueryAsync<OrderViewInfo>(sql, new { customerID });
+            return data.ToList();
         }
 
         #endregion
@@ -185,10 +275,8 @@ namespace SV22T1020362.DataLayers.SQLServer
         #region OrderDetails
 
         /// <summary>
-        /// Lấy danh sách mặt hàng trong một đơn hàng (kèm theo tên hàng, đơn vị tính, ảnh)
+        /// Lấy danh sách mặt hàng trong đơn hàng
         /// </summary>
-        /// <param name="orderID">Mã đơn hàng</param>
-        /// <returns>Danh sách chi tiết đơn hàng dùng để hiển thị</returns>
         public async Task<List<OrderDetailViewInfo>> ListDetailsAsync(int orderID)
         {
             using var connection = GetConnection();
@@ -208,11 +296,8 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
-        /// Lấy thông tin chi tiết của một mặt hàng cụ thể trong một đơn hàng
+        /// Lấy thông tin chi tiết của một mặt hàng trong đơn hàng
         /// </summary>
-        /// <param name="orderID">Mã đơn hàng</param>
-        /// <param name="productID">Mã mặt hàng</param>
-        /// <returns>Thông tin chi tiết đơn hàng dùng để hiển thị hoặc null nếu không tồn tại</returns>
         public async Task<OrderDetailViewInfo?> GetDetailAsync(int orderID, int productID)
         {
             using var connection = GetConnection();
@@ -231,11 +316,8 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
-        /// Bổ sung một mặt hàng vào đơn hàng (thêm vào giỏ hàng).
-        /// Nếu mặt hàng đã tồn tại trong đơn hàng thì cập nhật số lượng và giá bán
+        /// Bổ sung hoặc cập nhật mặt hàng vào đơn hàng
         /// </summary>
-        /// <param name="data">Dữ liệu chi tiết đơn hàng cần bổ sung</param>
-        /// <returns>true nếu bổ sung / cập nhật thành công</returns>
         public async Task<bool> AddDetailAsync(OrderDetail data)
         {
             using var connection = GetConnection();
@@ -253,10 +335,8 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
-        /// Cập nhật số lượng và giá bán của một mặt hàng trong đơn hàng
+        /// Cập nhật số lượng và giá bán
         /// </summary>
-        /// <param name="data">Dữ liệu chi tiết đơn hàng cần cập nhật</param>
-        /// <returns>true nếu cập nhật thành công, false nếu không có bản ghi nào được cập nhật</returns>
         public async Task<bool> UpdateDetailAsync(OrderDetail data)
         {
             using var connection = GetConnection();
@@ -272,15 +352,22 @@ namespace SV22T1020362.DataLayers.SQLServer
         /// <summary>
         /// Xóa một mặt hàng khỏi đơn hàng
         /// </summary>
-        /// <param name="orderID">Mã đơn hàng</param>
-        /// <param name="productID">Mã mặt hàng cần xóa khỏi đơn hàng</param>
-        /// <returns>true nếu xóa thành công, false nếu không tìm thấy bản ghi</returns>
         public async Task<bool> DeleteDetailAsync(int orderID, int productID)
         {
             using var connection = GetConnection();
             var sql = "DELETE FROM OrderDetails WHERE OrderID = @orderID AND ProductID = @productID";
             int rows = await connection.ExecuteAsync(sql, new { orderID, productID });
             return rows > 0;
+        }
+
+        /// <summary>
+        /// Đếm số lượng mặt hàng trong đơn hàng
+        /// </summary>
+        public async Task<int> CountDetailsAsync(int orderID)
+        {
+            using var connection = GetConnection();
+            var sql = "SELECT COUNT(*) FROM OrderDetails WHERE OrderID = @orderID";
+            return await connection.ExecuteScalarAsync<int>(sql, new { orderID });
         }
 
         #endregion

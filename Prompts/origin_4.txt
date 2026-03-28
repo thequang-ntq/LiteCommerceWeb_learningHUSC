@@ -7,6 +7,7 @@
 + Mục tiêu của SV22T1020362.Admin là tạo ra Website Admin để quản lý.
 + Mục tiêu của SV22T1020362.Shop là tạo ra Website bán hàng với giao diện giành cho khách hàng, họ sẽ vào mua đồ giống như các Website shop bán hàng online.
 + Các công nghệ, cấu trúc sử dụng sẽ được thể hiện qua code.
++ Đã tạo cả 5 project ở trên.
 
 * File script CSDL SQL Server 2014 tên LiteCommerceDB:
 USE [master]
@@ -11248,33 +11249,21 @@ app.Run();
 
 
 * Yêu cầu:
-- Trong AppCodes/WebSecurityModels.cs có 3 Roles có thể cho nhân viên, sửa lại trong Views Employee ChangeRoles theo 3 Role cho hợp lệ, và kể cả các phần liên quan nếu cần.
-- Kết nối phần AccountController với server CSDL, hoàn thiện AccountController.
-- Bổ sung Authorize cho các Controller của các đối tượng còn lại.
-- Làm những gì liên quan đến bảo mật, Authentication, Authorize.
-- Bổ sung 2 file CryptHelper.cs và WebSecurityModels.cs (Trong AppCodes).
-    - CryptHelper: Hàm mã hóa mật khẩu MD5
-    - WebSecurityModels: Lưu thông tin người dùng, khi người dùng đăng nhập sẽ tạo ra cookies, kiểm tra cookies của người dùng: ID, tên, tên hiển thị, email, photo, quyền.
-- Khai báo để dùng Authentication, Authorization cho Cookie trong Program.cs (Comment thêm).
-- Tối thiểu phải có ID trong WebUserData để Authentication.
-- Sửa Login.cshtml, AccountController
-- Nguyên lý là phải try catch khi bắt lỗi
-- Viết database cho Login, AccountController,...
-- Sửa CustomerController.cs
-- Authorize cho các đối tượng
-- [Authorize] cho OrderController
-- Có thể liệt dê danh sách các quyền và phân cách nhau bởi dấu phẩy
-- Tạo Action AccessDeined.
-- Tạo View AccessDenied
-- Lấy thông tin của User [User]
-- Mở rộng thêm phương thức có this trước đó + Kiểu dữ liệu trong tên biến của hàm được truyền vào.
-- Đổi mật khẩu cũng dùng cái User.GetUserData() để biết đổi mật khẩu của ai.
-- _Header.cshtml có đổi code.
-- Trong AccountController cũng có Authorize, nhưng Login cũng trong -> AllowAnonymous
-- Hoàn thiện Authorize cho các đối tượng còn lại
-- ChangePassword của AccountController chưa có, AccessDenied (View) chưa có.
-- Phân quyền cho phù hợp, Authentication, Authorize...
-- Hoàn thiện những gì còn thiếu liên quan đế Security, Authentication, Authorize...
+- Xây dựng các chức năng cho project SV22T1020362.Shop dành cho khách hàng (Customer) với các chức năng chính sau:
+1. Đăng ký tài khoản mới.
+2. Đăng nhập vào hệ thống.
+3. Quản lý thông tin cá nhân và mật khẩu.
+4. Xem, tìm kiếm danh mục mặt hàng theo loại hàng, tên hàng, khoảng giá.
+5. Xem thông tin chi tiết của mặt hàng.
+6. Đưa hàng vào giỏ hàng
+7. Quản lý giỏ hàng
+8. Đặt mua hàng
+9. Theo dõi trạng thái xử lý của đơn hàng.
+10. Theo dõi lịch sử mua hàng của cá nhân
 
-* Lưu ý: Làm theo thứ tự. Làm TODO, comment code đầy đủ. Chỉ gửi code. Chỉ gửi chỗ cần sửa. Chỉ gửi những cái chưa làm.
++ Tham khảo các file code trong các project trên.
++ Dựa vào các file code của các project đã có ở trên (SV22T1020362.Admin, SV22T1020362.Models, SV22T1020362.DataLayers, SV22T1020362.BusinessLayers) để làm. Bổ sung và cập nhật các file còn thiếu và các file đã có ở project SV22T1020362.Shop và những project đã có nếu cần.
++ Phần Order trong SV22T1020362.Admin (Bên quản lý) chưa làm xong phần Order/Create, nhưng không cần làm phần này mà tập trung xây dựng bên SV22T1020362.Shop. Tôi chỉ ghi để bạn có thêm thông tin thôi.
 
+* Lưu ý 1: Không được sử dụng theme AdminLTE (Quan trọng)
+* Lưu ý 2: Làm theo thứ tự phù hợp từ đơn giản đến phức tạp, từ ngắn đến dài. Làm TODO, comment code đầy đủ. Chỉ cần gửi file code. Không cần giải thích hay document gì cả.

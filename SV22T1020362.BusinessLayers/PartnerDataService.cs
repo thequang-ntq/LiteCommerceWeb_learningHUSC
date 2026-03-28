@@ -153,8 +153,6 @@ namespace SV22T1020362.BusinessLayers
             //Kiểm tra dữ liệu hợp lệ
             if (string.IsNullOrWhiteSpace(data.CustomerName))
                 throw new ArgumentException("Tên khách hàng không được để trống.");
-            if (string.IsNullOrWhiteSpace(data.ContactName))
-                throw new ArgumentException("Tên giao dịch không được để trống.");
             if (string.IsNullOrWhiteSpace(data.Email))
                 throw new ArgumentException("Email không được để trống.");
             if (!await customerDB.ValidateEmailAsync(data.Email))

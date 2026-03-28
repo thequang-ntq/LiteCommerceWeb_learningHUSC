@@ -49,25 +49,27 @@ function paginationSearch(event, form, page) {
         method: method,
         body: method === "GET" ? null : formData
     })
-    .then(res => res.text())
-    .then(html => {
-        if (targetEl) {
-            targetEl.innerHTML = html;
-        }
-    })
-    .catch(() => {
-        if (targetEl) {
-            targetEl.innerHTML = `
+        .then(res => res.text())
+        .then(html => {
+            if (targetEl) {
+                targetEl.innerHTML = html;
+            }
+        })
+        .catch(() => {
+            if (targetEl) {
+                targetEl.innerHTML = `
                 <div class="text-danger">
                     Không tải được dữ liệu
                 </div>`;
-        }
-    });
+            }
+        });
 }
 
 // Mở modal và load nội dung từ link vào modal
+// FIX: Sau khi load HTML vào innerHTML, script tags KHÔNG tự chạy (browser security).
+// Dùng execModalScripts() để tái tạo và append script nodes → trình duyệt thực thi được.
 (function () {
-    //dialogModal là id của modal dùng chung đuơc định nghĩa trong _Layout.cshtml
+    //dialogModal là id của modal dùng chung được định nghĩa trong _Layout.cshtml
     const modalEl = document.getElementById("dialogModal");
     if (!modalEl) return;
 
@@ -106,6 +108,11 @@ function paginationSearch(event, form, page) {
             .then(res => res.text())
             .then(html => {
                 modalContent.innerHTML = html;
+                // TODO: FIX "Scripts inserted via innerHTML are not executed"
+                // Sau khi gán innerHTML, các <script> tag bên trong KHÔNG được trình duyệt thực thi.
+                // Giải pháp: duyệt qua tất cả <script> trong nội dung vừa load,
+                // tạo lại script element mới và append vào DOM để trình duyệt chạy.
+                execModalScripts(modalContent);
             })
             .catch(() => {
                 modalContent.innerHTML = `
@@ -116,4 +123,28 @@ function paginationSearch(event, form, page) {
     };
 })();
 
+/**
+ * TODO: FIX "Scripts inserted via innerHTML are not executed"
+ * Hàm này tìm tất cả <script> tag trong container vừa được gán bằng innerHTML,
+ * tạo lại thành script element mới rồi append vào container.
+ * Trình duyệt sẽ thực thi các script này như script bình thường.
+ * @param {HTMLElement} container - Phần tử chứa HTML vừa được load vào modal
+ */
+function execModalScripts(container) {
+    // Tìm tất cả script tags trong nội dung vừa load
+    const scripts = container.querySelectorAll('script');
+    scripts.forEach(function (oldScript) {
+        const newScript = document.createElement('script');
 
+        // Copy tất cả attributes (src, type, v.v.)
+        Array.from(oldScript.attributes).forEach(function (attr) {
+            newScript.setAttribute(attr.name, attr.value);
+        });
+
+        // Copy nội dung inline script
+        newScript.textContent = oldScript.textContent;
+
+        // Xóa script cũ và thêm script mới → trình duyệt thực thi
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+}

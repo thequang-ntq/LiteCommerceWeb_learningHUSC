@@ -1,0 +1,321 @@
+/* ===== SHOP GLOBAL STYLES ===== */
+:root {
+    --primary: #0071ce; /* Walmart blue */
+    --accent: #ffc220; /* Walmart yellow */
+    --bg-light: #f5f5f5;
+}
+
+body {
+    background-color: var(--bg-light);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Header */
+.shop-header {
+    z-index: 1030;
+}
+
+.navbar-brand {
+    letter-spacing: -0.5px;
+}
+
+/* Main content */
+.shop-main {
+    min-height: 60vh;
+}
+
+/* ===== PRODUCT CARD ===== */
+.product-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+    .product-card:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        transform: translateY(-2px);
+    }
+
+    .product-card .card-img-wrap {
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9f9f9;
+        border-bottom: 1px solid #eee;
+    }
+
+        .product-card .card-img-wrap img {
+            max-height: 190px;
+            max-width: 100%;
+            object-fit: contain;
+            transition: transform 0.3s;
+        }
+
+    .product-card:hover .card-img-wrap img {
+        transform: scale(1.05);
+    }
+
+    .product-card .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .product-card .product-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #222;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 40px;
+        margin-bottom: 8px;
+    }
+
+    .product-card .product-price {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .product-card .btn-add-cart {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        width: 100%;
+        margin-top: auto;
+        transition: background 0.2s;
+    }
+
+        .product-card .btn-add-cart:hover {
+            background: #005ba1;
+        }
+
+/* ===== CATEGORY SIDEBAR ===== */
+.category-sidebar {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+    .category-sidebar .sidebar-title {
+        font-weight: 700;
+        font-size: 1rem;
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+        color: var(--primary);
+    }
+
+    .category-sidebar .nav-link {
+        color: #444;
+        padding: 6px 4px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .category-sidebar .nav-link:hover,
+        .category-sidebar .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+/* ===== CART TABLE ===== */
+.cart-table th {
+    background: var(--primary);
+    color: #fff;
+}
+
+.cart-img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+/* ===== ORDER STATUS BADGE ===== */
+.order-status-new {
+    background: #ffc107;
+    color: #333;
+}
+
+.order-status-accepted {
+    background: #17a2b8;
+    color: #fff;
+}
+
+.order-status-shipping {
+    background: #007bff;
+    color: #fff;
+}
+
+.order-status-completed {
+    background: #28a745;
+    color: #fff;
+}
+
+.order-status-cancelled {
+    background: #6c757d;
+    color: #fff;
+}
+
+.order-status-rejected {
+    background: #dc3545;
+    color: #fff;
+}
+
+/* ===== HERO BANNER ===== */
+.hero-banner {
+    background: linear-gradient(135deg, var(--primary) 0%, #003f8a 100%);
+    color: #fff;
+    padding: 60px 0;
+    margin-bottom: 0;
+}
+
+    .hero-banner h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+    }
+
+    .hero-banner p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #222;
+    border-left: 4px solid var(--primary);
+    padding-left: 12px;
+    margin-bottom: 20px;
+}
+
+/* ===== TOAST NOTIFICATION ===== */
+#toastContainer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.shop-toast {
+    background: #333;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+}
+
+    .shop-toast.success {
+        border-left: 4px solid #28a745;
+    }
+
+    .shop-toast.error {
+        border-left: 4px solid #dc3545;
+    }
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ===== PRODUCT DETAIL ===== */
+.product-detail-img {
+    max-height: 400px;
+    object-fit: contain;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 8px;
+    background: #fff;
+}
+
+.thumb-img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+    .thumb-img:hover, .thumb-img.active {
+        border-color: var(--primary);
+    }
+
+/* ===== PAGINATION ===== */
+.page-link {
+    color: var(--primary);
+}
+
+.page-item.active .page-link {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+/* ===== CHECKOUT ===== */
+.checkout-summary {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.checkout-total {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* ===== ALERT BOXES ===== */
+.alert-success-custom {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    padding: 16px 20px;
+    color: #155724;
+}
+
+/* ===== PROFILE ===== */
+.profile-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    padding: 30px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .hero-banner h1 {
+        font-size: 1.6rem;
+    }
+
+    .product-card .card-img-wrap {
+        height: 150px;
+    }
+}

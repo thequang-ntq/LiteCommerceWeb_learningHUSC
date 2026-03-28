@@ -39,5 +39,10 @@
         /// Điện thoại người giao hàng
         /// </summary>
         public string ShipperPhone { get; set; } = "";
+
+        /// <summary>
+        /// Tổng tiền đơn hàng (dùng cho hiển thị danh sách và trang chủ)
+        /// </summary>
+        public decimal SumOfPrice { get; set; }
     }
 }

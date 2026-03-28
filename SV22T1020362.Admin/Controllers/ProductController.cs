@@ -127,7 +127,7 @@ namespace SV22T1020362.Admin.Controllers
                 }
 
                 // Tiền xử lý dữ liệu
-                if (string.IsNullOrEmpty(data.Photo)) data.Photo = "";
+                if (string.IsNullOrEmpty(data.Photo)) data.Photo = "nophoto.png";
                 if (string.IsNullOrEmpty(data.ProductDescription)) data.ProductDescription = "";
 
                 // Lưu vào database

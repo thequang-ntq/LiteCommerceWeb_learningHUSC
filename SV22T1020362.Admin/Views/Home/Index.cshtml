@@ -1,4 +1,71 @@
 ﻿@{
+    ViewBag.Title = "Trang chủ";
+
+    // Thống kê số liệu thực
+    var today = DateTime.Today;
+
+    // Đơn hàng hôm nay
+    var todayOrders = await SalesDataService.ListOrdersAsync(new OrderSearchInput
+    {
+        Page = 1,
+        PageSize = 0,
+        SearchValue = "",
+        DateFrom = today,
+        DateTo = today,
+        Status = 0
+    });
+
+    // Đơn hàng hoàn tất hôm nay → doanh thu
+    var completedToday = await SalesDataService.ListOrdersAsync(new OrderSearchInput
+    {
+        Page = 1,
+        PageSize = 0,
+        SearchValue = "",
+        DateFrom = today,
+        DateTo = today,
+        Status = OrderStatusEnum.Completed
+    });
+    decimal todayRevenue = completedToday.DataItems.Sum(o => o.SumOfPrice);
+
+    // Tổng khách hàng
+    var customers = await PartnerDataService.ListCustomersAsync(new PaginationSearchInput
+    { Page = 1, PageSize = 0, SearchValue = "" });
+
+    // Tổng mặt hàng
+    var products = await CatalogDataService.ListProductsAsync(new ProductSearchInput
+    { Page = 1, PageSize = 0, SearchValue = "" });
+
+    // Đơn hàng chờ duyệt (New) — hiển thị bảng
+    var pendingOrders = await SalesDataService.ListOrdersAsync(new OrderSearchInput
+    {
+        Page = 1,
+        PageSize = 10,
+        SearchValue = "",
+        DateFrom = null,
+        DateTo = null,
+        Status = OrderStatusEnum.New
+    });
+
+    // Doanh thu 6 tháng gần nhất cho biểu đồ
+    var revenueByMonth = new List<decimal>();
+    var monthLabels = new List<string>();
+    for (int i = 5; i >= 0; i--)
+    {
+        var month = DateTime.Today.AddMonths(-i);
+        var firstDay = new DateTime(month.Year, month.Month, 1);
+        var lastDay = firstDay.AddMonths(1).AddDays(-1);
+        var monthData = await SalesDataService.ListOrdersAsync(new OrderSearchInput
+        {
+            Page = 1,
+            PageSize = 0,
+            SearchValue = "",
+            DateFrom = firstDay,
+            DateTo = lastDay,
+            Status = OrderStatusEnum.Completed
+        });
+        revenueByMonth.Add(monthData.DataItems.Sum(o => o.SumOfPrice) / 1_000_000m);
+        monthLabels.Add($"Tháng {month.Month}/{month.Year}");
+    }
 }
 
 <!-- Thống kê nhanh -->
@@ -9,7 +76,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Doanh thu hôm nay</h6>
-                        <h3 class="mb-0">12.500.000 đ</h3>
+                        <h3 class="mb-0">@todayRevenue.ToString("N0") đ</h3>
                     </div>
                     <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
                 </div>
@@ -23,7 +90,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Đơn hàng</h6>
-                        <h3 class="mb-0">48</h3>
+                        <h3 class="mb-0">@todayOrders.RowCount</h3>
                     </div>
                     <i class="bi bi-receipt fs-1 opacity-50"></i>
                 </div>
@@ -37,7 +104,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Khách hàng</h6>
-                        <h3 class="mb-0">320</h3>
+                        <h3 class="mb-0">@customers.RowCount</h3>
                     </div>
                     <i class="bi bi-people fs-1 opacity-50"></i>
                 </div>
@@ -51,7 +118,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Sản phẩm</h6>
-                        <h3 class="mb-0">128</h3>
+                        <h3 class="mb-0">@products.RowCount</h3>
                     </div>
                     <i class="bi bi-box-seam fs-1 opacity-50"></i>
                 </div>
@@ -130,27 +197,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>#DH00125</td>
-                            <td>Nguyễn Văn A</td>
-                            <td>01/02/2026</td>
-                            <td class="text-end">3.500.000 đ</td>
-                            <td><span class="badge bg-danger">Đang chờ duyệt</span></td>
-                        </tr>
-                        <tr>
-                            <td>#DH00126</td>
-                            <td>Trần Thị B</td>
-                            <td>01/02/2026</td>
-                            <td class="text-end">1.200.000 đ</td>
-                            <td><span class="badge bg-warning">Chờ giao hàng</span></td>
-                        </tr>
-                        <tr>
-                            <td>#DH00127</td>
-                            <td>Lê Văn C</td>
-                            <td>31/01/2026</td>
-                            <td class="text-end">8.900.000 đ</td>
-                            <td><span class="badge bg-warning">Chờ giao hàng</span></td>
-                        </tr>
+                        @if (!pendingOrders.DataItems.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted fst-italic py-3">
+                                    Không có đơn hàng nào đang chờ duyệt
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in pendingOrders.DataItems)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="~/Order/Detail/@item.OrderID">#@item.OrderID</a>
+                                </td>
+                                <td>@(string.IsNullOrEmpty(item.CustomerName) ? "Chưa có" : item.CustomerName)</td>
+                                <td>@item.OrderTime.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">@item.SumOfPrice.ToString("N0") đ</td>
+                                <td><span class="badge bg-danger">Đang chờ duyệt</span></td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -158,21 +224,18 @@
     </div>
 </div>
 
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('revenueChart');
 
         new Chart(ctx, {
-            type: 'bar', // bar | line | pie | doughnut
+            type: 'bar',
             data: {
-                labels: [
-                    'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'
-                ],
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(monthLabels)),
                 datasets: [{
                     label: 'Doanh thu (triệu đồng)',
-                    data: [120, 150, 180, 140, 200, 220],
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(revenueByMonth)),
                     backgroundColor: 'rgba(13,110,253,0.7)',
                     borderRadius: 6
                 }]
@@ -181,23 +244,16 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
+                    legend: { display: true, position: 'top' },
                     tooltip: {
                         callbacks: {
                             label: function (context) {
-                                return context.raw + ' triệu đồng';
+                                return context.raw.toFixed(1) + ' triệu đồng';
                             }
                         }
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+                scales: { y: { beginAtZero: true } }
             }
         });
     </script>

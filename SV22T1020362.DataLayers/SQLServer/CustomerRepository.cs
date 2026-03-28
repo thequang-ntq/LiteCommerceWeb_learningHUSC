@@ -28,10 +28,33 @@ namespace SV22T1020362.DataLayers.SQLServer
             using var connection = GetConnection();
             var parameters = new DynamicParameters();
             parameters.Add("@searchValue", $"%{input.SearchValue}%");
-            parameters.Add("@pageSize", input.PageSize);
-            parameters.Add("@offset", input.Offset);
+            
 
-            var sql = @"SELECT COUNT(*)
+            int rowCount = 0;
+            List<Customer> data;
+
+            if (input.PageSize == 0)
+            {
+                var sql = @"SELECT COUNT(*)
+                        FROM Customers
+                        WHERE CustomerName LIKE @searchValue OR ContactName LIKE @searchValue OR Email LIKE @searchValue OR Address LIKE @searchValue;
+
+                        SELECT CustomerID, CustomerName, ContactName, Province, Address, Phone, Email, IsLocked
+                        FROM Customers
+                        WHERE CustomerName LIKE @searchValue OR ContactName LIKE @searchValue OR Email LIKE @searchValue OR Address LIKE @searchValue
+                        ORDER BY CustomerName;";
+
+                using var multi = await connection.QueryMultipleAsync(sql, parameters);
+                rowCount = await multi.ReadFirstAsync<int>();
+                data = (await multi.ReadAsync<Customer>()).ToList();
+            }
+
+            else
+            {
+                parameters.Add("@pageSize", input.PageSize);
+                parameters.Add("@offset", input.Offset);
+
+                var sql = @"SELECT COUNT(*)
                         FROM Customers
                         WHERE CustomerName LIKE @searchValue OR ContactName LIKE @searchValue OR Email LIKE @searchValue OR Address LIKE @searchValue;
 
@@ -42,9 +65,10 @@ namespace SV22T1020362.DataLayers.SQLServer
                         OFFSET @offset ROWS
                         FETCH NEXT @pageSize ROWS ONLY;";
 
-            using var multi = await connection.QueryMultipleAsync(sql, parameters);
-            int rowCount = await multi.ReadFirstAsync<int>();
-            var data = (await multi.ReadAsync<Customer>()).ToList();
+                using var multi = await connection.QueryMultipleAsync(sql, parameters);
+                rowCount = await multi.ReadFirstAsync<int>();
+                data = (await multi.ReadAsync<Customer>()).ToList();
+            }
 
             return new PagedResult<Customer>
             {

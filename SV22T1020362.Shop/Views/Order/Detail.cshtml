@@ -1,0 +1,214 @@
+﻿@model OrderViewInfo
+@{
+    ViewBag.Title = $"Đơn hàng #{Model.OrderID}";
+    var details = ViewBag.Details as List<OrderDetailViewInfo> ?? new List<OrderDetailViewInfo>();
+    decimal total = details.Sum(x => x.TotalPrice);
+
+    string badgeClass = Model.Status switch
+    {
+        OrderStatusEnum.New => "order-status-new",
+        OrderStatusEnum.Accepted => "order-status-accepted",
+        OrderStatusEnum.Shipping => "order-status-shipping",
+        OrderStatusEnum.Completed => "order-status-completed",
+        OrderStatusEnum.Cancelled => "order-status-cancelled",
+        OrderStatusEnum.Rejected => "order-status-rejected",
+        _ => "bg-secondary text-white"
+    };
+}
+
+<div class="container py-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="~/">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="~/Order">Đơn hàng của tôi</a></li>
+            <li class="breadcrumb-item active">Đơn #@Model.OrderID</li>
+        </ol>
+    </nav>
+
+    <h2 class="section-title">
+        <i class="bi bi-receipt me-2"></i>Chi tiết đơn hàng #@Model.OrderID
+    </h2>
+
+    <!-- Trạng thái đơn hàng - Timeline -->
+    <div class="bg-white border rounded p-4 mb-4">
+        <h5 class="fw-bold mb-3">Trạng thái đơn hàng</h5>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            @{
+                // Các bước theo trạng thái
+                var steps = new[]
+                {
+                        new { Status = OrderStatusEnum.New,       Icon = "bi-bag-plus",          Label = "Đặt hàng",    Time = (DateTime?)Model.OrderTime },
+                        new { Status = OrderStatusEnum.Accepted,  Icon = "bi-check-circle",       Label = "Đã duyệt",    Time = Model.AcceptTime },
+                        new { Status = OrderStatusEnum.Shipping,  Icon = "bi-truck",              Label = "Đang giao",   Time = Model.ShippedTime },
+                        new { Status = OrderStatusEnum.Completed, Icon = "bi-check-circle-fill",  Label = "Hoàn tất",    Time = Model.FinishedTime },
+                        };
+
+                // Xác định bước hiện tại
+                int currentStep = Model.Status switch
+                {
+                    OrderStatusEnum.New => 0,
+                    OrderStatusEnum.Accepted => 1,
+                    OrderStatusEnum.Shipping => 2,
+                    OrderStatusEnum.Completed => 3,
+                    _ => -1 // Bị hủy / từ chối
+                };
+            }
+
+            @if (Model.Status == OrderStatusEnum.Cancelled || Model.Status == OrderStatusEnum.Rejected)
+            {
+                <div class="w-100">
+                    <span class="badge @badgeClass fs-6 px-3 py-2">
+                        @Model.Status.GetDescription()
+                    </span>
+                    @if (Model.FinishedTime.HasValue)
+                    {
+                        <span class="text-muted ms-2 small">
+                            lúc @Model.FinishedTime.Value.ToString("dd/MM/yyyy HH:mm")
+                        </span>
+                    }
+                </div>
+            }
+            else
+            {
+                @for (int i = 0; i < steps.Length; i++)
+                {
+                    bool done = i <= currentStep;
+                    bool current = i == currentStep;
+                    <div class="text-center" style="flex:1; min-width:80px;">
+                        <div class="mb-1">
+                            <i class="bi @steps[i].Icon fs-2 @(done ? "text-primary" : "text-muted")"></i>
+                        </div>
+                        <div class="small fw-semibold @(current ? "text-primary" : done ? "text-dark" : "text-muted")">
+                            @steps[i].Label
+                        </div>
+                        @if (steps[i].Time.HasValue && done)
+                        {
+                            <div class="text-muted" style="font-size:0.75rem;">
+                                @steps[i].Time!.Value.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        }
+                    </div>
+                    @if (i < steps.Length - 1)
+                    {
+                        <div class="flex-grow-1 border-top mt-3 @(i < currentStep ? "border-primary" : "border-secondary")"
+                             style="max-width:60px;"></div>
+                    }
+                }
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Chi tiết sản phẩm -->
+        <div class="col-lg-8">
+            <div class="bg-white border rounded overflow-hidden">
+                <div class="p-3 border-bottom bg-light fw-bold">
+                    <i class="bi bi-box-seam me-2"></i>Sản phẩm trong đơn
+                </div>
+                <table class="table mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th class="text-center">ĐVT</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in details)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "nophoto.png" : item.Photo)"
+                                             style="width:45px;height:45px;object-fit:contain;border:1px solid #eee;" />
+                                        <a href="~/Product/Detail/@item.ProductID"
+                                           class="text-decoration-none fw-semibold text-dark small">
+                                            @item.ProductName
+                                        </a>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">@item.Unit</td>
+                                <td class="text-center align-middle">@item.Quantity</td>
+                                <td class="text-end align-middle">@item.SalePrice.ToString("N0") đ</td>
+                                <td class="text-end align-middle fw-semibold">@item.TotalPrice.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-end">Tổng cộng</th>
+                            <th class="text-end text-primary fs-6">@total.ToString("N0") đ</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Thông tin giao hàng -->
+        <div class="col-lg-4">
+            <div class="bg-white border rounded p-4 mb-3">
+                <h6 class="fw-bold mb-3 border-bottom pb-2">
+                    <i class="bi bi-info-circle me-2 text-primary"></i>Thông tin đơn hàng
+                </h6>
+                <dl class="row small mb-0">
+                    <dt class="col-6 text-muted">Mã đơn hàng</dt>
+                    <dd class="col-6 fw-semibold">#@Model.OrderID</dd>
+
+                    <dt class="col-6 text-muted">Ngày đặt</dt>
+                    <dd class="col-6">@Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-6 text-muted">Trạng thái</dt>
+                    <dd class="col-6">
+                        <span class="badge @badgeClass">@Model.Status.GetDescription()</span>
+                    </dd>
+
+                    @if (Model.EmployeeID.HasValue && !string.IsNullOrEmpty(Model.EmployeeName))
+                    {
+                        <dt class="col-6 text-muted">Nhân viên</dt>
+                        <dd class="col-6">@Model.EmployeeName</dd>
+                    }
+                </dl>
+            </div>
+
+            <div class="bg-white border rounded p-4">
+                <h6 class="fw-bold mb-3 border-bottom pb-2">
+                    <i class="bi bi-geo-alt me-2 text-primary"></i>Địa chỉ giao hàng
+                </h6>
+                @if (!string.IsNullOrEmpty(Model.DeliveryAddress) || !string.IsNullOrEmpty(Model.DeliveryProvince))
+                {
+                    <p class="mb-1">@Model.DeliveryAddress</p>
+                    <p class="mb-0 text-muted">@Model.DeliveryProvince</p>
+                }
+                else
+                {
+                    <p class="text-muted fst-italic mb-0">Chưa có địa chỉ giao hàng</p>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.ShipperName))
+                {
+                    <hr class="my-2" />
+                    <div class="small">
+                        <i class="bi bi-bicycle me-1 text-muted"></i>
+                        <strong>@Model.ShipperName</strong>
+                        @if (!string.IsNullOrEmpty(Model.ShipperPhone))
+                        {
+                            <span class="text-muted"> — @Model.ShipperPhone</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="~/Order" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại lịch sử đơn hàng
+        </a>
+    </div>
+</div>

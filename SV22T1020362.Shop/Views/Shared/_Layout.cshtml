@@ -1,49 +1,148 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SV22T1020362.Shop</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SV22T1020362.Shop.styles.css" asp-append-version="true" />
+    <title>@(ViewBag.Title != null ? ViewBag.Title + " | " : "")NTQ Shop</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/shop.css" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SV22T1020362.Shop</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    <!-- ===== HEADER ===== -->
+    <header class="shop-header sticky-top shadow-sm">
+        <!-- Top bar -->
+        <div class="header-topbar py-1 bg-dark text-white">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small>
+                        <i class="bi bi-telephone me-1"></i>Hotline: 1900-xxxx
+                        &nbsp;|&nbsp;
+                        <i class="bi bi-envelope me-1"></i>support@ntqshop.vn
+                    </small>
+                    <div>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            var ud = User.GetUserData();
+                            <small>
+                                <i class="bi bi-person-circle me-1"></i>
+                                Xin chào, <strong>@ud?.DisplayName</strong>
+                                &nbsp;|&nbsp;
+                                <a href="~/Account/Profile" class="text-white text-decoration-none">Tài khoản</a>
+                                &nbsp;|&nbsp;
+                                <a href="~/Account/Logout" class="text-white text-decoration-none">Đăng xuất</a>
+                            </small>
+                        }
+                        else
+                        {
+                            <small>
+                                <a href="~/Account/Login" class="text-white text-decoration-none">Đăng nhập</a>
+                                &nbsp;|&nbsp;
+                                <a href="~/Account/Register" class="text-white text-decoration-none">Đăng ký</a>
+                            </small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main navbar -->
+        <nav class="navbar navbar-expand-lg bg-primary navbar-dark py-2">
+            <div class="container">
+                <!-- Logo -->
+                <a class="navbar-brand fw-bold fs-4" href="~/">
+                    <i class="bi bi-shop me-2"></i>NTQ Shop
+                </a>
+
+                <!-- Tìm kiếm -->
+                <form class="d-flex flex-grow-1 mx-4" action="~/Product" method="get">
+                    <div class="input-group">
+                        <input type="text" name="searchValue"
+                               class="form-control"
+                               placeholder="Tìm kiếm sản phẩm..."
+                               value="@Context.Request.Query["searchValue"]" />
+                        <button class="btn btn-warning" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Giỏ hàng -->
+                <a href="~/Cart" class="btn btn-outline-light position-relative">
+                    <i class="bi bi-cart3 fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
+                          id="cartBadge">
+                        @ShoppingCartHelper.Count
+                    </span>
+                </a>
+
+                <!-- Menu mobile toggle -->
+                <button class="navbar-toggler ms-2" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#navbarMain">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <!-- Nav menu -->
+                <div class="collapse navbar-collapse mt-2 mt-lg-0" id="navbarMain">
+                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" href="~/">Trang chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" href="~/Product">Sản phẩm</a>
                         </li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="~/Order">Đơn hàng của tôi</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- ===== BODY ===== -->
+    <main class="shop-main">
+        @RenderBody()
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-dark text-white mt-5 py-4">
         <div class="container">
-            &copy; 2026 - SV22T1020362.Shop - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold"><i class="bi bi-shop me-2"></i>NTQ Shop</h6>
+                    <p class="text-white-50 small">Mua sắm trực tuyến dễ dàng, nhanh chóng và tiết kiệm.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold">Liên kết nhanh</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="~/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
+                        <li><a href="~/Product" class="text-white-50 text-decoration-none">Sản phẩm</a></li>
+                        <li><a href="~/Cart" class="text-white-50 text-decoration-none">Giỏ hàng</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6 class="fw-bold">Liên hệ</h6>
+                    <ul class="list-unstyled small text-white-50">
+                        <li><i class="bi bi-telephone me-1"></i>1900-xxxx</li>
+                        <li><i class="bi bi-envelope me-1"></i>support@ntqshop.vn</li>
+                        <li><i class="bi bi-geo-alt me-1"></i>Huế, Việt Nam</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary" />
+            <p class="text-center text-white-50 small mb-0">
+                &copy; 2026 NTQ Shop. All rights reserved.
+            </p>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="~/lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/js/shop.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

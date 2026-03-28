@@ -33,8 +33,8 @@ namespace SV22T1020362.DataLayers.Interfaces
         /// </summary>
         /// <param name="userName">Tên đăng nhập (email) của tài khoản cần cập nhật quyền</param>
         /// <param name="roleNames">
-        /// Chuỗi tên các quyền phân cách bởi dấu chấm phẩy,
-        /// ví dụ: "Employees;Orders;Products".
+        /// Chuỗi tên các quyền phân cách bởi dấu phẩy,
+        /// ví dụ: "administrator,sales".
         /// Truyền chuỗi rỗng để xóa toàn bộ quyền.
         /// </param>
         /// <returns>true nếu cập nhật thành công</returns>

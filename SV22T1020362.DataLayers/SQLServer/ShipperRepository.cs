@@ -28,23 +28,46 @@ namespace SV22T1020362.DataLayers.SQLServer
             using var connection = GetConnection();
             var parameters = new DynamicParameters();
             parameters.Add("@searchValue", $"%{input.SearchValue}%");
-            parameters.Add("@pageSize", input.PageSize);
-            parameters.Add("@offset", input.Offset);
 
-            var sql = @"SELECT COUNT(*)
-                        FROM Shippers
-                        WHERE ShipperName LIKE @searchValue;
+            int rowCount;
+            List<Shipper> data;
 
-                        SELECT ShipperID, ShipperName, Phone
-                        FROM Shippers
-                        WHERE ShipperName LIKE @searchValue
-                        ORDER BY ShipperName
-                        OFFSET @offset ROWS
-                        FETCH NEXT @pageSize ROWS ONLY;";
+            if (input.PageSize == 0)
+            {
+                // Lấy toàn bộ, không phân trang
+                var sql = @"SELECT COUNT(*)
+                    FROM Shippers
+                    WHERE ShipperName LIKE @searchValue;
 
-            using var multi = await connection.QueryMultipleAsync(sql, parameters);
-            int rowCount = await multi.ReadFirstAsync<int>();
-            var data = (await multi.ReadAsync<Shipper>()).ToList();
+                    SELECT ShipperID, ShipperName, Phone
+                    FROM Shippers
+                    WHERE ShipperName LIKE @searchValue
+                    ORDER BY ShipperName;";
+
+                using var multi = await connection.QueryMultipleAsync(sql, parameters);
+                rowCount = await multi.ReadFirstAsync<int>();
+                data = (await multi.ReadAsync<Shipper>()).ToList();
+            }
+            else
+            {
+                parameters.Add("@pageSize", input.PageSize);
+                parameters.Add("@offset", input.Offset);
+
+                var sql = @"SELECT COUNT(*)
+                    FROM Shippers
+                    WHERE ShipperName LIKE @searchValue;
+
+                    SELECT ShipperID, ShipperName, Phone
+                    FROM Shippers
+                    WHERE ShipperName LIKE @searchValue
+                    ORDER BY ShipperName
+                    OFFSET @offset ROWS
+                    FETCH NEXT @pageSize ROWS ONLY;";
+
+                using var multi = await connection.QueryMultipleAsync(sql, parameters);
+                rowCount = await multi.ReadFirstAsync<int>();
+                data = (await multi.ReadAsync<Shipper>()).ToList();
+            }
 
             return new PagedResult<Shipper>
             {

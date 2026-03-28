@@ -11,66 +11,77 @@ namespace SV22T1020362.DataLayers.Interfaces
         /// <summary>
         /// Tìm kiếm và lấy danh sách đơn hàng dưới dạng phân trang
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
         Task<PagedResult<OrderViewInfo>> ListAsync(OrderSearchInput input);
+
         /// <summary>
         /// Lấy thông tin 1 đơn hàng
         /// </summary>
-        /// <param name="orderID"></param>
-        /// <returns></returns>
         Task<OrderViewInfo?> GetAsync(int orderID);
+
         /// <summary>
         /// Bổ sung đơn hàng
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns>Mã đơn hàng được bổ sung</returns>
         Task<int> AddAsync(Order data);
+
         /// <summary>
         /// Cập nhật đơn hàng
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         Task<bool> UpdateAsync(Order data);
+
         /// <summary>
         /// Xóa đơn hàng
         /// </summary>
-        /// <param name="orderID"></param>
-        /// <returns></returns>
         Task<bool> DeleteAsync(int orderID);
 
+        /// <summary>
+        /// Cập nhật chỉ thông tin khách hàng cho đơn hàng (CustomerID)
+        /// </summary>
+        /// <param name="orderID">Mã đơn hàng</param>
+        /// <param name="customerID">Mã khách hàng (null để xóa)</param>
+        Task<bool> UpdateCustomerAsync(int orderID, int? customerID);
+
+        /// <summary>
+        /// Cập nhật thông tin giao hàng: shipper, địa chỉ, tỉnh thành
+        /// </summary>
+        /// <param name="orderID">Mã đơn hàng</param>
+        /// <param name="shipperID">Mã người giao hàng</param>
+        /// <param name="deliveryProvince">Tỉnh/thành giao hàng</param>
+        /// <param name="deliveryAddress">Địa chỉ giao hàng</param>
+        Task<bool> UpdateShipperDeliveryAsync(int orderID, int? shipperID, string deliveryProvince, string deliveryAddress);
+
+        /// <summary>
+        /// Lấy danh sách đơn hàng của một khách hàng cụ thể, sắp xếp mới nhất trước
+        /// </summary>
+        Task<List<OrderViewInfo>> ListByCustomerAsync(int customerID);
 
         /// <summary>
         /// Lấy danh sách mặt hàng trong đơn hàng
         /// </summary>
-        /// <param name="orderID">Mã đơn hàng</param>
-        /// <returns></returns>
         Task<List<OrderDetailViewInfo>> ListDetailsAsync(int orderID);
+
         /// <summary>
         /// Lấy thông tin chi tiết của một mặt hàng trong một đơn hàng
         /// </summary>
-        /// <param name="orderID"></param>
-        /// <param name="productID"></param>
-        /// <returns></returns>
         Task<OrderDetailViewInfo?> GetDetailAsync(int orderID, int productID);
+
         /// <summary>
         /// Bổ sung mặt hàng vào đơn hàng
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         Task<bool> AddDetailAsync(OrderDetail data);
+
         /// <summary>
         /// Cập nhật số lượng và giá bán của một mặt hàng trong đơn hàng
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         Task<bool> UpdateDetailAsync(OrderDetail data);
+
         /// <summary>
         /// Xóa một mặt hàng khỏi đơn hàng
         /// </summary>
-        /// <param name="orderID"></param>
-        /// <param name="productID"></param>
-        /// <returns></returns>
         Task<bool> DeleteDetailAsync(int orderID, int productID);
+
+        /// <summary>
+        /// Đếm số lượng mặt hàng trong đơn hàng
+        /// </summary>
+        Task<int> CountDetailsAsync(int orderID);
     }
 }
