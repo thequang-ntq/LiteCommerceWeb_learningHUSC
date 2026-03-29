@@ -1,35 +1,46 @@
 // ===== TOAST NOTIFICATION =====
 /**
- * Hiển thị thông báo toast ở góc dưới phải
+ * Hiển thị thông báo toast
  * @param {string} message - Nội dung thông báo
- * @param {'success'|'error'|'info'} type - Loại thông báo
+ * @param {string} type - Loại: 'success' | 'error' | 'info'
  */
-function showToast(message, type = 'success') {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toastContainer';
-        document.body.appendChild(container);
-    }
+function showToast(message, type) {
+    // Xóa toast cũ nếu có
+    const old = document.getElementById('shopToast');
+    if (old) old.remove();
+
+    const bgClass = type === 'success' ? 'bg-success'
+        : type === 'error' ? 'bg-danger'
+            : 'bg-info';
 
     const toast = document.createElement('div');
-    toast.className = `shop-toast ${type}`;
-    toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${message}`;
-    container.appendChild(toast);
+    toast.id = 'shopToast';
+    toast.innerHTML = `
+        <div class="toast align-items-center text-white ${bgClass} border-0 show"
+             role="alert" aria-live="assertive"
+             style="min-width:280px;">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        onclick="this.closest('#shopToast').remove()"></button>
+            </div>
+        </div>`;
 
-    // Tự động xóa sau 3.5 giây
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.4s';
-        setTimeout(() => toast.remove(), 400);
-    }, 3500);
+    toast.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;';
+    document.body.appendChild(toast);
+
+    // Tự ẩn sau 3 giây
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
 }
 
 // ===== ADD TO CART (AJAX) =====
 /**
  * Thêm sản phẩm vào giỏ hàng qua AJAX
  * @param {number} productID - Mã sản phẩm
- * @param {number} quantity  - Số lượng
+ * @param {number} quantity - Số lượng
  */
 function addToCart(productID, quantity) {
     if (!quantity || quantity < 1) quantity = 1;
@@ -38,41 +49,46 @@ function addToCart(productID, quantity) {
     formData.append('productID', productID);
     formData.append('quantity', quantity);
 
-    fetch('/Cart/AddToCart', { method: 'POST', body: formData })
+    fetch('/Cart/AddToCart', {
+        method: 'POST',
+        body: formData
+    })
         .then(r => r.json())
         .then(result => {
             if (result.success) {
-                showToast(result.message, 'success');
                 // Cập nhật badge giỏ hàng
                 const badge = document.getElementById('cartBadge');
-                if (badge) badge.textContent = result.cartCount;
+                if (badge && result.cartCount !== undefined) {
+                    badge.textContent = result.cartCount;
+                }
+                showToast(result.message || 'Đã thêm vào giỏ hàng', 'success');
             } else {
-                showToast(result.message, 'error');
+                showToast(result.message || 'Có lỗi xảy ra', 'error');
             }
         })
-        .catch(() => showToast('Không thể thêm vào giỏ hàng', 'error'));
+        .catch(() => showToast('Không thể kết nối máy chủ', 'error'));
 }
 
 // ===== PRODUCT DETAIL - ĐỔI ẢNH KHI CLICK THUMBNAIL =====
 /**
- * Đổi ảnh lớn khi click thumbnail
+ * Chuyển ảnh chính trong trang chi tiết sản phẩm
  * @param {string} src - Đường dẫn ảnh
- * @param {HTMLElement} el - Element thumbnail đang click
+ * @param {HTMLElement} thumbEl - Phần tử thumbnail được click
  */
-function switchMainImage(src, el) {
-    const mainImg = document.getElementById('mainProductImage');
-    if (mainImg) mainImg.src = src;
+function switchMainImage(src, thumbEl) {
+    const main = document.getElementById('mainProductImage');
+    if (main) main.src = src;
 
-    // Bỏ active tất cả thumbnail, thêm active cho cái đang click
-    document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
+    // Bỏ active tất cả thumbnail
+    document.querySelectorAll('.thumb-img').forEach(el => el.classList.remove('active'));
+    if (thumbEl) thumbEl.classList.add('active');
 }
 
 // ===== QUANTITY CONTROL =====
 /**
- * Tăng/giảm số lượng trong ô input
- * @param {string} inputId - id của input số lượng
- * @param {number} delta   - +1 hoặc -1
+ * Thay đổi số lượng trong input số
+ * @param {string} inputId - ID của input
+ * @param {number} delta - Thay đổi (+1 hoặc -1)
  */
 function changeQuantity(inputId, delta) {
     const input = document.getElementById(inputId);

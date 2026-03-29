@@ -15,13 +15,15 @@
                     <i class="bi bi-grid me-1"></i>Danh mục
                 </div>
                 <nav class="nav flex-column">
-                    <a href="~/Product"
+                    <!-- Tất cả sản phẩm - giữ lại searchValue, minPrice, maxPrice -->
+                    <a href="~/Product?searchValue=@input.SearchValue&minPrice=@(input.MinPrice > 0 ? input.MinPrice.ToString() : "")&maxPrice=@(input.MaxPrice > 0 ? input.MaxPrice.ToString() : "")"
                        class="nav-link @(input.CategoryID == 0 ? "active" : "")">
                         Tất cả sản phẩm
                     </a>
                     @foreach (var cat in categories)
                     {
-                        <a href="~/Product?categoryID=@cat.CategoryID&searchValue=@input.SearchValue"
+                        <!-- Giữ lại searchValue, minPrice, maxPrice khi chuyển danh mục -->
+                        <a href="~/Product?categoryID=@cat.CategoryID&searchValue=@input.SearchValue&minPrice=@(input.MinPrice > 0 ? input.MinPrice.ToString() : "")&maxPrice=@(input.MaxPrice > 0 ? input.MaxPrice.ToString() : "")"
                            class="nav-link @(input.CategoryID == cat.CategoryID ? "active" : "")">
                             @cat.CategoryName
                         </a>
@@ -68,12 +70,21 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="text-muted small">
                     Tìm thấy <strong>@Model.RowCount</strong> sản phẩm
+                    @if (input.CategoryID > 0)
+                    {
+                        var cat = categories.FirstOrDefault(c => c.CategoryID == input.CategoryID);
+                        if (cat != null)
+                        {
+                            <span>trong danh mục "<em>@cat.CategoryName</em>"</span>
+                        }
+                    }
                     @if (!string.IsNullOrWhiteSpace(input.SearchValue))
                     {
                         <span>cho "<em>@input.SearchValue</em>"</span>
                     }
                 </div>
-                @if (input.CategoryID > 0 || !string.IsNullOrWhiteSpace(input.SearchValue) || input.MinPrice > 0 || input.MaxPrice > 0)
+                @if (input.CategoryID > 0 || !string.IsNullOrWhiteSpace(input.SearchValue)
+                                || input.MinPrice > 0 || input.MaxPrice > 0)
                 {
                     <a href="~/Product" class="btn btn-sm btn-outline-secondary">
                         <i class="bi bi-x me-1"></i>Xóa bộ lọc
@@ -112,7 +123,7 @@
                     }
                 </div>
 
-                <!-- Phân trang -->
+                <!-- Phân trang - giữ lại tất cả bộ lọc -->
                 @if (Model.PageCount > 1)
                 {
                     <nav class="mt-4">
@@ -135,7 +146,7 @@
                                 {
                                     <li class="page-item">
                                         <a class="page-link"
-                                           href="~/Product?page=@p.Page&categoryID=@input.CategoryID&searchValue=@input.SearchValue&minPrice=@input.MinPrice&maxPrice=@input.MaxPrice">
+                                           href="~/Product?page=@p.Page&categoryID=@input.CategoryID&searchValue=@input.SearchValue&minPrice=@(input.MinPrice > 0 ? input.MinPrice.ToString() : "")&maxPrice=@(input.MaxPrice > 0 ? input.MaxPrice.ToString() : "")">
                                             @p.Page
                                         </a>
                                     </li>

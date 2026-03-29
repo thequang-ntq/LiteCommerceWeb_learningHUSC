@@ -1088,16 +1088,54 @@ TODO:
                 - bootstrap.bundle.min.js
                 - bootstrap-icons.min.css (và font icons)
 #### 28/03/2026 11:30
-- Test:
-1.Đăng ký tài khoản mới.
-2. Đăng nhập vào hệ thống.
-3. Quản lý thông tin cá nhân và mật khẩu.
-4. Xem, tìm kiếm danh mục mặt hàng theo loại hàng, tên hàng, khoảng giá.
-5. Xem thông tin chi tiết của mặt hàng.
-6. Đưa hàng vào giỏ hàng
-7. Quản lý giỏ hàng
-8. Đặt mua hàng
-9. Theo dõi trạng thái xử lý của đơn hàng.
-10. Theo dõi lịch sử mua hàng của cá nhân
+- Đã sửa
+    - SV22T1020362.Models/Sales/OrderStatusEnum.cs 
+    - SV22T1020362.Shop
+        - Views/Account/Login.cshtml (sửa lỗi ValidationMessage)
+        - Views/Account/Register.cshtml (sửa lỗi ValidationMessage)
+        - AppCodes/ShoppingCartHelper.cs (sửa - hỗ trợ cả session lẫn CSDL)
+        - Controllers/CartController.cs (viết lại hoàn chỉnh)
+        - Controllers/AccountController.cs (thêm merge cart sau đăng nhập)
+        - Views/Shared/_Layout.cshtml (cập nhật badge giỏ hàng)
+        - wwwroot/js/shop.js
+        - wwwroot/css/shop.css
+        - Views/Product/Index.cshtml (sửa lỗi không lưu SearchValue khi chuyển danh mục)
+        - Views/Cart/Checkout.cshtml (sửa - lấy địa chỉ từ cart order nếu có)
+
+    - SQL - Thêm OrderStatus = 0
+    - SV22T1020362.Models/Sales/OrderStatusExtensions.cs
+    - SV22T1020362.DataLayers/Interfaces/IOrderRepository.cs (thêm cart methods)
+    - SV22T1020362.DataLayers/SQLServer/OrderRepository.cs (thêm cart methods, sửa ListAsync hiển thị ds bên Admin, sửa lịch sử giao hàng Customer)
+    - SV22T1020362.BusinessLayers/SalesDataService.cs (thêm cart methods)
+    
+- Lỗi:
+    - Shop:
+        - Quản lý thông tin cá nhân và mật khẩu
+        - Quản lý giỏ hàng
+        - Chưa đồng bộ ảnh product và employee
+    - Admin:
+        - Chưa đồng bộ product và employee
+        - Thứ tự hiển thị
+
+#### 28/03/2026 16:00
+- Sửa:
+    - Shop:
+        - Controller/CartController.cs
+        - Views/Account/Profile
+        - Program.cs
+        - View/Account/ChangePassword.cshtml
+        
+    - Admin:
+        - appsettings.json
+        - AppCodes/ImageSyncHelper.cs
+        - Views/Product/EditAttribute.cshtml
+        - Views/Product/EditPhoto.cshtml
+        - EmployeeController
+        - ProductController
+- Đã sửa:
+    - Thứ tự hiển thị
+    - Đã đồng bộ ảnh Products, Employees.
+    - Giỏ hàng OK
+    - Thông tin cá nhân OK
 
 

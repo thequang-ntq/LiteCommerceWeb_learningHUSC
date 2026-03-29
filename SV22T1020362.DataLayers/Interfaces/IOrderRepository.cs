@@ -83,5 +83,25 @@ namespace SV22T1020362.DataLayers.Interfaces
         /// Đếm số lượng mặt hàng trong đơn hàng
         /// </summary>
         Task<int> CountDetailsAsync(int orderID);
+
+        /// <summary>
+        /// Lấy đơn hàng giỏ hàng (Status=0) của khách hàng
+        /// </summary>
+        Task<OrderViewInfo?> GetCartOrderAsync(int customerID);
+
+        /// <summary>
+        /// Lấy hoặc tạo đơn hàng giỏ hàng cho khách hàng
+        /// </summary>
+        Task<int> GetOrCreateCartAsync(int customerID);
+
+        /// <summary>
+        /// Xóa đơn hàng giỏ hàng (Status=0) của khách hàng
+        /// </summary>
+        Task<bool> DeleteCartAsync(int customerID);
+
+        /// <summary>
+        /// Chuyển đơn hàng giỏ hàng (Status=0) thành đơn hàng mới (Status=1)
+        /// </summary>
+        Task<bool> ConfirmCartAsync(int orderID, string deliveryProvince, string deliveryAddress);
     }
 }

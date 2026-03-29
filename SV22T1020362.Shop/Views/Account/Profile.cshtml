@@ -27,7 +27,7 @@
                 </div>
                 <hr />
                 <nav class="nav flex-column">
-                    <a href="~/Account/Profile"        class="nav-link active">
+                    <a href="~/Account/Profile" class="nav-link active">
                         <i class="bi bi-person me-2"></i>Thông tin cá nhân
                     </a>
                     <a href="~/Account/ChangePassword" class="nav-link">
@@ -85,10 +85,12 @@
                             <select name="province" class="form-select">
                                 <option value="">-- Chọn Tỉnh/Thành --</option>
                                 @{
+                                    // Lấy danh sách tỉnh thành — dùng await trong Razor block
                                     var provinces = await DictionaryDataService.ListProvincesAsync();
                                     foreach (var p in provinces)
                                     {
                                         bool selected = Model.Province == p.ProvinceName;
+                                        <!-- Không dùng Html.ValidationMessage trong vòng lặp -->
                                         <option value="@p.ProvinceName" selected="@(selected ? "selected" : null)">
                                             @p.ProvinceName
                                         </option>
@@ -102,7 +104,14 @@
                         </div>
                     </div>
 
-                    @Html.ValidationMessage("", new { @class = "text-danger small d-block mt-2" })
+                    @{
+                        // Hiển thị lỗi chung (nếu có) — dùng ViewData.ModelState thay vì Html.ValidationMessage("")
+                        var generalErr = ViewData.ModelState[""]?.Errors.FirstOrDefault()?.ErrorMessage;
+                    }
+                    @if (!string.IsNullOrEmpty(generalErr))
+                    {
+                        <div class="text-danger small d-block mt-2">@generalErr</div>
+                    }
 
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">

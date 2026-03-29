@@ -294,5 +294,118 @@ namespace SV22T1020362.BusinessLayers
         }
 
         #endregion
+
+        #region Cart (Giỏ hàng lưu trong CSDL với Status = 0)
+
+        /// <summary>
+        /// Lấy đơn hàng giỏ hàng của khách hàng (Status=0)
+        /// </summary>
+        public static async Task<OrderViewInfo?> GetCartOrderAsync(int customerID)
+        {
+            return await orderDB.GetCartOrderAsync(customerID);
+        }
+
+        /// <summary>
+        /// Lấy OrderID của giỏ hàng, tạo mới nếu chưa có
+        /// </summary>
+        public static async Task<int> GetOrCreateCartAsync(int customerID)
+        {
+            return await orderDB.GetOrCreateCartAsync(customerID);
+        }
+
+        /// <summary>
+        /// Xóa giỏ hàng (Status=0) của khách hàng khỏi CSDL
+        /// </summary>
+        public static async Task<bool> DeleteCartAsync(int customerID)
+        {
+            return await orderDB.DeleteCartAsync(customerID);
+        }
+
+        /// <summary>
+        /// Đặt hàng: chuyển giỏ hàng (Status=0) thành đơn hàng thực (Status=1)
+        /// </summary>
+        public static async Task<bool> ConfirmCartAsync(int orderID, string deliveryProvince, string deliveryAddress)
+        {
+            return await orderDB.ConfirmCartAsync(orderID, deliveryProvince, deliveryAddress);
+        }
+
+        /// <summary>
+        /// Thêm hoặc cập nhật mặt hàng vào giỏ hàng CSDL (Status=0).
+        /// Tự động tạo giỏ hàng nếu chưa có.
+        /// </summary>
+        public static async Task<bool> AddItemToCartDBAsync(int customerID, int productID, int quantity, decimal salePrice)
+        {
+            int cartOrderID = await orderDB.GetOrCreateCartAsync(customerID);
+            var detail = new OrderDetail
+            {
+                OrderID = cartOrderID,
+                ProductID = productID,
+                Quantity = quantity,
+                SalePrice = salePrice
+            };
+            return await orderDB.AddDetailAsync(detail);
+        }
+
+        /// <summary>
+        /// Lấy danh sách mặt hàng trong giỏ hàng CSDL của khách hàng
+        /// </summary>
+        public static async Task<List<OrderDetailViewInfo>> GetCartItemsFromDBAsync(int customerID)
+        {
+            var cart = await orderDB.GetCartOrderAsync(customerID);
+            if (cart == null) return new List<OrderDetailViewInfo>();
+            return await orderDB.ListDetailsAsync(cart.OrderID);
+        }
+
+        /// <summary>
+        /// Xóa 1 mặt hàng khỏi giỏ hàng CSDL
+        /// </summary>
+        public static async Task<bool> RemoveCartItemFromDBAsync(int customerID, int productID)
+        {
+            var cart = await orderDB.GetCartOrderAsync(customerID);
+            if (cart == null) return false;
+            return await orderDB.DeleteDetailAsync(cart.OrderID, productID);
+        }
+
+        /// <summary>
+        /// Cập nhật số lượng và giá bán của mặt hàng trong giỏ hàng CSDL
+        /// </summary>
+        public static async Task<bool> UpdateCartItemInDBAsync(int customerID, int productID, int quantity, decimal salePrice)
+        {
+            var cart = await orderDB.GetCartOrderAsync(customerID);
+            if (cart == null) return false;
+            var detail = new OrderDetail
+            {
+                OrderID = cart.OrderID,
+                ProductID = productID,
+                Quantity = quantity,
+                SalePrice = salePrice
+            };
+            return await orderDB.UpdateDetailAsync(detail);
+        }
+
+        /// <summary>
+        /// Merge giỏ hàng Session (khi chưa đăng nhập) vào giỏ hàng CSDL (sau khi đăng nhập)
+        /// </summary>
+        public static async Task MergeSessionCartToDBAsync(int customerID,
+            List<OrderDetailViewInfo> sessionItems)
+        {
+            if (sessionItems == null || !sessionItems.Any()) return;
+
+            int cartOrderID = await orderDB.GetOrCreateCartAsync(customerID);
+            foreach (var item in sessionItems)
+            {
+                var detail = new OrderDetail
+                {
+                    OrderID = cartOrderID,
+                    ProductID = item.ProductID,
+                    Quantity = item.Quantity,
+                    SalePrice = item.SalePrice
+                };
+                await orderDB.AddDetailAsync(detail); // AddDetailAsync đã xử lý IF EXISTS UPDATE ELSE INSERT
+            }
+        }
+
+        #endregion
+
     }
 }

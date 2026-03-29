@@ -73,7 +73,25 @@
                     <i class="bi bi-cart3 fs-5"></i>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
                           id="cartBadge">
-                        @ShoppingCartHelper.Count
+                        @{
+                            // Hiển thị số lượng giỏ hàng: CSDL nếu đăng nhập, Session nếu chưa
+                            int cartCount = 0;
+                            if (User.Identity?.IsAuthenticated == true)
+                            {
+                                var ud = User.GetUserData();
+                                if (ud != null && int.TryParse(ud.UserId, out int cid))
+                                {
+                                    var items = await SV22T1020362.BusinessLayers.SalesDataService
+                                    .GetCartItemsFromDBAsync(cid);
+                                    cartCount = items.Count;
+                                }
+                            }
+                            else
+                            {
+                                cartCount = ShoppingCartHelper.SessionCount;
+                            }
+                        }
+                        @cartCount
                     </span>
                 </a>
 

@@ -14,6 +14,10 @@
         /// </summary>
         Cancelled = -1,
         /// <summary>
+        /// Giỏ hàng (chưa đặt, lưu tạm)
+        /// </summary>
+        Cart = 0,
+        /// <summary>
         /// Đơn hàng vừa được tạo, chưa được xử lý
         /// </summary>
         New = 1,

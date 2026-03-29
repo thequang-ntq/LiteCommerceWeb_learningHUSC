@@ -124,6 +124,9 @@ namespace SV22T1020362.Admin.Controllers
                     }
                     // TODO: Xóa ảnh cũ nếu có, tránh tồn đọng file trên server
                     data.Photo = fileName;
+
+                    // Đồng bộ ảnh sang Shop
+                    ImageSyncHelper.SyncToShop(fileName, "products");
                 }
 
                 // Tiền xử lý dữ liệu
@@ -234,6 +237,13 @@ namespace SV22T1020362.Admin.Controllers
             if (data.DisplayOrder < 0)
                 ModelState.AddModelError(nameof(data.DisplayOrder), "Thứ tự hiển thị không được âm");
 
+            // Kiểm tra thứ tự hiển thị không trùng với thuộc tính khác của cùng sản phẩm
+            var existAttrs = await CatalogDataService.ListAttributesAsync(data.ProductID);
+            bool orderDupAttr = existAttrs.Any(a => a.DisplayOrder == data.DisplayOrder && a.AttributeID != data.AttributeID);
+            if (orderDupAttr)
+                ModelState.AddModelError(nameof(data.DisplayOrder),
+                    $"Thứ tự {data.DisplayOrder} đã được sử dụng bởi thuộc tính khác. Vui lòng chọn thứ tự khác.");
+
             if (!ModelState.IsValid)
                 return View("EditAttribute", data);
 
@@ -334,6 +344,13 @@ namespace SV22T1020362.Admin.Controllers
                 ModelState.AddModelError(nameof(data.Photo), "Vui lòng chọn file ảnh");
             if (data.DisplayOrder < 0)
                 ModelState.AddModelError(nameof(data.DisplayOrder), "Thứ tự hiển thị không được âm");
+
+            // Kiểm tra thứ tự hiển thị không trùng với ảnh khác của cùng sản phẩm
+            var existPhotos = await CatalogDataService.ListPhotosAsync(data.ProductID);
+            bool orderDupPhoto = existPhotos.Any(p => p.DisplayOrder == data.DisplayOrder && p.PhotoID != data.PhotoID);
+            if (orderDupPhoto)
+                ModelState.AddModelError(nameof(data.DisplayOrder),
+                    $"Thứ tự {data.DisplayOrder} đã được sử dụng bởi ảnh khác. Vui lòng chọn thứ tự khác.");
 
             if (!ModelState.IsValid)
                 return View("EditPhoto", data);

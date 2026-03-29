@@ -17,7 +17,6 @@
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-5 col-lg-4">
-                <!-- Logo -->
                 <div class="text-center mb-4">
                     <a href="~/" class="text-decoration-none">
                         <h3 class="fw-bold text-primary">
@@ -48,7 +47,7 @@
                                        class="form-control"
                                        value="@ViewBag.Username"
                                        placeholder="your@email.com"
-                                       autofocus required />
+                                       autofocus />
                             </div>
                         </div>
 
@@ -58,11 +57,21 @@
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                 <input type="password" name="password"
                                        class="form-control"
-                                       placeholder="••••••" required />
+                                       placeholder="••••••" />
                             </div>
                         </div>
 
-                        @Html.ValidationMessage("", new { @class = "text-danger small" })
+                        @{
+                            // Hiển thị lỗi đăng nhập
+                            var loginError = ViewData.ModelState[""]?.Errors.FirstOrDefault()?.ErrorMessage
+                            ?? ViewData.ModelState["Error"]?.Errors.FirstOrDefault()?.ErrorMessage;
+                        }
+                        @if (!string.IsNullOrEmpty(loginError))
+                        {
+                            <div class="alert alert-danger py-2 small">
+                                <i class="bi bi-exclamation-circle me-1"></i>@loginError
+                            </div>
+                        }
 
                         <button type="submit" class="btn btn-primary w-100 mt-1">
                             <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập

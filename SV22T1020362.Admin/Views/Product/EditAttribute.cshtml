@@ -1,5 +1,18 @@
 ﻿@model ProductAttribute
 @{
+    // Lấy danh sách thứ tự đang dùng bởi các thuộc tính khác của cùng sản phẩm
+    var existingAttrs = await CatalogDataService.ListAttributesAsync(Model.ProductID);
+    // Loại trừ bản thân (khi edit)
+    var usedOrders = existingAttrs
+        .Where(a => a.AttributeID != Model.AttributeID)
+        .Select(a => a.DisplayOrder)
+        .OrderBy(x => x)
+        .ToList();
+
+    // Gợi ý thứ tự tiếp theo chưa dùng
+    int suggestedOrder = Model.AttributeID == 0
+        ? (usedOrders.Any() ? usedOrders.Max() + 1 : 1)
+        : Model.DisplayOrder;
 }
 @section PageToolBar {
     <button type="submit" form="formEdit" class="btn btn-primary">
@@ -23,14 +36,11 @@
             <div class="card-body">
                 <form id="formEdit" method="post" action="~/Product/SaveAttribute">
 
-                    <!-- Giữ lại mã thuộc tính và mã mặt hàng khi submit -->
                     <input type="hidden" asp-for="AttributeID" />
                     <input type="hidden" asp-for="ProductID" />
 
                     <div class="row mb-3">
-                        <label class="col-sm-3 fw-semibold">
-                            Tên thuộc tính
-                        </label>
+                        <label class="col-sm-3 fw-semibold">Tên thuộc tính</label>
                         <div class="col-sm-9">
                             <input type="text" asp-for="AttributeName"
                                    class="form-control"
@@ -41,9 +51,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-sm-3 fw-semibold">
-                            Giá trị thuộc tính
-                        </label>
+                        <label class="col-sm-3 fw-semibold">Giá trị thuộc tính</label>
                         <div class="col-sm-9">
                             <input type="text" asp-for="AttributeValue"
                                    class="form-control"
@@ -53,14 +61,19 @@
                     </div>
 
                     <div class="row mb-4">
-                        <label class="col-sm-3 fw-semibold">
-                            Thứ tự hiển thị
-                        </label>
+                        <label class="col-sm-3 fw-semibold">Thứ tự hiển thị</label>
                         <div class="col-sm-3">
                             <input type="number" asp-for="DisplayOrder"
                                    class="form-control"
+                                   value="@suggestedOrder"
                                    min="1" />
                             <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                            @if (usedOrders.Any())
+                            {
+                                <small class="text-muted">
+                                    Đã dùng: @string.Join(", ", usedOrders)
+                                </small>
+                            }
                         </div>
                     </div>
 

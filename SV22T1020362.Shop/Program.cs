@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using SV22T1020362.Shop;
 using System.Globalization;
 
@@ -11,7 +11,7 @@ builder.Services.AddControllersWithViews()
                     option.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
                 });
 
-// Cookie Authentication cho kh�ch h�ng
+// Cookie Authentication cho khách hàng
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(option =>
                 {
@@ -39,6 +39,20 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
+// Serve ảnh từ thư mục Admin — dùng đường dẫn tuyệt đối
+var adminImagesPath = Path.GetFullPath(
+    Path.Combine(builder.Environment.ContentRootPath, "..", "SV22T1020362.Admin", "wwwroot", "images"));
+
+if (Directory.Exists(adminImagesPath))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(adminImagesPath),
+        RequestPath = "/images"
+    });
+}
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -101,6 +101,9 @@ namespace SV22T1020362.Admin.Controllers
                         await uploadPhoto.CopyToAsync(stream);
                     }
                     data.Photo = fileName;
+
+                    // Đồng bộ ảnh sang Shop
+                    ImageSyncHelper.SyncToShop(fileName, "employees");
                 }
 
                 // Tiền xử lý dữ liệu

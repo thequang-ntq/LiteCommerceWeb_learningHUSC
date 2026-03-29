@@ -61,10 +61,20 @@ namespace SV22T1020362.Shop.Controllers
                     Email = account.Email,
                 };
 
+                // Ghi nhận phiên đăng nhập bằng Cookie Authentication
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     userData.CreatePrincipal()
                 );
+
+                // Merge giỏ hàng Session (nếu có) vào CSDL sau khi đăng nhập
+                var sessionCart = ShoppingCartHelper.GetSessionCart();
+                if (sessionCart.Any())
+                {
+                    int customerID = int.Parse(account.UserId);
+                    await SalesDataService.MergeSessionCartToDBAsync(customerID, sessionCart);
+                    ShoppingCartHelper.ClearSessionCart();
+                }
 
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);

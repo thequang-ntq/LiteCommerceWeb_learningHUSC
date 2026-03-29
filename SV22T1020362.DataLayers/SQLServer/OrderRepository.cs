@@ -44,7 +44,8 @@ namespace SV22T1020362.DataLayers.SQLServer
                         WHERE  (@searchValue = '%%' OR c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
                           AND  (@status   IS NULL OR o.Status     = @status)
                           AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
-                          AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo));
+                          AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo))
+                          AND  (o.Status != 0);
 
                         SELECT o.OrderID,
                                o.CustomerID,
@@ -70,6 +71,7 @@ namespace SV22T1020362.DataLayers.SQLServer
                           AND  (@status   IS NULL OR o.Status     = @status)
                           AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
                           AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo))
+                          AND  (o.Status != 0)
                         ORDER  BY o.OrderTime DESC;";
 
                 using var multi = await connection.QueryMultipleAsync(sql, parameters);
@@ -87,7 +89,8 @@ namespace SV22T1020362.DataLayers.SQLServer
                         WHERE  (@searchValue = '%%' OR c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
                           AND  (@status   IS NULL OR o.Status     = @status)
                           AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
-                          AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo));
+                          AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo))
+                          AND  (o.Status != 0);
 
                         SELECT o.OrderID,
                                o.CustomerID,
@@ -113,6 +116,7 @@ namespace SV22T1020362.DataLayers.SQLServer
                           AND  (@status   IS NULL OR o.Status     = @status)
                           AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
                           AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo))
+                          AND  (o.Status != 0)
                         ORDER  BY o.OrderTime DESC
                         OFFSET @offset ROWS
                         FETCH  NEXT @pageSize ROWS ONLY;";
@@ -265,9 +269,107 @@ namespace SV22T1020362.DataLayers.SQLServer
                            LEFT JOIN Customers c ON o.CustomerID = c.CustomerID
                            LEFT JOIN Employees e ON o.EmployeeID = e.EmployeeID
                     WHERE  o.CustomerID = @customerID
+                       AND o.Status != 0
                     ORDER  BY o.OrderTime DESC";
             var data = await connection.QueryAsync<OrderViewInfo>(sql, new { customerID });
             return data.ToList();
+        }
+
+        /// <summary>
+        /// Lấy đơn hàng giỏ hàng (Status=0) của khách hàng
+        /// </summary>
+        public async Task<OrderViewInfo?> GetCartOrderAsync(int customerID)
+        {
+            using var connection = GetConnection();
+            var sql = @"SELECT o.OrderID,
+                               o.CustomerID,
+                               o.OrderTime,
+                               o.DeliveryProvince,
+                               o.DeliveryAddress,
+                               o.EmployeeID,
+                               o.AcceptTime,
+                               o.ShipperID,
+                               o.ShippedTime,
+                               o.FinishedTime,
+                               o.Status,
+                               ISNULL(c.CustomerName,  N'') AS CustomerName,
+                               ISNULL(c.Phone,         N'') AS CustomerPhone,
+                               ISNULL(e.FullName,      N'') AS EmployeeName,
+                               ISNULL((SELECT SUM(d.Quantity * d.SalePrice)
+                                       FROM   OrderDetails d
+                                       WHERE  d.OrderID = o.OrderID), 0) AS SumOfPrice
+                        FROM   Orders o
+                               LEFT JOIN Customers c ON o.CustomerID = c.CustomerID
+                               LEFT JOIN Employees e ON o.EmployeeID = e.EmployeeID
+                        WHERE  o.CustomerID = @customerID
+                          AND  o.Status = 0";
+            return await connection.QueryFirstOrDefaultAsync<OrderViewInfo>(sql, new { customerID });
+        }
+
+        /// <summary>
+        /// Lấy hoặc tạo đơn hàng giỏ hàng (Status=0) cho khách hàng.
+        /// Nếu đã có đơn giỏ hàng thì trả về OrderID đó,
+        /// nếu chưa có thì tạo mới và trả về OrderID mới.
+        /// </summary>
+        public async Task<int> GetOrCreateCartAsync(int customerID)
+        {
+            using var connection = GetConnection();
+            // Kiểm tra đã có giỏ hàng chưa
+            var existSql = "SELECT OrderID FROM Orders WHERE CustomerID = @customerID AND Status = 0";
+            var existID = await connection.ExecuteScalarAsync<int?>(existSql, new { customerID });
+            if (existID.HasValue && existID.Value > 0)
+                return existID.Value;
+
+            // Tạo đơn hàng giỏ hàng mới
+            var insertSql = @"INSERT INTO Orders (CustomerID, OrderTime, DeliveryProvince, DeliveryAddress,
+                                                   EmployeeID, AcceptTime, ShipperID, ShippedTime, FinishedTime, Status)
+                              VALUES (@customerID, @now, '', '', NULL, NULL, NULL, NULL, NULL, 0);
+                              SELECT SCOPE_IDENTITY();";
+            var result = await connection.ExecuteScalarAsync<decimal>(insertSql,
+                new { customerID, now = DateTime.Now });
+            return (int)result;
+        }
+
+        /// <summary>
+        /// Xóa đơn hàng giỏ hàng (Status=0) và toàn bộ OrderDetails của khách hàng
+        /// </summary>
+        public async Task<bool> DeleteCartAsync(int customerID)
+        {
+            using var connection = GetConnection();
+            // Lấy OrderID của giỏ hàng
+            var orderID = await connection.ExecuteScalarAsync<int?>(
+                "SELECT OrderID FROM Orders WHERE CustomerID = @customerID AND Status = 0",
+                new { customerID });
+
+            if (!orderID.HasValue) return true; // Không có giỏ hàng → coi như xóa thành công
+
+            // Xóa OrderDetails và Orders (OrderDetails sẽ xóa cascade)
+            var sql = "DELETE FROM Orders WHERE OrderID = @orderID AND Status = 0";
+            int rows = await connection.ExecuteAsync(sql, new { orderID });
+            return rows > 0;
+        }
+
+        /// <summary>
+        /// Chuyển đơn hàng giỏ hàng (Status=0) thành đơn hàng thực (Status=1),
+        /// cập nhật địa chỉ giao hàng và thời gian đặt hàng
+        /// </summary>
+        public async Task<bool> ConfirmCartAsync(int orderID, string deliveryProvince, string deliveryAddress)
+        {
+            using var connection = GetConnection();
+            var sql = @"UPDATE Orders
+                        SET Status           = 1,
+                            OrderTime        = @now,
+                            DeliveryProvince = @deliveryProvince,
+                            DeliveryAddress  = @deliveryAddress
+                        WHERE OrderID = @orderID AND Status = 0";
+            int rows = await connection.ExecuteAsync(sql, new
+            {
+                orderID,
+                now = DateTime.Now,
+                deliveryProvince,
+                deliveryAddress
+            });
+            return rows > 0;
         }
 
         #endregion

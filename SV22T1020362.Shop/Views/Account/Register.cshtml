@@ -39,9 +39,13 @@
                                 <input type="text" name="customerName" class="form-control"
                                        value="@ViewBag.CustomerName"
                                        placeholder="Nguyễn Văn A" autofocus />
-                                <span class="text-danger small">
-                                    @(ViewData.ModelState["customerName"]?.Errors.FirstOrDefault()?.ErrorMessage)
-                                </span>
+                                @{
+                                    var errCustomerName = ViewData.ModelState["customerName"]?.Errors.FirstOrDefault()?.ErrorMessage;
+                                }
+                                @if (!string.IsNullOrEmpty(errCustomerName))
+                                {
+                                    <span class="text-danger small">@errCustomerName</span>
+                                }
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Tên giao dịch</label>
@@ -57,9 +61,13 @@
                                 <input type="email" name="email" class="form-control"
                                        value="@ViewBag.Email"
                                        placeholder="your@email.com" />
-                                <span class="text-danger small">
-                                    @(ViewData.ModelState["email"]?.Errors.FirstOrDefault()?.ErrorMessage)
-                                </span>
+                                @{
+                                    var errEmail = ViewData.ModelState["email"]?.Errors.FirstOrDefault()?.ErrorMessage;
+                                }
+                                @if (!string.IsNullOrEmpty(errEmail))
+                                {
+                                    <span class="text-danger small">@errEmail</span>
+                                }
                             </div>
 
                             <div class="col-md-6">
@@ -97,9 +105,13 @@
                                 </label>
                                 <input type="password" name="password" class="form-control"
                                        placeholder="Ít nhất 6 ký tự" />
-                                <span class="text-danger small">
-                                    @(ViewData.ModelState["password"]?.Errors.FirstOrDefault()?.ErrorMessage)
-                                </span>
+                                @{
+                                    var errPassword = ViewData.ModelState["password"]?.Errors.FirstOrDefault()?.ErrorMessage;
+                                }
+                                @if (!string.IsNullOrEmpty(errPassword))
+                                {
+                                    <span class="text-danger small">@errPassword</span>
+                                }
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
@@ -107,13 +119,26 @@
                                 </label>
                                 <input type="password" name="confirmPassword" class="form-control"
                                        placeholder="Nhập lại mật khẩu" />
-                                <span class="text-danger small">
-                                    @(ViewData.ModelState["confirmPassword"]?.Errors.FirstOrDefault()?.ErrorMessage)
-                                </span>
+                                @{
+                                    var errConfirm = ViewData.ModelState["confirmPassword"]?.Errors.FirstOrDefault()?.ErrorMessage;
+                                }
+                                @if (!string.IsNullOrEmpty(errConfirm))
+                                {
+                                    <span class="text-danger small">@errConfirm</span>
+                                }
                             </div>
                         </div>
 
-                        @Html.ValidationMessage("", new { @class = "text-danger small d-block mt-2" })
+                        @{
+                            // Lỗi chung
+                            var generalError = ViewData.ModelState[""]?.Errors.FirstOrDefault()?.ErrorMessage;
+                        }
+                        @if (!string.IsNullOrEmpty(generalError))
+                        {
+                            <div class="alert alert-danger mt-2 py-2 small">
+                                <i class="bi bi-exclamation-circle me-1"></i>@generalError
+                            </div>
+                        }
 
                         <button type="submit" class="btn btn-primary w-100 mt-3">
                             <i class="bi bi-person-plus me-2"></i>Đăng ký

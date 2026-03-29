@@ -3,16 +3,20 @@
 namespace SV22T1020362.Shop
 {
     /// <summary>
-    /// Tiện ích quản lý giỏ hàng lưu trong session (dành cho Shop)
+    /// Tiện ích quản lý giỏ hàng.
+    /// - Khi chưa đăng nhập: lưu trong Session
+    /// - Khi đã đăng nhập: lưu trong CSDL (Orders với Status=0)
+    /// ShoppingCartHelper chỉ dùng cho thao tác Session phía client.
+    /// Các thao tác CSDL được gọi trực tiếp qua SalesDataService từ Controller.
     /// </summary>
     public static class ShoppingCartHelper
     {
         private const string CART_KEY = "ShopCart";
 
         /// <summary>
-        /// Lấy giỏ hàng từ session (tạo mới nếu chưa có)
+        /// Lấy giỏ hàng từ Session (dành cho khách chưa đăng nhập)
         /// </summary>
-        public static List<OrderDetailViewInfo> GetCart()
+        public static List<OrderDetailViewInfo> GetSessionCart()
         {
             var cart = ApplicationContext.GetSessionData<List<OrderDetailViewInfo>>(CART_KEY);
             if (cart == null)
@@ -24,17 +28,17 @@ namespace SV22T1020362.Shop
         }
 
         /// <summary>
-        /// Lấy 1 mặt hàng trong giỏ theo ProductID
+        /// Lấy 1 mặt hàng trong giỏ Session theo ProductID
         /// </summary>
-        public static OrderDetailViewInfo? GetItem(int productID)
-            => GetCart().Find(x => x.ProductID == productID);
+        public static OrderDetailViewInfo? GetSessionItem(int productID)
+            => GetSessionCart().Find(x => x.ProductID == productID);
 
         /// <summary>
-        /// Thêm hoặc cộng dồn mặt hàng vào giỏ
+        /// Thêm hoặc cộng dồn mặt hàng vào giỏ Session
         /// </summary>
-        public static void AddItem(OrderDetailViewInfo item)
+        public static void AddSessionItem(OrderDetailViewInfo item)
         {
-            var cart = GetCart();
+            var cart = GetSessionCart();
             var existing = cart.Find(x => x.ProductID == item.ProductID);
             if (existing == null)
                 cart.Add(item);
@@ -47,11 +51,11 @@ namespace SV22T1020362.Shop
         }
 
         /// <summary>
-        /// Cập nhật số lượng và giá bán
+        /// Cập nhật số lượng và giá bán trong giỏ Session
         /// </summary>
-        public static void UpdateItem(int productID, int quantity, decimal salePrice)
+        public static void UpdateSessionItem(int productID, int quantity, decimal salePrice)
         {
-            var cart = GetCart();
+            var cart = GetSessionCart();
             var item = cart.Find(x => x.ProductID == productID);
             if (item != null)
             {
@@ -62,11 +66,11 @@ namespace SV22T1020362.Shop
         }
 
         /// <summary>
-        /// Xóa 1 mặt hàng khỏi giỏ
+        /// Xóa 1 mặt hàng khỏi giỏ Session
         /// </summary>
-        public static void RemoveItem(int productID)
+        public static void RemoveSessionItem(int productID)
         {
-            var cart = GetCart();
+            var cart = GetSessionCart();
             int index = cart.FindIndex(x => x.ProductID == productID);
             if (index >= 0)
             {
@@ -76,14 +80,14 @@ namespace SV22T1020362.Shop
         }
 
         /// <summary>
-        /// Xóa toàn bộ giỏ hàng
+        /// Xóa toàn bộ giỏ hàng Session
         /// </summary>
-        public static void ClearCart()
+        public static void ClearSessionCart()
             => ApplicationContext.SetSessionData(CART_KEY, new List<OrderDetailViewInfo>());
 
         /// <summary>
-        /// Số lượng mặt hàng (dòng) trong giỏ
+        /// Số lượng dòng trong giỏ Session
         /// </summary>
-        public static int Count => GetCart().Count;
+        public static int SessionCount => GetSessionCart().Count;
     }
 }
