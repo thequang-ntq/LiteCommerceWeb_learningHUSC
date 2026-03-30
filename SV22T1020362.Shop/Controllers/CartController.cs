@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SV22T1020362.BusinessLayers;
 using SV22T1020362.Models.Sales;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SV22T1020362.Shop.Controllers
 {
@@ -191,7 +192,7 @@ namespace SV22T1020362.Shop.Controllers
         /// <summary>
         /// Trang xác nhận đặt hàng - yêu cầu đã đăng nhập.
         /// </summary>
-        [Microsoft.AspNetCore.Authorization.Authorize]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
@@ -219,7 +220,7 @@ namespace SV22T1020362.Shop.Controllers
         /// Đặt hàng: chuyển giỏ hàng (Status=0) thành đơn hàng thực (Status=1).
         /// Yêu cầu đã đăng nhập.
         /// </summary>
-        [Microsoft.AspNetCore.Authorization.Authorize]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> PlaceOrder(string deliveryProvince, string deliveryAddress)
         {
@@ -260,7 +261,7 @@ namespace SV22T1020362.Shop.Controllers
         /// <summary>
         /// Trang thông báo đặt hàng thành công.
         /// </summary>
-        [Microsoft.AspNetCore.Authorization.Authorize]
+        [Authorize]
         public async Task<IActionResult> OrderSuccess(int id)
         {
             var order = await SalesDataService.GetOrderAsync(id);

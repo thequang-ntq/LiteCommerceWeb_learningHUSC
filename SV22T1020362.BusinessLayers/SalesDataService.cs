@@ -30,6 +30,14 @@ namespace SV22T1020362.BusinessLayers
         }
 
         /// <summary>
+        /// Tìm kiếm và lấy danh sách đơn hàng CẦN DUYỆT dưới dạng phân trang
+        /// </summary>
+        public static async Task<PagedResult<OrderViewInfo>> ListOrdersListStatusAsync(OrderSearchInputListStatus input)
+        {
+            return await orderDB.ListListStatusAsync(input);
+        }
+
+        /// <summary>
         /// Lấy thông tin chi tiết của một đơn hàng
         /// </summary>
         public static async Task<OrderViewInfo?> GetOrderAsync(int orderID)
@@ -121,6 +129,15 @@ namespace SV22T1020362.BusinessLayers
         public static async Task<List<OrderViewInfo>> ListOrdersByCustomerAsync(int customerID)
         {
             return await orderDB.ListByCustomerAsync(customerID);
+        }
+
+        /// <summary>
+        /// Lấy danh sách top N mặt hàng bán chạy nhất
+        /// </summary>
+        /// <param name="top">Số lượng mặt hàng cần lấy (mặc định 4)</param>
+        public static async Task<List<TopSellingProduct>> GetTopSellingProductsAsync(int top = 4)
+        {
+            return await orderDB.GetTopSellingProductsAsync(top);
         }
 
         #endregion

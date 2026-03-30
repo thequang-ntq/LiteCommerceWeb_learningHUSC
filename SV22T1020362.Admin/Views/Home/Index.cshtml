@@ -4,14 +4,14 @@
     // Thống kê số liệu thực
     var today = DateTime.Today;
 
-    // Đơn hàng hôm nay
-    var todayOrders = await SalesDataService.ListOrdersAsync(new OrderSearchInput
+    // Số đơn hàng tổng
+    var totalOrders = await SalesDataService.ListOrdersAsync(new OrderSearchInput
     {
         Page = 1,
         PageSize = 0,
         SearchValue = "",
-        DateFrom = today,
-        DateTo = today,
+        DateFrom = null,
+        DateTo = null,
         Status = 0
     });
 
@@ -35,16 +35,24 @@
     var products = await CatalogDataService.ListProductsAsync(new ProductSearchInput
     { Page = 1, PageSize = 0, SearchValue = "" });
 
-    // Đơn hàng chờ duyệt (New) — hiển thị bảng
-    var pendingOrders = await SalesDataService.ListOrdersAsync(new OrderSearchInput
+    // Đơn hàng chờ xử lý (New, Accepted, Shipping - 1, 2, 3) — hiển thị bảng
+    var pendingOrders = await SalesDataService.ListOrdersListStatusAsync(new OrderSearchInputListStatus
     {
         Page = 1,
         PageSize = 10,
         SearchValue = "",
         DateFrom = null,
         DateTo = null,
-        Status = OrderStatusEnum.New
+        Statuses = new List<OrderStatusEnum>
+        {
+            OrderStatusEnum.New,
+            OrderStatusEnum.Accepted,
+            OrderStatusEnum.Shipping
+        }
     });
+
+    // Top 4 mặt hàng bán chạy nhất
+    var topSelling = await SalesDataService.GetTopSellingProductsAsync(4);
 
     // Doanh thu 6 tháng gần nhất cho biểu đồ
     var revenueByMonth = new List<decimal>();
@@ -64,8 +72,40 @@
             Status = OrderStatusEnum.Completed
         });
         revenueByMonth.Add(monthData.DataItems.Sum(o => o.SumOfPrice) / 1_000_000m);
-        monthLabels.Add($"Tháng {month.Month}/{month.Year}");
+        monthLabels.Add($"T{month.Month}/{month.Year}");
     }
+
+    // Doanh thu 6 năm gần nhất cho biểu đồ
+    var revenueByYear = new List<decimal>();
+    var yearLabels = new List<string>();
+    for (int i = 5; i >= 0; i--)
+    {
+        int year = DateTime.Today.Year - i;
+        var firstDay = new DateTime(year, 1, 1);
+        var lastDay = new DateTime(year, 12, 31);
+        var yearData = await SalesDataService.ListOrdersAsync(new OrderSearchInput
+        {
+            Page = 1,
+            PageSize = 0,
+            SearchValue = "",
+            DateFrom = firstDay,
+            DateTo = lastDay,
+            Status = OrderStatusEnum.Completed
+        });
+        revenueByYear.Add(yearData.DataItems.Sum(o => o.SumOfPrice) / 1_000_000m);
+        yearLabels.Add($"Năm {year}");
+    }
+
+    // Tổng doanh thu toàn thời gian
+    decimal totalRevenue = (await SalesDataService.ListOrdersAsync(new OrderSearchInput
+    {
+        Page = 1,
+        PageSize = 0,
+        SearchValue = "",
+        DateFrom = null,
+        DateTo = null,
+        Status = OrderStatusEnum.Completed
+    })).DataItems.Sum(o => o.SumOfPrice);
 }
 
 <!-- Thống kê nhanh -->
@@ -77,6 +117,9 @@
                     <div>
                         <h6 class="card-title">Doanh thu hôm nay</h6>
                         <h3 class="mb-0">@todayRevenue.ToString("N0") đ</h3>
+                        <small class="opacity-75">
+                            Tổng: @totalRevenue.ToString("N0") đ
+                        </small>
                     </div>
                     <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
                 </div>
@@ -90,7 +133,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Đơn hàng</h6>
-                        <h3 class="mb-0">@todayOrders.RowCount</h3>
+                        <h3 class="mb-0">@totalOrders.RowCount</h3>
                     </div>
                     <i class="bi bi-receipt fs-1 opacity-50"></i>
                 </div>
@@ -130,15 +173,31 @@
 <!-- Biểu đồ & thống kê -->
 <div class="row mt-3">
     <div class="col-lg-8">
-        <div class="card card-success card-outline">
+        <!-- Biểu đồ 1: Doanh thu 6 tháng gần nhất -->
+        <div class="card card-success card-outline mb-3">
             <div class="card-header">
                 <h5 class="card-title mb-0">
                     <i class="bi bi-bar-chart me-1"></i>
                     Doanh thu theo tháng
+                    <small class="text-muted fw-normal ms-2">(6 tháng gần nhất — triệu đồng)</small>
                 </h5>
             </div>
             <div class="card-body">
-                <canvas id="revenueChart" height="150"></canvas>
+                <canvas id="revenueChartMonth" height="130"></canvas>
+            </div>
+        </div>
+
+        <!-- Biểu đồ 2: Doanh thu 6 năm gần nhất -->
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart-line me-1"></i>
+                    Doanh thu theo năm
+                    <small class="text-muted fw-normal ms-2">(6 năm gần nhất — triệu đồng)</small>
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChartYear" height="130"></canvas>
             </div>
         </div>
     </div>
@@ -153,22 +212,19 @@
             </div>
             <div class="card-body p-0">
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between">
-                        Laptop Dell
-                        <span class="badge bg-success">120</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        iPhone 15
-                        <span class="badge bg-success">98</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        Tai nghe Sony
-                        <span class="badge bg-success">76</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        Chuột Logitech
-                        <span class="badge bg-success">65</span>
-                    </li>
+                    @if (!topSelling.Any())
+                    {
+                        <li class="list-group-item text-muted fst-italic text-center">
+                            Chưa có dữ liệu bán hàng
+                        </li>
+                    }
+                    @foreach (var item in topSelling)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@item.ProductName</span>
+                            <span class="badge bg-success">@item.TotalQuantity.ToString("N0")</span>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
@@ -214,7 +270,32 @@
                                 <td>@(string.IsNullOrEmpty(item.CustomerName) ? "Chưa có" : item.CustomerName)</td>
                                 <td>@item.OrderTime.ToString("dd/MM/yyyy")</td>
                                 <td class="text-end">@item.SumOfPrice.ToString("N0") đ</td>
-                                <td><span class="badge bg-danger">Đang chờ duyệt</span></td>
+                                <td>
+                                    @{
+                                        string badgeClass = "";
+                                        string badgeText = "";
+
+                                        switch (item.Status)
+                                        {
+                                            case OrderStatusEnum.New:
+                                                badgeClass = "bg-danger";
+                                                badgeText = "Đang chờ duyệt";
+                                                break;
+
+                                            case OrderStatusEnum.Accepted:
+                                                badgeClass = "bg-primary";
+                                                badgeText = "Đã được duyệt";
+                                                break;
+
+                                            case OrderStatusEnum.Shipping:
+                                                badgeClass = "bg-info";
+                                                badgeText = "Đang giao hàng";
+                                                break;
+                                        }
+                                    }
+
+                                    <span class="badge @badgeClass">@badgeText</span>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -227,33 +308,76 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('revenueChart');
-
-        new Chart(ctx, {
+        // ===== Biểu đồ 1: Doanh thu 6 tháng gần nhất =====
+        new Chart(document.getElementById('revenueChartMonth'), {
             type: 'bar',
             data: {
                 labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(monthLabels)),
                 datasets: [{
                     label: 'Doanh thu (triệu đồng)',
                     data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(revenueByMonth)),
-                    backgroundColor: 'rgba(13,110,253,0.7)',
-                    borderRadius: 6
+                    backgroundColor: 'rgba(40,167,69,0.75)',
+                    borderColor: 'rgba(40,167,69,1)',
+                    borderWidth: 1,
+                    borderRadius: 5
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: true, position: 'top' },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: function (context) {
-                                return context.raw.toFixed(1) + ' triệu đồng';
-                            }
+                            label: ctx => ctx.raw.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' triệu đồng'
                         }
                     }
                 },
-                scales: { y: { beginAtZero: true } }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            // Format trục Y: thêm đơn vị "tr.đ"
+                            callback: val => val.toLocaleString('vi-VN') + ' tr.đ'
+                        }
+                    }
+                }
+            }
+        });
+
+        // ===== Biểu đồ 2: Doanh thu 6 năm gần nhất =====
+        new Chart(document.getElementById('revenueChartYear'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(yearLabels)),
+                datasets: [{
+                    label: 'Doanh thu (triệu đồng)',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(revenueByYear)),
+                    backgroundColor: 'rgba(13,110,253,0.75)',
+                    borderColor: 'rgba(13,110,253,1)',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.raw.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' triệu đồng'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: val => val.toLocaleString('vi-VN') + ' tr.đ'
+                        }
+                    }
+                }
             }
         });
     </script>

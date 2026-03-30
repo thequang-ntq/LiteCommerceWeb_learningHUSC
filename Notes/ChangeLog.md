@@ -1120,10 +1120,10 @@ TODO:
 #### 28/03/2026 16:00
 - Sửa:
     - Shop:
-        - Controller/CartController.cs
+        - Controllers/CartController.cs
         - Views/Account/Profile
         - Program.cs
-        - View/Account/ChangePassword.cshtml
+        - Views/Account/ChangePassword.cshtml
         
     - Admin:
         - appsettings.json
@@ -1138,4 +1138,48 @@ TODO:
     - Giỏ hàng OK
     - Thông tin cá nhân OK
 
+#### 29/03/2026
+- SV22T1020362.Shop/Controllers/ProductController.cs
+- SV22T1020362.Shop/Views/Product/Index.cshtml
+- SV22T1020362.Shop/Views/Product/Search.cshtml
+- SV22T1020362.Shop/Views/Cart/Index.cshtml
+- SV22T1020362.Shop/Controllers/OrderController.cs
+- SV22T1020362.Shop/Views/Order/Index.cshtml
+- SV22T1020362.Shop/Views/Order/Search.cshtml
+- AJAX (Asynchronous JavaScript and XML) cho phép trang web gửi/nhận dữ liệu từ server mà không reload toàn bộ trang, giúp trải nghiệm mượt mà hơn.
+- Bên Admin (SV22T1020362.Admin) dùng AJAX cho:
+    - Tìm kiếm phân trang (Category, Customer, Employee, Order, Product…): form gửi GET qua fetch(), server trả về partial HTML (Search.cshtml có Layout = null), JavaScript nhét vào div #searchResult — người dùng thấy kết quả mà không reload trang.
+    - Giỏ hàng khi lập đơn: Thêm/xóa/cập nhật mặt hàng trong giỏ, tạo đơn hàng, tất cả đều dùng fetch POST trả về JSON ApiResult.
+    - Modal AJAX: Các thao tác như duyệt/từ chối/hủy đơn hàng, thêm mặt hàng vào đơn — load partial view vào modal dialogModal qua openModal() trong site.js.
 
+- Bên Shop (SV22T1020362.Shop) dùng AJAX cho:
+    - Tìm kiếm sản phẩm phân trang (Product/Index → Product/Search): tương tự Admin, dùng fetch GET + partial HTML.
+    - Tìm kiếm đơn hàng phân trang (Order/Index → Order/Search): vừa thêm ở trên.
+    - Thêm vào giỏ hàng (addToCart()): fetch POST → server xử lý → trả JSON {success, message, cartCount} → JS cập nhật badge số lượng giỏ hàng trên header ngay lập tức, không reload.
+    - Cập nhật/xóa sản phẩm trong giỏ (updateCartItem(), removeCartItem()): fetch POST → cập nhật DOM trực tiếp, không reload trang.
+
+# 30/03/2026
+## Sửa Admin
+- Đơn hàng cần duyệt gồm nhiều trạng thái trong trang chủ
+    - SV22T1020362.Models/Sales/OrderSearchInputListStatus.cs: Tạo model mới để có List< Status > chấp nhận nhiều trạng thái.
+    - SV22T1020362.DataLayers:
+        - IOrderRepository.cs: Thêm hàm ListListStatusAsync
+        - OrderRepository.cs: Thêm hàm ListListStatusAsync
+    - SV22T1020362.BusinessLayers:
+        - SalesDataService.cs: Thêm hàm ListOrdersListStatusAsync
+    - SV22T1020362.Admin/Views/Home/Index.cshtml
+    - Yêu cầu: Bắt buộc List Status khác rỗng
+- Các mặt hàng bán chạy nhất trong trang chủ
+    - SV22T1020362.Models/Sales/TopSellingProduct.cs
+    - SV22T1020362.DataLayers:
+        - IOrderRepository.cs: Thêm hàm GetTopSellingProductsAsync
+        - OrderRepository.cs: Thêm hàm GetTopSellingProductsAsync
+    - SV22T1020362.Admin/Views/Home/Index.cshtml
+- Lỗi lọc Product trong Shop:
+    - Views/Product/Index.cshtml
+    - Views/Product/Search.cshtml: Xóa clearFilter() vì đã để lên trên Index.cshtml
+- View đơn hàng tổng
+    - Admin/Views/Home/Index
+- View doanh thu theo tháng
+    - 6 tháng gần đây, 6 năm gần đây, tổng doanh thu
+    - Admin/Views/Home/Index

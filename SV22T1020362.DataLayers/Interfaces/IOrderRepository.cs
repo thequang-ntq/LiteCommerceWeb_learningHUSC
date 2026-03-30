@@ -14,6 +14,11 @@ namespace SV22T1020362.DataLayers.Interfaces
         Task<PagedResult<OrderViewInfo>> ListAsync(OrderSearchInput input);
 
         /// <summary>
+        /// Tìm kiếm và lấy danh sách đơn hàng CẦN DUYỆT dưới dạng phân trang
+        /// </summary>
+        Task<PagedResult<OrderViewInfo>> ListListStatusAsync(OrderSearchInputListStatus input);
+
+        /// <summary>
         /// Lấy thông tin 1 đơn hàng
         /// </summary>
         Task<OrderViewInfo?> GetAsync(int orderID);
@@ -53,6 +58,12 @@ namespace SV22T1020362.DataLayers.Interfaces
         /// Lấy danh sách đơn hàng của một khách hàng cụ thể, sắp xếp mới nhất trước
         /// </summary>
         Task<List<OrderViewInfo>> ListByCustomerAsync(int customerID);
+
+        /// <summary>
+        /// Lấy danh sách top N mặt hàng bán chạy nhất theo tổng số lượng trong OrderDetails
+        /// </summary>
+        /// <param name="top">Số lượng mặt hàng cần lấy</param>
+        Task<List<TopSellingProduct>> GetTopSellingProductsAsync(int top = 4);
 
         /// <summary>
         /// Lấy danh sách mặt hàng trong đơn hàng

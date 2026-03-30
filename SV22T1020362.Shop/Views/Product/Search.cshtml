@@ -1,0 +1,102 @@
+﻿@model PagedResult<Product>
+@{
+    Layout = null; // Partial view — không dùng layout
+}
+
+@{
+    // Lấy lại input từ query string để truyền vào phân trang
+    int currentPage = Model.Page;
+    int categoryID = int.TryParse(Context.Request.Query["categoryID"], out int cid) ? cid : 0;
+    string searchValue = Context.Request.Query["searchValue"].ToString();
+    decimal minPrice = decimal.TryParse(Context.Request.Query["minPrice"], out decimal mn) ? mn : 0;
+    decimal maxPrice = decimal.TryParse(Context.Request.Query["maxPrice"], out decimal mx) ? mx : 0;
+}
+
+<!-- Tiêu đề kết quả -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="text-muted small">
+        Tìm thấy <strong>@Model.RowCount</strong> sản phẩm
+    </div>
+    @if (categoryID > 0 || !string.IsNullOrWhiteSpace(searchValue) || minPrice > 0 || maxPrice > 0)
+    {
+        <button type="button" class="btn btn-sm btn-outline-secondary"
+                onclick="clearFilter()">
+            <i class="bi bi-x me-1"></i>Xóa bộ lọc
+        </button>
+    }
+</div>
+
+<!-- Danh sách sản phẩm -->
+@if (Model.DataItems.Any())
+{
+    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+        @foreach (var item in Model.DataItems)
+        {
+            <div class="col">
+                <div class="product-card">
+                    <a href="~/Product/Detail/@item.ProductID" class="text-decoration-none">
+                        <div class="card-img-wrap">
+                            <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "nophoto.png" : item.Photo)"
+                                 alt="@item.ProductName" loading="lazy" />
+                        </div>
+                    </a>
+                    <div class="card-body">
+                        <a href="~/Product/Detail/@item.ProductID" class="text-decoration-none">
+                            <div class="product-name">@item.ProductName</div>
+                        </a>
+                        <div class="product-price mb-2">
+                            @item.Price.ToString("N0") đ
+                        </div>
+                        <button class="btn-add-cart"
+                                onclick="addToCart(@item.ProductID, 1)">
+                            <i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Phân trang AJAX -->
+    @if (Model.PageCount > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @foreach (var p in Model.GetDisplayPages())
+                {
+                    if (p.IsCurrent)
+                    {
+                        <li class="page-item active">
+                            <span class="page-link">@p.Page</span>
+                        </li>
+                    }
+                    else if (p.IsEllipsis)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="javascript:;"
+                               onclick="productSearch(event, document.getElementById('formSearch'), @p.Page)">
+                                @p.Page
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+        </nav>
+    }
+}
+else
+{
+    <div class="text-center py-5 bg-white rounded border">
+        <i class="bi bi-search fs-1 text-muted"></i>
+        <p class="mt-2 text-muted">Không tìm thấy sản phẩm nào phù hợp.</p>
+        <button type="button" class="btn btn-primary" onclick="clearFilter()">
+            Xem tất cả sản phẩm
+        </button>
+    </div>
+}

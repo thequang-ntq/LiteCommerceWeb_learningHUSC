@@ -13,35 +13,65 @@ namespace SV22T1020362.Shop.Controllers
         private const string SEARCH_KEY = "ShopProductSearch";
 
         /// <summary>
-        /// Trang danh sách sản phẩm với lọc và tìm kiếm
+        /// Trang danh sách sản phẩm — hiển thị form tìm kiếm, kết quả load qua AJAX
         /// </summary>
         public async Task<IActionResult> Index(int categoryID = 0, int supplierID = 0,
             decimal minPrice = 0, decimal maxPrice = 0, string searchValue = "",
             int page = 1, int pageSize = 0)
         {
-            // Sử dụng pageSize từ appsettings nếu không truyền vào
             if (pageSize == 0) pageSize = ApplicationContext.PageSize;
 
-            var input = new ProductSearchInput
-            {
-                Page = page,
-                PageSize = pageSize,
-                SearchValue = searchValue,
-                CategoryID = categoryID,
-                SupplierID = supplierID,
-                MinPrice = minPrice,
-                MaxPrice = maxPrice
-            };
+            // Ưu tiên tham số URL; nếu không có thì lấy từ session
+            ProductSearchInput input;
+            bool hasQueryParam = categoryID > 0 || supplierID > 0 || minPrice > 0
+                                 || maxPrice > 0 || !string.IsNullOrWhiteSpace(searchValue);
 
-            var result = await CatalogDataService.ListProductsAsync(input);
+            if (hasQueryParam)
+            {
+                input = new ProductSearchInput
+                {
+                    Page = page,
+                    PageSize = pageSize,
+                    SearchValue = searchValue,
+                    CategoryID = categoryID,
+                    SupplierID = supplierID,
+                    MinPrice = minPrice,
+                    MaxPrice = maxPrice
+                };
+            }
+            else
+            {
+                input = ApplicationContext.GetSessionData<ProductSearchInput>(SEARCH_KEY)
+                        ?? new ProductSearchInput
+                        {
+                            Page = 1,
+                            PageSize = pageSize,
+                            SearchValue = "",
+                            CategoryID = 0
+                        };
+            }
 
             // Lấy danh mục cho sidebar
             var categories = await CatalogDataService.ListCategoriesAsync(
                 new PaginationSearchInput { Page = 1, PageSize = 0, SearchValue = "" });
 
             ViewBag.Categories = categories.DataItems;
-            ViewBag.SearchInput = input;
-            return View(result);
+            return View(input); // View nhận ProductSearchInput, kết quả tải AJAX
+        }
+
+        /// <summary>
+        /// Trả về partial HTML kết quả tìm kiếm sản phẩm (dùng cho AJAX từ Index)
+        /// </summary>
+        public async Task<IActionResult> Search(ProductSearchInput input)
+        {
+            if (input.PageSize == 0) input.PageSize = ApplicationContext.PageSize;
+
+            var result = await CatalogDataService.ListProductsAsync(input);
+
+            // Lưu điều kiện tìm kiếm vào session để giữ lại khi quay lại
+            ApplicationContext.SetSessionData(SEARCH_KEY, input);
+
+            return View(result); // Views/Product/Search.cshtml — Layout = null
         }
 
         /// <summary>

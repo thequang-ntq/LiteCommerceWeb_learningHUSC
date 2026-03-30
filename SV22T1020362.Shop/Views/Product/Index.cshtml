@@ -1,30 +1,29 @@
-﻿@model PagedResult<Product>
+﻿@model ProductSearchInput
 @{
     ViewBag.Title = "Sản phẩm";
     var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
-    var input = ViewBag.SearchInput as ProductSearchInput ?? new ProductSearchInput();
 }
 
 <div class="container py-4">
     <div class="row g-4">
 
-        <!-- ===== SIDEBAR ===== -->
+        <!-- ===== SIDEBAR DANH MỤC ===== -->
         <div class="col-lg-2 col-md-3">
             <div class="category-sidebar">
                 <div class="sidebar-title">
                     <i class="bi bi-grid me-1"></i>Danh mục
                 </div>
                 <nav class="nav flex-column">
-                    <!-- Tất cả sản phẩm - giữ lại searchValue, minPrice, maxPrice -->
-                    <a href="~/Product?searchValue=@input.SearchValue&minPrice=@(input.MinPrice > 0 ? input.MinPrice.ToString() : "")&maxPrice=@(input.MaxPrice > 0 ? input.MaxPrice.ToString() : "")"
-                       class="nav-link @(input.CategoryID == 0 ? "active" : "")">
+                    <a href="javascript:;"
+                       class="nav-link @(Model.CategoryID == 0 ? "active" : "")"
+                       onclick="filterByCategory(0)">
                         Tất cả sản phẩm
                     </a>
                     @foreach (var cat in categories)
                     {
-                        <!-- Giữ lại searchValue, minPrice, maxPrice khi chuyển danh mục -->
-                        <a href="~/Product?categoryID=@cat.CategoryID&searchValue=@input.SearchValue&minPrice=@(input.MinPrice > 0 ? input.MinPrice.ToString() : "")&maxPrice=@(input.MaxPrice > 0 ? input.MaxPrice.ToString() : "")"
-                           class="nav-link @(input.CategoryID == cat.CategoryID ? "active" : "")">
+                        <a href="javascript:;"
+                           class="nav-link @(Model.CategoryID == cat.CategoryID ? "active" : "")"
+                           onclick="filterByCategory(@cat.CategoryID)">
                             @cat.CategoryName
                         </a>
                     }
@@ -36,25 +35,35 @@
         <div class="col-lg-10 col-md-9">
 
             <!-- Thanh lọc & tìm kiếm -->
-            <form method="get" action="~/Product" class="mb-4">
-                <input type="hidden" name="categoryID" value="@input.CategoryID" />
-                <div class="bg-white border rounded p-3">
+            <form id="formSearch"
+                  method="get"
+                  action="~/Product/Search"
+                  data-target="searchResult"
+                  onsubmit="productSearch(event, this, 1)">
+
+                <input type="hidden" asp-for="CategoryID" id="inputCategoryID" />
+                <input type="hidden" asp-for="PageSize" />
+
+                <div class="bg-white border rounded p-3 mb-3">
                     <div class="row g-2 align-items-end">
                         <div class="col-md-4">
                             <label class="form-label small fw-semibold">Tìm kiếm</label>
-                            <input type="text" name="searchValue" class="form-control"
-                                   value="@input.SearchValue" placeholder="Tên sản phẩm..." />
+                            <input type="text" asp-for="SearchValue"
+                                   class="form-control"
+                                   placeholder="Tên sản phẩm..." autofocus />
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-semibold">Giá từ (đ)</label>
-                            <input type="number" name="minPrice" class="form-control"
-                                   value="@(input.MinPrice > 0 ? input.MinPrice.ToString() : "")"
+                            <input type="number" asp-for="MinPrice"
+                                   id="inputMinPrice"
+                                   class="form-control"
                                    placeholder="0" min="0" />
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-semibold">Giá đến (đ)</label>
-                            <input type="number" name="maxPrice" class="form-control"
-                                   value="@(input.MaxPrice > 0 ? input.MaxPrice.ToString() : "")"
+                            <input type="number" asp-for="MaxPrice"
+                                   id="inputMaxPrice"
+                                   class="form-control"
                                    placeholder="Không giới hạn" min="0" />
                         </div>
                         <div class="col-md-2">
@@ -66,104 +75,112 @@
                 </div>
             </form>
 
-            <!-- Tiêu đề kết quả -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="text-muted small">
-                    Tìm thấy <strong>@Model.RowCount</strong> sản phẩm
-                    @if (input.CategoryID > 0)
-                    {
-                        var cat = categories.FirstOrDefault(c => c.CategoryID == input.CategoryID);
-                        if (cat != null)
-                        {
-                            <span>trong danh mục "<em>@cat.CategoryName</em>"</span>
-                        }
-                    }
-                    @if (!string.IsNullOrWhiteSpace(input.SearchValue))
-                    {
-                        <span>cho "<em>@input.SearchValue</em>"</span>
-                    }
-                </div>
-                @if (input.CategoryID > 0 || !string.IsNullOrWhiteSpace(input.SearchValue)
-                                || input.MinPrice > 0 || input.MaxPrice > 0)
-                {
-                    <a href="~/Product" class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-x me-1"></i>Xóa bộ lọc
-                    </a>
-                }
+            <!-- Kết quả tìm kiếm (load qua AJAX) -->
+            <div id="searchResult">
+                <div class="text-center py-4 text-muted">Đang tải sản phẩm...</div>
             </div>
-
-            <!-- Danh sách sản phẩm -->
-            @if (Model.DataItems.Any())
-            {
-                <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
-                    @foreach (var item in Model.DataItems)
-                    {
-                        <div class="col">
-                            <div class="product-card">
-                                <a href="~/Product/Detail/@item.ProductID" class="text-decoration-none">
-                                    <div class="card-img-wrap">
-                                        <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "nophoto.png" : item.Photo)"
-                                             alt="@item.ProductName" loading="lazy" />
-                                    </div>
-                                </a>
-                                <div class="card-body">
-                                    <a href="~/Product/Detail/@item.ProductID" class="text-decoration-none">
-                                        <div class="product-name">@item.ProductName</div>
-                                    </a>
-                                    <div class="product-price mb-2">
-                                        @item.Price.ToString("N0") đ
-                                    </div>
-                                    <button class="btn-add-cart"
-                                            onclick="addToCart(@item.ProductID, 1)">
-                                        <i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                <!-- Phân trang - giữ lại tất cả bộ lọc -->
-                @if (Model.PageCount > 1)
-                {
-                    <nav class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            @foreach (var p in Model.GetDisplayPages())
-                            {
-                                if (p.IsCurrent)
-                                {
-                                    <li class="page-item active">
-                                        <span class="page-link">@p.Page</span>
-                                    </li>
-                                }
-                                else if (p.IsEllipsis)
-                                {
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                           href="~/Product?page=@p.Page&categoryID=@input.CategoryID&searchValue=@input.SearchValue&minPrice=@(input.MinPrice > 0 ? input.MinPrice.ToString() : "")&maxPrice=@(input.MaxPrice > 0 ? input.MaxPrice.ToString() : "")">
-                                            @p.Page
-                                        </a>
-                                    </li>
-                                }
-                            }
-                        </ul>
-                    </nav>
-                }
-            }
-            else
-            {
-                <div class="text-center py-5 bg-white rounded border">
-                    <i class="bi bi-search fs-1 text-muted"></i>
-                    <p class="mt-2 text-muted">Không tìm thấy sản phẩm nào phù hợp.</p>
-                    <a href="~/Product" class="btn btn-primary">Xem tất cả sản phẩm</a>
-                </div>
-            }
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        /**
+         * Gửi tìm kiếm sản phẩm qua AJAX.
+         * param {Event|null} event
+         * param {HTMLFormElement} form
+         * param {number} page - Số trang cần tải
+         */
+        function productSearch(event, form, page) {
+            if (event) event.preventDefault();
+            if (!form) return;
+
+            // Unformat MinPrice / MaxPrice nếu người dùng gõ tay có dấu phân cách
+            const minEl = document.getElementById('inputMinPrice');
+            const maxEl = document.getElementById('inputMaxPrice');
+            if (minEl) minEl.value = (parseFloat(minEl.value.replace(/\./g, '').replace(',', '.')) || 0).toString();
+            if (maxEl) maxEl.value = (parseFloat(maxEl.value.replace(/\./g, '').replace(',', '.')) || 0).toString();
+
+            const url = form.action;
+            const params = new URLSearchParams(new FormData(form));
+            params.set('page', page || 1);
+
+            const targetId = form.dataset.target;
+            const targetEl = targetId ? document.getElementById(targetId) : null;
+
+            if (targetEl) {
+                targetEl.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-arrow-repeat"></i> Đang tải...
+                    </div>`;
+            }
+
+            fetch(url + '?' + params.toString())
+                .then(res => res.text())
+                .then(html => {
+                    if (targetEl) targetEl.innerHTML = html;
+                    // Cập nhật active class sidebar theo categoryID hiện tại
+                    updateSidebarActive(parseInt(document.getElementById('inputCategoryID').value) || 0);
+                })
+                .catch(() => {
+                    if (targetEl) {
+                        targetEl.innerHTML = `<div class="text-danger p-3">Không tải được dữ liệu</div>`;
+                    }
+                });
+        }
+
+        /**
+         * Lọc theo danh mục — cập nhật hidden input rồi tìm kiếm lại.
+         * Reset luôn các ô tìm kiếm khác để tránh giữ điều kiện cũ.
+         * param {number} categoryID
+         */
+        function filterByCategory(categoryID) {
+            document.getElementById('inputCategoryID').value = categoryID;
+            // Reset các trường lọc khác khi chọn danh mục
+            const form = document.getElementById('formSearch');
+            if (form) {
+                const searchValueEl = form.querySelector('input[name="SearchValue"]');
+                if (searchValueEl) searchValueEl.value = '';
+                const minEl = document.getElementById('inputMinPrice');
+                const maxEl = document.getElementById('inputMaxPrice');
+                if (minEl) minEl.value = 0;
+                if (maxEl) maxEl.value = 0;
+            }
+            productSearch(null, document.getElementById('formSearch'), 1);
+        }
+
+        /**
+         * Xóa toàn bộ bộ lọc và tìm lại — định nghĩa ở đây (Index.cshtml)
+         * thay vì trong Search.cshtml để tránh lỗi "not defined" khi script
+         * được inject qua innerHTML (AJAX) không chạy trong global scope.
+         */
+        function clearFilter() {
+            const form = document.getElementById('formSearch');
+            if (!form) return;
+            // Reset tất cả input text / number trong form
+            form.querySelectorAll('input[type="text"], input[type="number"]').forEach(el => el.value = '');
+            // Reset categoryID về 0 (tất cả)
+            document.getElementById('inputCategoryID').value = 0;
+            productSearch(null, form, 1);
+        }
+
+        /**
+         * Cập nhật trạng thái active của sidebar theo categoryID
+         * param {number} categoryID
+         */
+        function updateSidebarActive(categoryID) {
+            document.querySelectorAll('.category-sidebar .nav-link').forEach(function (el) {
+                el.classList.remove('active');
+                const match = el.getAttribute('onclick')?.match(/filterByCategory\((\d+)\)/);
+                if (match && parseInt(match[1]) === categoryID) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        // Tải trang đầu tiên khi DOM sẵn sàng
+        document.addEventListener('DOMContentLoaded', function () {
+            productSearch(null, document.getElementById('formSearch'), @Model.Page);
+        });
+    </script>
+}

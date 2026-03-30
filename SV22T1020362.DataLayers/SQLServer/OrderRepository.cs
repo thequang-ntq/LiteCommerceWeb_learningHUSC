@@ -136,6 +136,76 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
+        /// Tìm kiếm và lấy danh sách đơn hàng CẦN DUYỆT dưới dạng phân trang
+        /// </summary>
+        public async Task<PagedResult<OrderViewInfo>> ListListStatusAsync(OrderSearchInputListStatus input)
+        {
+            using var connection = GetConnection();
+            var parameters = new DynamicParameters();
+            parameters.Add("@searchValue", $"%{input.SearchValue}%");
+            parameters.Add("@statuses", input.Statuses);
+            parameters.Add("@dateFrom", input.DateFrom);
+            parameters.Add("@dateTo", input.DateTo);
+
+            int rowCount;
+            List<OrderViewInfo> data;
+
+            parameters.Add("@pageSize", input.PageSize);
+            parameters.Add("@offset", input.Offset);
+
+            var sql = @"SELECT COUNT(*)
+                    FROM   Orders o
+                            LEFT JOIN Customers c ON o.CustomerID = c.CustomerID
+                    WHERE  (@searchValue = '%%' OR c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
+                        AND  (o.Status IN @statuses)
+                        AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
+                        AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo))
+                        AND  (o.Status != 0);
+
+                    SELECT o.OrderID,
+                            o.CustomerID,
+                            o.OrderTime,
+                            o.DeliveryProvince,
+                            o.DeliveryAddress,
+                            o.EmployeeID,
+                            o.AcceptTime,
+                            o.ShipperID,
+                            o.ShippedTime,
+                            o.FinishedTime,
+                            o.Status,
+                            ISNULL(c.CustomerName, N'') AS CustomerName,
+                            ISNULL(c.Phone,        N'') AS CustomerPhone,
+                            ISNULL(e.FullName,     N'') AS EmployeeName,
+                            ISNULL((SELECT SUM(d.Quantity * d.SalePrice)
+                                    FROM   OrderDetails d
+                                    WHERE  d.OrderID = o.OrderID), 0) AS SumOfPrice
+                    FROM   Orders o
+                            LEFT JOIN Customers c  ON o.CustomerID = c.CustomerID
+                            LEFT JOIN Employees e  ON o.EmployeeID = e.EmployeeID
+                    WHERE  (@searchValue = '%%' OR c.CustomerName LIKE @searchValue OR c.Phone LIKE @searchValue)
+                        AND  (o.Status IN @statuses)
+                        AND  (@dateFrom IS NULL OR o.OrderTime >= @dateFrom)
+                        AND  (@dateTo   IS NULL OR o.OrderTime <= DATEADD(day, 1, @dateTo))
+                        AND  (o.Status != 0)
+                    ORDER  BY o.OrderTime DESC
+                    OFFSET @offset ROWS
+                    FETCH  NEXT @pageSize ROWS ONLY;";
+
+            using var multi = await connection.QueryMultipleAsync(sql, parameters);
+            rowCount = await multi.ReadFirstAsync<int>();
+            data = (await multi.ReadAsync<OrderViewInfo>()).ToList();
+            
+
+            return new PagedResult<OrderViewInfo>
+            {
+                Page = input.Page,
+                PageSize = input.PageSize,
+                RowCount = rowCount,
+                DataItems = data
+            };
+        }
+
+        /// <summary>
         /// Lấy thông tin chi tiết của 1 đơn hàng
         /// </summary>
         public async Task<OrderViewInfo?> GetAsync(int orderID)
@@ -370,6 +440,27 @@ namespace SV22T1020362.DataLayers.SQLServer
                 deliveryAddress
             });
             return rows > 0;
+        }
+
+        /// <summary>
+        /// Lấy top N mặt hàng bán chạy nhất theo tổng số lượng bán trong OrderDetails
+        /// Chỉ tính đối với các đơn hàng đã hoàn tất (Status.Completed = 4)
+        /// </summary>
+        /// <param name="top">Số lượng mặt hàng muốn lấy</param>
+        public async Task<List<TopSellingProduct>> GetTopSellingProductsAsync(int top = 4)
+        {
+            using var connection = GetConnection();
+            var sql = @"SELECT TOP (@top)
+                       p.ProductName,
+                       SUM(od.Quantity) AS TotalQuantity
+                FROM   OrderDetails od
+                       JOIN Products p ON od.ProductID = p.ProductID
+                       JOIN Orders   o ON od.OrderID   = o.OrderID
+                WHERE  o.Status = 4
+                GROUP  BY p.ProductName
+                ORDER  BY TotalQuantity DESC";
+            var data = await connection.QueryAsync<TopSellingProduct>(sql, new { top });
+            return data.ToList();
         }
 
         #endregion

@@ -56,9 +56,8 @@
                                     </td>
                                     <td class="text-center align-middle">@item.Unit</td>
                                     <td class="text-center align-middle">
-                                        <form method="post" action="~/Cart/UpdateItem"
-                                              class="d-flex align-items-center justify-content-center gap-1">
-                                            <input type="hidden" name="productID" value="@item.ProductID" />
+                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                            <input type="hidden" value="@item.ProductID" class="hidden-product-id" />
                                             <button type="button" class="btn btn-sm btn-outline-secondary"
                                                     onclick="changeQuantity('qty_@item.ProductID', -1)">
                                                 <i class="bi bi-dash"></i>
@@ -66,16 +65,19 @@
                                             <input type="number" id="qty_@item.ProductID" name="quantity"
                                                    class="form-control form-control-sm text-center cart-qty-input"
                                                    style="width:55px;"
-                                                   value="@item.Quantity" min="1" />
+                                                   value="@item.Quantity" min="1"
+                                                   data-product-id="@item.ProductID"
+                                                   data-price="@item.SalePrice" />
                                             <button type="button" class="btn btn-sm btn-outline-secondary"
                                                     onclick="changeQuantity('qty_@item.ProductID', 1)">
                                                 <i class="bi bi-plus"></i>
                                             </button>
-                                            <button type="submit" class="btn btn-sm btn-primary ms-1"
+                                            <button type="button" class="btn btn-sm btn-primary ms-1"
+                                                    onclick="updateCartItem(@item.ProductID, 'qty_@item.ProductID', this)"
                                                     title="Cập nhật">
                                                 <i class="bi bi-check"></i>
                                             </button>
-                                        </form>
+                                        </div>
                                     </td>
                                     <td class="text-end align-middle">
                                         @item.SalePrice.ToString("N0") đ
@@ -83,15 +85,14 @@
                                     <td class="text-end align-middle fw-semibold">
                                         @item.TotalPrice.ToString("N0") đ
                                     </td>
+                                    @* Thay thế đoạn form xóa cũ bằng nút AJAX *@
                                     <td class="text-center align-middle">
-                                        <form method="post" action="~/Cart/RemoveItem">
-                                            <input type="hidden" name="productID" value="@item.ProductID" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Xóa sản phẩm này khỏi giỏ hàng?')"
-                                                    title="Xóa">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="removeCartItem(@item.ProductID, this)"
+                                                title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             }
@@ -153,3 +154,74 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+         /**
+         * Cập nhật số lượng mặt hàng trong giỏ qua AJAX
+         * param {number} productID
+         * param {string} inputId - ID của input số lượng
+         * param {HTMLElement} btn
+         */
+        function updateCartItem(productID, inputId, btn) {
+            const input = document.getElementById(inputId);
+            const quantity = parseInt(input?.value) || 1;
+
+            const formData = new FormData();
+            formData.append('productID', productID);
+            formData.append('quantity', quantity);
+
+            btn.disabled = true;
+            fetch('/Cart/UpdateItem', { method: 'POST', body: formData })
+                .then(r => {
+                    if (!r.ok) throw new Error();
+                    // Cập nhật thành tiền dòng này
+                    if (input) updateCartRowTotal(input);
+                    showToast('Đã cập nhật giỏ hàng', 'success');
+                })
+                .catch(() => showToast('Không thể cập nhật', 'error'))
+                .finally(() => { btn.disabled = false; });
+        }
+
+        /**
+         * Xóa 1 sản phẩm khỏi giỏ hàng qua AJAX — không reload trang
+         * param {number} productID
+         * param {HTMLElement} btn - Nút được click (để tìm row cha)
+         */
+        function removeCartItem(productID, btn) {
+            if (!confirm('Xóa sản phẩm này khỏi giỏ hàng?')) return;
+
+            const formData = new FormData();
+            formData.append('productID', productID);
+
+            fetch('/Cart/RemoveItem', { method: 'POST', body: formData })
+                .then(r => {
+                    if (!r.ok) throw new Error('Lỗi server');
+                    // Xóa row khỏi bảng
+                    const row = btn.closest('tr');
+                    if (row) row.remove();
+                    // Tính lại tổng
+                    recalcCartTotal();
+                    // Cập nhật badge
+                    updateCartBadge();
+                    // Nếu hết hàng thì reload để hiện thông báo giỏ rỗng
+                    const rows = document.querySelectorAll('tbody tr');
+                    if (rows.length === 0) location.reload();
+                })
+                .catch(() => showToast('Không thể xóa sản phẩm', 'error'));
+        }
+
+        /**
+         * Cập nhật số lượng giỏ hàng trên badge header
+         */
+        function updateCartBadge() {
+            fetch('/Cart/GetCartCount')
+                .then(r => r.json())
+                .then(data => {
+                    const badge = document.getElementById('cartBadge');
+                    if (badge) badge.textContent = data.count;
+                })
+                .catch(() => {});
+        }
+    </script>
+}
