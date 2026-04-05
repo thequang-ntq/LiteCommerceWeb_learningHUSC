@@ -231,7 +231,7 @@ namespace SV22T1020362.Admin.Controllers
             try
             {
                 // Ghép mảng quyền thành chuỗi phân cách bởi dấu phẩy
-                // Ví dụ: ["employee", "admin"] => "employee;admin"
+                // Ví dụ: ["employee", "admin"] => "employee,admin"
                 string roleNamesStr = string.Join(",", roleNames ?? Array.Empty<string>());
 
                 // Cập nhật quyền qua SecurityDataService — dùng Email làm userName

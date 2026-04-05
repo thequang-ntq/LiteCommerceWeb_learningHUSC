@@ -63,8 +63,8 @@ namespace SV22T1020362.DataLayers.SQLServer
         /// </summary>
         /// <param name="userName">Email của nhân viên cần cập nhật quyền</param>
         /// <param name="roleNames">
-        /// Chuỗi tên các quyền phân cách bởi dấu chấm phẩy,
-        /// ví dụ: "Employees;Orders;Products".
+        /// Chuỗi tên các quyền phân cách bởi dấu phẩy,
+        /// ví dụ: "sales,administrator".
         /// Truyền chuỗi rỗng để xóa toàn bộ quyền.
         /// </param>
         /// <returns>true nếu cập nhật thành công</returns>

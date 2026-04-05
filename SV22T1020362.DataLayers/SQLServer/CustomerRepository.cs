@@ -159,7 +159,7 @@ namespace SV22T1020362.DataLayers.SQLServer
         /// <param name="email">Email cần kiểm tra</param>
         /// <param name="id">
         /// Nếu id = 0: Kiểm tra email của khách hàng mới.
-        /// Nếu id &lt;&gt; 0: Kiểm tra email đối với khách hàng đã tồn tại (bỏ qua bản ghi có CustomerID = id)
+        /// Nếu id <> 0: Kiểm tra email đối với khách hàng đã tồn tại (bỏ qua bản ghi có CustomerID = id)
         /// </param>
         /// <returns>true nếu email hợp lệ (chưa bị trùng), false nếu email đã tồn tại</returns>
         public async Task<bool> ValidateEmailAsync(string email, int id = 0)

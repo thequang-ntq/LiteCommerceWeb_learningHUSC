@@ -19,7 +19,7 @@ namespace SV22T1020362.DataLayers.SQLServer
         }
 
         /// <summary>
-        /// Lấy đối tượng kết nối đến CSDLss
+        /// Lấy đối tượng kết nối đến CSDL
         /// </summary>
         /// <returns></returns>
         protected SqlConnection GetConnection()

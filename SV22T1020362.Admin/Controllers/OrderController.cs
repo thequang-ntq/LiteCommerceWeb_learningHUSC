@@ -187,7 +187,7 @@ namespace SV22T1020362.Admin.Controllers
             if (userData != null && int.TryParse(userData.UserId, out int parsedId))
                 employeeID = parsedId;
 
-            // Tạo đơn hàng với thông tin cơ bản và nhân viên phụ trách
+            // Tạo đơn hàng với thông tin cơ bản
             int orderID = await SalesDataService.AddOrderAsync(customerID, province, address);
 
             // Thêm từng mặt hàng trong giỏ vào chi tiết đơn hàng
@@ -245,7 +245,7 @@ namespace SV22T1020362.Admin.Controllers
             var result = await PartnerDataService.ListCustomersAsync(new PaginationSearchInput
             {
                 Page = 1,
-                PageSize = 0, // Lấy tất cả
+                PageSize = 0, //Tìm tất cả
                 SearchValue = q
             });
             var data = result.DataItems.Select(c => new

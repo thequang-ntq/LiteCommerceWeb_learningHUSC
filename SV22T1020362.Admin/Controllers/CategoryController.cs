@@ -13,7 +13,6 @@ namespace SV22T1020362.Admin.Controllers
     [Authorize(Roles = $"{WebUserRoles.Administrator},{WebUserRoles.DataManager}")]
     public class CategoryController : Controller
     {
-        public const int PAGESIZE = 10;
         public const string SEARCH_CATEGORY = "SearchCategory";
 
         /// <summary>
@@ -23,7 +22,7 @@ namespace SV22T1020362.Admin.Controllers
         {
             var input = ApplicationContext.GetSessionData<PaginationSearchInput>(SEARCH_CATEGORY);
             if (input == null)
-                input = new PaginationSearchInput() { Page = 1, PageSize = PAGESIZE, SearchValue = "" };
+                input = new PaginationSearchInput() { Page = 1, PageSize = ApplicationContext.PageSize, SearchValue = "" };
             return View(input);
         }
 
@@ -87,7 +86,7 @@ namespace SV22T1020362.Admin.Controllers
                 ApplicationContext.SetSessionData(SEARCH_CATEGORY, new PaginationSearchInput()
                 {
                     Page = 1,
-                    PageSize = PAGESIZE,
+                    PageSize = ApplicationContext.PageSize,
                     SearchValue = data.CategoryName
                 });
                 return RedirectToAction("Index");

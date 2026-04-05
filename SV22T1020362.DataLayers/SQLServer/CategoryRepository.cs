@@ -52,6 +52,7 @@ namespace SV22T1020362.DataLayers.SQLServer
             else
             {
                 // Phân trang bình thường
+                // LIMIT 10 OFFSET 20 = OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY, phải đi với ORDER BY
                 parameters.Add("@pageSize", input.PageSize);
                 parameters.Add("@offset", input.Offset);
 
